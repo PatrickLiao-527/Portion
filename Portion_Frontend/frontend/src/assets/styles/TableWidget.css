@@ -1,0 +1,196 @@
+/* TableWidget.css */
+.table-widget {
+  width: 100%;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  padding: 20px;
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.table-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 24px;
+  font-weight: 600;
+  color: #302D40;
+}
+
+.filter {
+  display: flex;
+  align-items: center;
+}
+
+.filter-text {
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  margin-right: 10px;
+  color: #9F9F9F;
+}
+
+.filter-icon {
+  width: 20px;
+  height: 20px;
+  fill: #666;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+th, td {
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  padding: 10px;
+  text-align: left;
+}
+
+th {
+  background-color: #f4f4f4;
+  font-weight: 600;
+  color: #9F9F9F;
+}
+
+td {
+  border-bottom: 1px solid #eaeaea;
+  font-weight: 600;
+  color: #302D40;
+}
+
+.status {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.status.complete {
+  background-color: #CBEED4;
+  color: #302D40
+}
+
+.status.in-progress {
+  background-color: #FFDD55;
+  color: #302D40;
+}
+
+.find-icon, .edit-icon {
+  width: 20px;
+  height: 20px;
+  fill: #666;
+  cursor: pointer;
+}
+
+.item-picture {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.items-per-page {
+  display: flex;
+  align-items: center;
+}
+
+.showing-text {
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  color: #9F9F9F;
+  font-weight:600; 
+  margin-right: 10px;
+}
+
+.dropdown {
+  position: relative;
+}
+
+.dropdown-button {
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  background-color: #fff;
+  font-weight: 600;
+  color: #302D40; 
+  border: 1px solid #eaeaea;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.dropdown-content {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #fff;
+  border: 1px solid #eaeaea;
+  border-radius: 5px;
+  width: 100%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.dropdown-item {
+  padding: 10px;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  color: #302D40; 
+  font-size: 16px;
+}
+
+.dropdown-item:hover {
+  background-color: #f4f4f4;
+}
+
+.page-info {
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #9F9F9F; 
+}
+
+.page-controls {
+  display: flex;
+  align-items: center;
+}
+
+.pagination-button {
+  background-color: #fff;
+  border: 1px solid #eaeaea;
+  border-radius: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pagination-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.page-number {
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  margin: 0 10px;
+  font-weight: 600;
+  color: #302D40; 
+}

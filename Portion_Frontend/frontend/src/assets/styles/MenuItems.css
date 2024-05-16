@@ -1,0 +1,29 @@
+/* MenuItems.css */
+
+.menu-items-page {
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.05);
+  }
+  
+  .page-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 24px;
+    color: #343a40;
+    margin-bottom: 20px;
+  }
+  
+  .item-picture {
+    width: 94px;
+    height: 61px;
+    border-radius: 5px;
+  }
+  
+  .edit-icon {
+    width: 30px;
+    height: 30px;
+    fill: #ffffff;
+  }
+  

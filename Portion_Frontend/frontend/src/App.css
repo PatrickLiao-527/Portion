@@ -1,0 +1,21 @@
+.App {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+main {
+  display: flex;
+  flex: 1;
+  margin-top: 80px; /* Adjust based on header height */
+}
+
+.content {
+  flex: 1;
+  padding: 20px;
+  margin-left: 250px; /* Width of the Sidebar */
+
+  @media (max-width: 768px) {
+    margin-left: 60px; /* Width of the Sidebar when collapsed */
+  }
+}
