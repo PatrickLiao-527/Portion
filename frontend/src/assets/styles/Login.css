@@ -1,0 +1,145 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+.login-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f8f9fa;
+  font-family: 'Poppins', sans-serif;
+}
+
+.login-frame {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 1440px;
+}
+
+.login-container, .signup-container {
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  margin: 20px;
+  width: 100%;
+  max-width: 450px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.login-title, .signup-title {
+  font-size: 32px;
+  font-weight: 500;
+  color: #333333;
+  margin-bottom: 20px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.form-group {
+  margin-bottom: 20px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.form-group label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+  font-weight: 500;
+  font-size: 16px;
+  color: #666666;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-family: 'Poppins', sans-serif;
+}
+
+.form-group input::placeholder {
+  font-family: 'Poppins', sans-serif;
+  color: #999999;
+}
+
+.show-hide-icon {
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+}
+
+.login-button {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 25px;
+  background-color: #cccccc;
+  color: #fff;
+  font-weight: 500;
+  font-size: 22px;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+}
+
+.forgot-password-link {
+  display: block;
+  margin-top: 10px;
+  font-weight: 500;
+  font-size: 16px;
+  color: #111111;
+  text-align: right;
+  font-family: 'Poppins', sans-serif;
+}
+
+.login-divider {
+  margin: 20px 0;
+  text-align: center;
+  font-weight: 500;
+  font-size: 16px;
+  color: #666666;
+  font-family: 'Poppins', sans-serif;
+}
+
+.google-login-button {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 25px;
+  background-color: #fff;
+  font-weight: 500;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Poppins', sans-serif;
+}
+
+.google-logo {
+  margin-right: 10px;
+}
+
+.signup-button {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #111111;
+  border-radius: 25px;
+  background-color: #fff;
+  color: #111111;
+  font-weight: 400;
+  font-size: 20px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  font-family: 'Poppins', sans-serif;
+}
+
+@media (min-width: 768px) {
+  .login-frame {
+    flex-direction: row;
+    justify-content: center;
+  }
+}

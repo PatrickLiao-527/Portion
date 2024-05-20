@@ -19,3 +19,9 @@ main {
     margin-left: 60px; /* Width of the Sidebar when collapsed */
   }
 }
+body {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
