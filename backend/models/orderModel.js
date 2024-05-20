@@ -1,22 +1,11 @@
 import mongoose from 'mongoose';
-import { v4 as uuidv4 } from 'uuid';
 
 const orderSchema = new mongoose.Schema({
-  orderId: {
-    type: String,
-    unique: true,
-    default: uuidv4
-  },
   customerName: {
     type: String,
     required: true
   },
-// date should be intergrated to time as UNIX time
-//   date: {
-//     type: Date,
-//     required: true
-//   },
-  time: {
+  time: {  // in js time format, which is unix time * 1000
     type: Date,
     required: true
   },

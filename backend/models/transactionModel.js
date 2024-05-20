@@ -1,13 +1,6 @@
 import mongoose from 'mongoose';
-import { v4 as uuidv4 } from 'uuid';
 
 const transactionSchema = new mongoose.Schema({
-  transactionId: {
-    type: String,
-    required: true,
-    unique: true,
-    default: uuidv4
-  },
   customerName: {
     type: String,
     required: true
@@ -37,4 +30,4 @@ const transactionSchema = new mongoose.Schema({
 
 const Transaction = mongoose.model('Transaction', transactionSchema);
 
-module.exports = Transaction;
+export default Transaction;
