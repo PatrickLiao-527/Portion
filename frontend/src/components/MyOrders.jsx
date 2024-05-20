@@ -15,8 +15,9 @@ const MyOrders = () => {
       .then((response) => {
         const dateConvertedData = response.data.data.map(order => ({
           ...order,
-          date: new Date(order.time).toLocaleDateString(), // Extracting date part
-          time: new Date(order.time).toLocaleTimeString() // Extracting time part
+          // since date and time are calculated from js Date object which is unix time * 1000
+          date: new Date(order.time).toLocaleDateString(), // Extracting date part from data.time
+          time: new Date(order.time).toLocaleTimeString() // Extracting time part from data.time
         }));
         setOrders(dateConvertedData);
         setLoading(false);

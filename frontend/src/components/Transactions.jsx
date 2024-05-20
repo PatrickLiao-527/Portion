@@ -1,22 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import TableWidget from './TableWidget';
 import '../assets/styles/Transactions.css';
 
 const Transactions = () => {
-  const [itemsPerPage, setItemsPerPage] = useState(14);
+  const [itemsPerPage, setItemsPerPage] = useState(15);
+  const [loading, setLoading] = useState(false);
+  const [transcations, setTranscations] = useState([]);
 
-  const data = Array.from({ length: 110 }, (_, index) => ({
-    transactionId: `#${index + 1}`,
-    customerName: 'James Smith',
-    date: 'May 13th, 2024',
-    time: '9:15 AM',
-    amount: '$12.29',
-    paymentType: 'Credited',
-    details: '...'
-  }));
+  useEffect(() => {
+    setLoading(true);
+    axios
+      .get('http://localhost:5555/transcations')
+      .then((response) => {
+        const transformedData = response.data.data.map(item => ({
+          ...item,
+          // since date and time are calculated from js Date object which is unix time * 1000
+          date: new Date(item.time).toLocaleDateString(), // Extracting date part from data.time
+          time: new Date(item.time).toLocaleTimeString() // Extracting time part from data.time
+        }));
+        setTranscations(transformedData);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.log(error);
+        setLoading(false);
+      })
+  }, []);
 
   const columns = [
-    { header: 'Transaction ID', accessor: 'transactionId' },
+    { header: 'Transaction ID', accessor: '_id' },
     { header: 'Customer Name', accessor: 'customerName' },
     { header: 'Date', accessor: 'date' },
     { header: 'Time', accessor: 'time' },
@@ -29,7 +42,7 @@ const Transactions = () => {
     <div className="transactions-page">
       <TableWidget
         title="Transactions"
-        data={data}
+        data={transcations}
         columns={columns}
         itemsPerPage={itemsPerPage}
         maxItemsPerPage={30}

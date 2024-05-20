@@ -36,7 +36,7 @@ router.get('/', async (req, res) => {
     try {
         const menuItems = await Menu.find({});
         return res.status(200).json({
-            count: menuItems.length,
+            length: menuItems.length,
             data: menuItems
         });
     } catch (err) {
