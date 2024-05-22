@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../assets/styles/TableWidget.css';
 import { ReactComponent as ChevronLeftIcon } from '../assets/icons/chevronLeft_icon.svg';
 import { ReactComponent as ChevronRightIcon } from '../assets/icons/chevronRight_icon.svg';
@@ -14,6 +15,7 @@ const TableWidget = ({ title, data, columns, itemsPerPage, maxItemsPerPage }) =>
   const [currentPage, setCurrentPage] = useState(1);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const navigate = useNavigate();
 
   const totalItems = data.length;
   const totalPages = Math.ceil(totalItems / currentItemsPerPage);
@@ -55,6 +57,10 @@ const TableWidget = ({ title, data, columns, itemsPerPage, maxItemsPerPage }) =>
     setSelectedOrder(null);
   };
 
+  const handleEditClick = (id) => {
+    navigate(`/menu-items/edit/${id}`);
+  };
+
   return (
     <div className="table-widget">
       <div className="table-header">
@@ -80,7 +86,7 @@ const TableWidget = ({ title, data, columns, itemsPerPage, maxItemsPerPage }) =>
                   {col.accessor === 'details' ? (
                     <MoreDetailsIcon className="details-icon" onClick={() => openDetailsModal(item)} />
                   ) : col.accessor === 'editItem' ? (
-                    <EditIcon className="edit-icon" />
+                    <EditIcon className="edit-icon" onClick={() => handleEditClick(item._id)} />
                   ) : col.accessor === 'itemPicture' ? (
                     <img src={item[col.accessor]} alt="Item" className="item-picture" />
                   ) : col.accessor === 'status' ? (

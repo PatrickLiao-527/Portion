@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import TableWidget from './TableWidget';
+import mealImage from '../assets/icons/chickenBreast.png';
+import editIcon from '../assets/icons/edit_icon.svg'; 
 import '../assets/styles/MenuItems.css';
 
 const MenuItems = () => {
@@ -13,13 +16,14 @@ const MenuItems = () => {
     axios
       .get('http://localhost:5555/menus')
       .then((response) => {
-        // some attributes stored in db as Decimal128 which cannot been displayed directly
+        // some attributes stored in db as Decimal128 which cannot be displayed directly
         // transforming Decimal128 to String
         const transformedData = response.data.data.map(item => ({
           ...item,
           carbsPrice: parseFloat(item.carbsPrice.$numberDecimal),
           proteinsPrice: parseFloat(item.proteinsPrice.$numberDecimal),
-          baseFat: parseFloat(item.baseFat.$numberDecimal)
+          baseFat: parseFloat(item.baseFat.$numberDecimal),
+          editItem: <Link to={`/menu-items/edit/${item._id}`} className="edit-link"><img src={editIcon} alt="Edit" /></Link> // Add edit link
         }));
         setMenus(transformedData);
         setLoading(false);
@@ -27,8 +31,8 @@ const MenuItems = () => {
       .catch((error) => {
         console.log(error);
         setLoading(false);
-      })
-  }, [])
+      });
+  }, []);
 
   const columns = [
     { header: 'Item ID', accessor: '_id' },
@@ -42,7 +46,7 @@ const MenuItems = () => {
 
   return (
     <div className="menu-items-page">
-      {loading ? <p>loading...</p> : 
+      {loading ? <p>Loading...</p> : 
       <TableWidget
         title="Menu Items"
         data={menus}
