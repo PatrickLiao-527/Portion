@@ -21,6 +21,10 @@ const menuSchema = new mongoose.Schema({
   itemPicture: {
     type: Buffer,
     required: true
+  },
+  ownerId: {
+    type: String,
+    required: true
   }
 }, { timestamps: true });
 

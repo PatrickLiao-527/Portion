@@ -2,9 +2,10 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from 'cors';
 import { PORT, mongoDBURL } from "./config.js";
-import ordersRoute from "./router/ordersRoute.js";
-import menusRoute from "./router/menusRouter.js";
-import transcationsRoute from "./router/transactionsRoute.js";
+import ordersRoute from "./router/ordersRoutes.js";
+import menusRoute from "./router/menusRoutes.js";
+import transcationsRoute from "./router/transactionsRoutes.js";
+import signupRoute from "./router/signupRoutes.js";
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.get('/', (request, response) => {
     return response.status(234).send('Returned status 234');
 });
 
+app.use('/signup', signupRoute);
 app.use('/orders', ordersRoute);
 app.use('/menus', menusRoute);
 app.use('/transcations', transcationsRoute);

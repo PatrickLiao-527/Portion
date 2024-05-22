@@ -26,6 +26,10 @@ const orderSchema = new mongoose.Schema({
   details: {
     type: String,
     required: false
+  },
+  ownerId:{
+    type: String,
+    required: true
   }
 });
 
