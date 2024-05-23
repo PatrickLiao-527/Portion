@@ -14,6 +14,7 @@ import OrderDetails from './components/OrderDetails';
 import Login from './components/Login';
 import Signup from './components/Signup'; 
 import EditItem from './components/EditItem';
+import EmailVerification from './components/EmailVerification';
 import mealImage from './assets/icons/chickenBreast.png';
 import './App.css';
 
@@ -81,6 +82,7 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/email-verification" element={<EmailVerification />} /> 
           <Route
             path="/*"
             element={

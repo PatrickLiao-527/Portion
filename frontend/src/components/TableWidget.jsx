@@ -65,10 +65,10 @@ const TableWidget = ({ title, data, columns, itemsPerPage, maxItemsPerPage }) =>
     <div className="table-widget">
       <div className="table-header">
         <h3 className="table-title">{title}</h3>
-        <div className="filter">
+        {/*<div className="filter">
           <span className="filter-text">Filter</span>
           <FilterIcon className="filter-icon" />
-        </div>
+  </div>*/} 
       </div>
       <table>
         <thead>
