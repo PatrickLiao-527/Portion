@@ -29,7 +29,7 @@ const orderSchema = new mongoose.Schema({
   },
   ownerId:{
     type: String,
-    required: true
+    required: false // waiting to change
   }
 });
 

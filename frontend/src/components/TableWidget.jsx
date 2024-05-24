@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import '../assets/styles/TableWidget.css';
 import { ReactComponent as ChevronLeftIcon } from '../assets/icons/chevronLeft_icon.svg';
 import { ReactComponent as ChevronRightIcon } from '../assets/icons/chevronRight_icon.svg';
@@ -9,14 +8,14 @@ import { ReactComponent as EditIcon } from '../assets/icons/edit_icon.svg';
 import { ReactComponent as FilterIcon } from '../assets/icons/filters_icon.svg';
 import Modal from './Modal';
 import OrderDetails from './OrderDetails';
+import EditItem from './EditItem';
 
-const TableWidget = ({ title, data, columns, itemsPerPage, maxItemsPerPage }) => {
+const TableWidget = ({ title, data, columns, itemsPerPage, maxItemsPerPage, setItems }) => {
   const [currentItemsPerPage, setCurrentItemsPerPage] = useState(itemsPerPage);
   const [currentPage, setCurrentPage] = useState(1);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const navigate = useNavigate();
-
+  const [selectedEditItem, setSelectedEditItem] = useState(null); // New state for selected item to edit
   const totalItems = data.length;
   const totalPages = Math.ceil(totalItems / currentItemsPerPage);
   const displayedItems = data.slice(
@@ -57,8 +56,12 @@ const TableWidget = ({ title, data, columns, itemsPerPage, maxItemsPerPage }) =>
     setSelectedOrder(null);
   };
 
-  const handleEditClick = (id) => {
-    navigate(`/menu-items/edit/${id}`);
+  const openEditModal = (item) => {
+    setSelectedEditItem(item);
+  };
+
+  const closeEditModal = () => {
+    setSelectedEditItem(null);
   };
 
   return (
@@ -86,7 +89,7 @@ const TableWidget = ({ title, data, columns, itemsPerPage, maxItemsPerPage }) =>
                   {col.accessor === 'details' ? (
                     <MoreDetailsIcon className="details-icon" onClick={() => openDetailsModal(item)} />
                   ) : col.accessor === 'editItem' ? (
-                    <EditIcon className="edit-icon" onClick={() => handleEditClick(item._id)} />
+                    <EditIcon className="edit-icon" onClick={() => openEditModal(item)} />
                   ) : col.accessor === 'itemPicture' ? (
                     <img src={item[col.accessor]} alt="Item" className="item-picture" />
                   ) : col.accessor === 'status' ? (
@@ -150,6 +153,10 @@ const TableWidget = ({ title, data, columns, itemsPerPage, maxItemsPerPage }) =>
 
       <Modal show={!!selectedOrder} onClose={closeDetailsModal}>
         {selectedOrder && <OrderDetails data={[selectedOrder]} />}
+      </Modal>
+
+      <Modal show={!!selectedEditItem} onClose={closeEditModal}>
+        {selectedEditItem && <EditItem item={selectedEditItem} setItems={setItems} onClose={closeEditModal} />}
       </Modal>
     </div>
   );

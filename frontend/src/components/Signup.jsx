@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import { Link } from 'react-router-dom';
 import '../assets/styles/Signup.css';
 import googleLogo from '../assets/icons/Google-logo.png';
@@ -12,7 +13,7 @@ const Signup = () => {
 
   const handleSignup = (event) => {
     event.preventDefault();
-    // Handle signup logic here
+    
   };
 
   return (

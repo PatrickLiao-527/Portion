@@ -2,12 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import TableWidget from './TableWidget';
-import mealImage from '../assets/icons/chickenBreast.png';
-import editIcon from '../assets/icons/edit_icon.svg'; 
+import editIcon from '../assets/icons/edit_icon.svg';
 import '../assets/styles/MenuItems.css';
 
 const MenuItems = () => {
-  const [itemsPerPage, setItemsPerPage] = useState(15);
   const [menus, setMenus] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -51,7 +49,7 @@ const MenuItems = () => {
         title="Menu Items"
         data={menus}
         columns={columns}
-        itemsPerPage={itemsPerPage}
+        itemsPerPage={15}
         maxItemsPerPage={30}
       />
       }

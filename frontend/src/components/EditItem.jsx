@@ -1,57 +1,76 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import '../assets/styles/EditItem.css';
 
-const EditItem = ({ items, updateItem, deleteItem }) => {
-  const { itemId } = useParams();
+const EditItem = ({ item, setItems, onClose }) => {
   const navigate = useNavigate();
-  const [item, setItem] = useState(null);
+  const [currentItem, setCurrentItem] = useState(item);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const currentItem = items.find((item) => item._id === itemId);
     if (currentItem) {
-      setItem(currentItem);
+      setLoading(false);
     }
-  }, [itemId, items]);
+  }, [currentItem]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setItem({
-      ...item,
+    setCurrentItem((prevItem) => ({
+      ...prevItem,
       [name]: value,
-    });
+    }));
   };
 
-  const handleSave = (e) => {
+  const handleSaveItem = async (e) => {
     e.preventDefault();
-    updateItem(item);
+    await updateItem(currentItem);
+    onClose(); // Close modal after saving
     navigate('/menu-items');
   };
 
-  const handleDelete = () => {
-    deleteItem(itemId);
+  const handleDeleteItem = async () => {
+    await deleteItem(currentItem._id);
+    onClose(); // Close modal after deleting
     navigate('/menu-items');
   };
 
   const handleGoBack = () => {
+    onClose(); // Close modal when going back
     navigate('/menu-items');
   };
 
-  if (!item) {
-    return <div>Loading...</div>;
-  }
+  const updateItem = async (updatedItem) => {
+    try {
+      const response = await axios.put(`http://localhost:5555/menus/${updatedItem._id}`, updatedItem);
+      setItems((prevItems) =>
+        prevItems.map((item) => (item._id === updatedItem._id ? response.data : item))
+      );
+    } catch (error) {
+      console.error('Error updating item:', error);
+    }
+  };
 
-  return (
+  const deleteItem = async (itemId) => {
+    try {
+      await axios.delete(`http://localhost:5555/menus/${itemId}`);
+      setItems((prevItems) => prevItems.filter((item) => item._id !== itemId));
+    } catch (error) {
+      console.error('Error deleting item:', error);
+    }
+  };
+
+  return loading ? <p>Loading...</p> : (
     <div className="edit-item-page">
       <div className="edit-item-container">
         <h2 className="edit-item-title">Edit Item</h2>
-        <form onSubmit={handleSave}>
+        <form onSubmit={handleSaveItem}>
           <div className="form-group">
             <label>Item Name</label>
             <input
               type="text"
               name="itemName"
-              value={item.itemName}
+              value={currentItem.itemName}
               onChange={handleInputChange}
               required
             />
@@ -61,7 +80,7 @@ const EditItem = ({ items, updateItem, deleteItem }) => {
             <input
               type="number"
               name="carbsPrice"
-              value={item.carbsPrice}
+              value={currentItem.carbsPrice}
               onChange={handleInputChange}
               required
             />
@@ -71,7 +90,7 @@ const EditItem = ({ items, updateItem, deleteItem }) => {
             <input
               type="number"
               name="proteinsPrice"
-              value={item.proteinsPrice}
+              value={currentItem.proteinsPrice}
               onChange={handleInputChange}
               required
             />
@@ -81,7 +100,7 @@ const EditItem = ({ items, updateItem, deleteItem }) => {
             <input
               type="number"
               name="baseFat"
-              value={item.baseFat}
+              value={currentItem.baseFat}
               onChange={handleInputChange}
               required
             />
@@ -91,15 +110,15 @@ const EditItem = ({ items, updateItem, deleteItem }) => {
             <input
               type="text"
               name="itemPicture"
-              value={item.itemPicture}
+              value={currentItem.itemPicture}
               onChange={handleInputChange}
               required
             />
           </div>
           <div className="form-buttons">
             <button type="submit" className="save-button">Save</button>
-            <button type="button" className="delete-button" onClick={handleDelete}>Delete</button>
-            <button className="go-back-button" onClick={handleGoBack}>Go Back</button>
+            <button type="button" className="delete-button" onClick={handleDeleteItem}>Delete</button>
+            <button type="button" className="go-back-button" onClick={handleGoBack}>Go Back</button>
           </div>
         </form>
       </div>
