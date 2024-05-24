@@ -36,12 +36,12 @@
   font-family: 'Poppins', sans-serif;
 }
 
-.form-group {
+.form-group-login {
   margin-bottom: 20px;
   font-family: 'Poppins', sans-serif;
 }
 
-.form-group label {
+.form-group-login label {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -51,7 +51,7 @@
   color: #666666;
 }
 
-.form-group input {
+.form-group-login input {
   width: 100%;
   padding: 10px;
   border-radius: 5px;
@@ -59,7 +59,7 @@
   font-family: 'Poppins', sans-serif;
 }
 
-.form-group input::placeholder {
+.form-group-login input::placeholder {
   font-family: 'Poppins', sans-serif;
   color: #999999;
 }

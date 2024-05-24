@@ -21,6 +21,7 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/email-verification" element={<EmailVerification />} /> 
           <Route
             path="/*"
             element={

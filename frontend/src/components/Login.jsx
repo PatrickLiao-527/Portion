@@ -29,7 +29,7 @@ const Login = () => {
                 required
               />
             </div>
-            <div className="form-group">
+            <div className="form-group-login">
               <label>
                 Password
                 <img

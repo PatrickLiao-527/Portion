@@ -8,6 +8,7 @@ import '../assets/styles/MenuItems.css';
 const MenuItems = () => {
   const [menus, setMenus] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -42,8 +43,21 @@ const MenuItems = () => {
     { header: 'Edit Item', accessor: 'editItem' }
   ];
 
+  const handleShowModal = () => {
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+  };
+
   return (
     <div className="menu-items-page">
+      <div className="menu-items-header">
+        <button className="create-new-item-button" onClick={handleShowModal}>
+          Create New Item
+        </button>
+      </div>
       {loading ? <p>Loading...</p> : 
       <TableWidget
         title="Menu Items"
@@ -53,6 +67,37 @@ const MenuItems = () => {
         maxItemsPerPage={30}
       />
       }
+      {showModal && (
+        <div className="modal">
+          <div className="modal-content">
+            <span className="close" onClick={handleCloseModal}>&times;</span>
+            <h2>Create New Item</h2>
+            <form>
+              <label>
+                Item Name:
+                <input type="text" name="itemName" />
+              </label>
+              <label>
+                $ per Carbs:
+                <input type="text" name="carbsPrice" />
+              </label>
+              <label>
+                $ per Proteins:
+                <input type="text" name="proteinsPrice" />
+              </label>
+              <label>
+                Base Fat:
+                <input type="text" name="baseFat" />
+              </label>
+              <label>
+                Item Picture URL:
+                <input type="text" name="itemPicture" />
+              </label>
+              <button type="submit">Save</button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

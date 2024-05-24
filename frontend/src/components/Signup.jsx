@@ -24,7 +24,7 @@ const Signup = () => {
           Already have an account? <Link to="/login" className="login-link">Log in</Link>
         </p>
         <form onSubmit={handleSignup}>
-          <div className="form-group">
+          <div className="form-group-signup">
             <label>What should we call you?</label>
             <input
               type="text"
@@ -34,7 +34,7 @@ const Signup = () => {
               required
             />
           </div>
-          <div className="form-group">
+          <div className="form-group-signup">
             <label>What's your email?</label>
             <input
               type="email"
@@ -44,7 +44,7 @@ const Signup = () => {
               required
             />
           </div>
-          <div className="form-group">
+          <div className="form-group-signup">
             <label>
               Create a password
               <img
