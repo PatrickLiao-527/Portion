@@ -1,5 +1,3 @@
-// src/components/EmailVerification.jsx
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../assets/styles/EmailVerification.css';

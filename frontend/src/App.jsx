@@ -11,6 +11,7 @@ import Reports from './components/Reports';
 import Settings from './components/Settings';
 import Login from './components/Login';
 import Signup from './components/Signup'; 
+import EmailVerification from './components/EmailVerification';
 import './App.css';
 
 function App() {

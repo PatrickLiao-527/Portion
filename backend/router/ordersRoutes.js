@@ -47,7 +47,7 @@ router.get('/', async (req, res) => {
 // query by id
 router.get('/:id', async (req, res) => {
     try {
-        const id = req.params;
+        const { id } = req.params;
         const queryOrder = await Order.findById(id);
         return res.status(200).json({
             data: queryOrder
@@ -59,7 +59,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // update by id
-router.put('/books/:id', async (req, res) => {
+router.put('/:id', async (req, res) => {
     try {
         // check column(param) integrity
         const schemaPaths = Order.schema.paths;
