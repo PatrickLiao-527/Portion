@@ -1,0 +1,114 @@
+.transactions-page {
+    padding: 20px;
+    margin-top: 40px;
+    background-color: #f9f9f9;
+    min-height: calc(100vh - 80px); /* Adjust based on header height */
+  }
+  
+  .table-widget {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+  }
+  
+  .table-widget-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .table th,
+  .table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .table th {
+    background-color: #f4f4f4;
+    font-weight: 600;
+    font-size: 16px;
+  }
+  
+  .table td {
+    font-size: 14px;
+  }
+  
+  @media (max-width: 1024px) {
+    .transactions-page {
+      padding: 15px;
+    }
+  
+    .table-widget {
+      padding: 15px;
+    }
+  
+    .table-widget-title {
+      font-size: 22px;
+    }
+  
+    .table th,
+    .table td {
+      padding: 8px;
+      font-size: 14px;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .transactions-page {
+      padding: 10px;
+    }
+  
+    .table-widget {
+      padding: 10px;
+    }
+  
+    .table-widget-title {
+      font-size: 20px;
+      text-align: center;
+    }
+  
+    .table th,
+    .table td {
+      padding: 6px;
+      font-size: 12px;
+    }
+  
+    .table th {
+      font-size: 14px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .transactions-page {
+      padding: 5px;
+    }
+  
+    .table-widget {
+      padding: 5px;
+    }
+  
+    .table-widget-title {
+      font-size: 18px;
+      text-align: center;
+    }
+  
+    .table th,
+    .table td {
+      padding: 4px;
+      font-size: 10px;
+    }
+  
+    .table th {
+      font-size: 12px;
+    }
+  }
+  

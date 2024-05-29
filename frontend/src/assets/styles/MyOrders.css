@@ -1,11 +1,71 @@
 .my-orders-page {
-    padding: 20px;
+  padding: 20px;
+}
+
+.page-title {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.orders-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.orders-table th,
+.orders-table td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.orders-table th {
+  background-color: #f4f4f4;
+  font-weight: 600;
+}
+
+@media (max-width: 1024px) {
+  .my-orders-page {
+    padding: 15px;
   }
-  
+
   .page-title {
-    font-family: 'Poppins', sans-serif;
-    font-weight: 700;
-    font-size: 24px;
-    margin-bottom: 20px;
+    font-size: 22px;
   }
-  
+}
+
+@media (max-width: 768px) {
+  .my-orders-page {
+    padding: 10px;
+  }
+
+  .page-title {
+    font-size: 20px;
+    text-align: center;
+  }
+
+  .orders-table th,
+  .orders-table td {
+    padding: 8px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .my-orders-page {
+    padding: 5px;
+  }
+
+  .page-title {
+    font-size: 18px;
+    text-align: center;
+  }
+
+  .orders-table th,
+  .orders-table td {
+    padding: 6px;
+    font-size: 12px;
+  }
+}

@@ -130,3 +130,21 @@
 .google-logo {
   margin-right: 10px;
 }
+
+@media (max-width: 768px) {
+  .signup-title {
+    font-size: 24px;
+  }
+
+  .signup-container {
+    padding: 20px;
+    margin: 10px;
+  }
+
+  .form-group-signup label,
+  .form-group-signup input,
+  .signup-button,
+  .google-signup-button {
+    font-size: 14px;
+  }
+}
