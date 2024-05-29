@@ -1,10 +1,11 @@
 import express from 'express';
 import Menu from '../models/menuModel.js';
+import authMiddleware from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
 // Create a new menu item
-router.post('/', async (req, res) => {
+router.post('/', authMiddleware, async (req, res) => {
     try {
         // Check required fields
         const schemaPaths = Menu.schema.paths;
@@ -32,9 +33,9 @@ router.post('/', async (req, res) => {
 });
 
 // Get all menu items
-router.get('/', async (req, res) => {
+router.get('/', authMiddleware, async (req, res) => {
     try {
-        const menuItems = await Menu.find({});
+        const menuItems = await Menu.find({ ownerId: req.user._id });
         return res.status(200).json({
             length: menuItems.length,
             data: menuItems
@@ -46,7 +47,7 @@ router.get('/', async (req, res) => {
 });
 
 // Get menu item by ID
-router.get('/:id', async (req, res) => {
+router.get('/:id', authMiddleware, async (req, res) => {
     try {
         const { id } = req.params;
         const menuItem = await Menu.findById(id);
@@ -63,7 +64,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Update menu item by ID
-router.put('/:id', async (req, res) => {
+router.put('/:id', authMiddleware, async (req, res) => {
     try {
         // Check required fields
         const schemaPaths = Menu.schema.paths;
@@ -94,7 +95,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // Delete menu item by ID
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authMiddleware, async (req, res) => {
     try {
         const { id } = req.params;
         const result = await Menu.findByIdAndDelete(id);
