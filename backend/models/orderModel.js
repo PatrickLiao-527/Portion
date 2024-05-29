@@ -27,9 +27,10 @@ const orderSchema = new mongoose.Schema({
     type: String,
     required: false
   },
-  ownerId:{
-    type: String,
-    required: false // waiting to change
+  ownerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
   }
 });
 

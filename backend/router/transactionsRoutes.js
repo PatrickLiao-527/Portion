@@ -1,10 +1,11 @@
 import express from 'express';
 import Transaction from '../models/transactionModel.js';
+import authMiddleware from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
 // Create a new transaction
-router.post('/', async (req, res) => {
+router.post('/', authMiddleware, async (req, res) => {
     try {
         // Check required fields
         const schemaPaths = Transaction.schema.paths;
@@ -32,9 +33,9 @@ router.post('/', async (req, res) => {
 });
 
 // Get all transactions
-router.get('/', async (req, res) => {
+router.get('/', authMiddleware, async (req, res) => {
     try {
-        const transactions = await Transaction.find({});
+        const transactions = await Transaction.find({ownerId: req.user._id});
         return res.status(200).json({
             count: transactions.length,
             data: transactions
@@ -46,7 +47,7 @@ router.get('/', async (req, res) => {
 });
 
 // Get transaction by ID
-router.get('/:id', async (req, res) => {
+router.get('/:id', authMiddleware, async (req, res) => {
     try {
         const { id } = req.params;
         const queryTransaction = await Transaction.findById(id);
@@ -62,7 +63,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Update transaction by ID
-router.put('/:id', async (req, res) => {
+router.put('/:id', authMiddleware, async (req, res) => {
     try {
         // Check required fields
         const schemaPaths = Transaction.schema.paths;
@@ -93,7 +94,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // Delete transaction by ID
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authMiddleware, async (req, res) => {
     try {
         const { id } = req.params;
         const result = await Transaction.findByIdAndDelete(id);
