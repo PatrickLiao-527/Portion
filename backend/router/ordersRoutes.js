@@ -4,16 +4,17 @@ import authMiddleware from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
+// Create a new order
 router.post('/', authMiddleware, async (req, res) => {
   try {
     // Check column integrity
     const schemaPaths = Order.schema.paths;
     const columnNames = Object.keys(schemaPaths).filter(
-      col_name => col_name !== '_id' && col_name !== '__v' && schemaPaths[col_name].isRequired
+      col_name => col_name !== '_id' && col_name !== '__v' && col_name !== 'ownerId' && schemaPaths[col_name].isRequired
     );
     for (const col_name of columnNames) {
       if (!req.body.hasOwnProperty(col_name)) {
-        return res.status(400).send({
+        return res.status(400).json({
           message: `Error: Send all required fields, missing ${col_name}`
         });
       }
@@ -23,13 +24,14 @@ router.post('/', authMiddleware, async (req, res) => {
     const newOrder = { ...req.body, ownerId: req.user._id }; // Set ownerId from authenticated user
     const order = await Order.create(newOrder);
 
-    return res.status(201).send(order);
+    return res.status(201).json(order);
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: 'Internal server error' });
   }
 });
 
+// Get a specific order by ID
 router.get('/:id', authMiddleware, async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
@@ -44,64 +46,79 @@ router.get('/:id', authMiddleware, async (req, res) => {
 
     res.status(200).json(order);
   } catch (err) {
+    console.log(err.message);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
+// Get all orders for the authenticated user
 router.get('/', authMiddleware, async (req, res) => {
   try {
     const orders = await Order.find({ ownerId: req.user._id });
     res.status(200).json(orders);
   } catch (err) {
+    console.log(err.message);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// Update order by id
+// Update an order by ID
 router.put('/:id', authMiddleware, async (req, res) => {
   try {
-    // Check column(param) integrity
+    // Check column integrity
     const schemaPaths = Order.schema.paths;
     const columnNames = Object.keys(schemaPaths).filter(
-      col_name => col_name !== '_id' && col_name !== '__v' && schemaPaths[col_name].isRequired
+      col_name => col_name !== '_id' && col_name !== '__v' && col_name !== 'ownerId' && schemaPaths[col_name].isRequired
     );
     for (const col_name of columnNames) {
       if (!req.body.hasOwnProperty(col_name)) {
-        return res.status(400).send({
+        return res.status(400).json({
           message: `Error: Send all required fields, missing ${col_name}`
         });
       }
     }
 
     const { id } = req.params;
+    const order = await Order.findById(id);
 
-    const result = await Order.findByIdAndUpdate(id, req.body, { new: true });
-
-    if (!result) {
+    if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
 
-    res.status(200).json(result);
+    if (order.ownerId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ error: 'Not authorized to update this order' });
+    }
+
+    Object.assign(order, req.body);
+    const updatedOrder = await order.save();
+
+    res.status(200).json(updatedOrder);
   } catch (err) {
     console.log(err.message);
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ message: 'Internal server error' });
   }
 });
 
-// Delete order by id
+// Delete an order by ID
 router.delete('/:id', authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await Order.findByIdAndDelete(id);
+    const order = await Order.findById(id);
 
-    if (!result) {
+    if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
+
+    if (order.ownerId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ error: 'Not authorized to delete this order' });
+    }
+
+    await order.remove();
 
     return res.status(200).json({ message: 'Order deleted successfully' });
   } catch (err) {
     console.log(err.message);
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ message: 'Internal server error' });
   }
 });
 

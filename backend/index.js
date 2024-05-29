@@ -9,6 +9,7 @@ import menusRoute from "./router/menusRoutes.js";
 import transcationsRoute from "./router/transactionsRoutes.js";
 import signupRoute from "./router/signupRoutes.js";
 import authRoute from "./router/authRoutes.js";
+import restaurantRoute from "./router/restaurantRoutes.js";
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use('/auth', authRoute);
 app.use('/orders', ordersRoute);
 app.use('/menus', menusRoute);
 app.use('/transcations', transcationsRoute);
+app.use('/restaurants', restaurantRoute);
 
 mongoose
     .connect(mongoDBURL)

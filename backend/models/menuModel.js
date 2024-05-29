@@ -1,4 +1,4 @@
-import { Binary, Decimal128 } from 'mongodb';
+import { Decimal128 } from 'mongodb';
 import mongoose from 'mongoose';
 
 const menuSchema = new mongoose.Schema({
@@ -23,7 +23,8 @@ const menuSchema = new mongoose.Schema({
     required: true
   },
   ownerId: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
     required: true
   }
 }, { timestamps: true });
