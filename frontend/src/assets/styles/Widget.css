@@ -1,7 +1,6 @@
 .widget-wrapper {
   display: flex;
   align-items: center;
-  justify-content: center;
   background-color: #ffffff;
   border-radius: 20px;
   box-shadow: 0px 10px 15px rgba(0, 0, 0, 0.05);
@@ -10,12 +9,13 @@
   max-width: 300px;
   height: 112px;
   margin: 10px; /* Adjusted margin for better spacing */
+  box-sizing: border-box;
 
   @media (max-width: 768px) {
     flex-direction: column;
     height: auto;
-    padding: 10px;
-    margin: 10px 0;
+    padding: 15px;
+    margin: 15px 0;
   }
 
   @media (max-width: 480px) {
@@ -30,6 +30,7 @@
   background-color: #cbeed4;
   border-radius: 10px;
   margin-right: 20px;
+  flex-shrink: 0;
 
   @media (max-width: 768px) {
     margin-bottom: 10px;
@@ -44,6 +45,7 @@
 
   @media (max-width: 768px) {
     align-items: center;
+    text-align: center; /* Ensures centered text alignment on small screens */
   }
 }
 

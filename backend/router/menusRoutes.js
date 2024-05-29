@@ -1,6 +1,7 @@
 import express from 'express';
 import Menu from '../models/menuModel.js';
 import authMiddleware from '../middleware/authMiddleware.js';
+import authMiddleware from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -32,18 +33,18 @@ router.post('/', authMiddleware, async (req, res) => {
   }
 });
 
-// Get all menu items for the authenticated user
+// Get all menu items
 router.get('/', authMiddleware, async (req, res) => {
-  try {
-    const menuItems = await Menu.find({ ownerId: req.user._id });
-    return res.status(200).json({
-      length: menuItems.length,
-      data: menuItems
-    });
-  } catch (err) {
-    console.log(err.message);
-    res.status(500).json({ message: err.message });
-  }
+    try {
+        const menuItems = await Menu.find({ ownerId: req.user._id });
+        return res.status(200).json({
+            length: menuItems.length,
+            data: menuItems
+        });
+    } catch (err) {
+        console.log(err.message);
+        res.status(500).json({ message: err.message });
+    }
 });
 
 // Get menu item by ID

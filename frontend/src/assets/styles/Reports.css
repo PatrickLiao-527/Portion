@@ -1,15 +1,37 @@
 .reports-page {
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    font-family: 'Poppins', sans-serif;
+  padding: 20px;
+  padding-top: 40px;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  font-family: 'Poppins', sans-serif;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .reports-page {
+    padding: 15px;
   }
-  
+
   .page-title {
-    font-size: 24px;
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 20px;
+    font-size: 20px;
+    margin-bottom: 15px;
   }
-  
+}
+
+@media (max-width: 480px) {
+  .reports-page {
+    padding: 10px;
+  }
+
+  .page-title {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+}

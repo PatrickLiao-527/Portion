@@ -1,4 +1,3 @@
-/* TableWidget.css */
 .table-widget {
   width: 100%;
   border-radius: 10px;
@@ -75,7 +74,7 @@ td {
 
 .status.complete {
   background-color: #CBEED4;
-  color: #302D40
+  color: #302D40;
 }
 
 .status.in-progress {
@@ -112,7 +111,7 @@ td {
   font-family: 'Poppins', sans-serif;
   font-size: 16px;
   color: #9F9F9F;
-  font-weight:600; 
+  font-weight: 600; 
   margin-right: 10px;
 }
 
@@ -193,4 +192,29 @@ td {
   margin: 0 10px;
   font-weight: 600;
   color: #302D40; 
+}
+
+@media (max-width: 768px) {
+  .table-title {
+    font-size: 20px;
+  }
+
+  .filter-text,
+  .showing-text,
+  .dropdown-button,
+  .page-info {
+    font-size: 14px;
+  }
+
+  th,
+  td {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  .pagination-button,
+  .dropdown-content,
+  .dropdown-item {
+    font-size: 14px;
+  }
 }

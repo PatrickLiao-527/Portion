@@ -6,7 +6,7 @@ import cookieParser from 'cookie-parser';
 import { PORT, mongoDBURL } from "./config.js";
 import ordersRoute from "./router/ordersRoutes.js";
 import menusRoute from "./router/menusRoutes.js";
-import transcationsRoute from "./router/transactionsRoutes.js";
+import transactionsRoute from "./router/transactionsRoutes.js";
 import signupRoute from "./router/signupRoutes.js";
 import authRoute from "./router/authRoutes.js";
 import restaurantRoute from "./router/restaurantRoutes.js";

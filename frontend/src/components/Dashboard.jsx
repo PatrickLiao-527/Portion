@@ -3,7 +3,7 @@ import Widget from './Widget';
 import Chart from './Chart';
 import TableWidget from './TableWidget';
 import '../assets/styles/Dashboard.css';
-import mealImage from '../assets/icons/chickenBreast.png'; // Import the meal image
+import mealImage from '../assets/icons/chickenBreast.png';
 
 const revenueData = [
   { name: 'Jan', revenue: 2000 },

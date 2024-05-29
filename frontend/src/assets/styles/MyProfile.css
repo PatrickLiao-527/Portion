@@ -123,3 +123,35 @@
 .change-password-button:hover {
   background-color: #0056b3;
 }
+
+@media (max-width: 768px) {
+  .profile-page-title {
+    font-size: 20px;
+  }
+
+  .profile-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .profile-picture {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 10px;
+  }
+
+  .profile-name {
+    font-size: 18px;
+  }
+
+  .profile-email,
+  .contact-number,
+  .detail-item p {
+    font-size: 14px;
+  }
+
+  .detail-item label,
+  .change-password h3 {
+    font-size: 18px;
+  }
+}
