@@ -17,8 +17,10 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use(cors({
+    origin: 'http://localhost:3000',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type']
+    allowedHeaders: ['Content-Type'],
+    credentials: true 
 }));
 
 app.get('/', (request, response) => {
@@ -30,7 +32,7 @@ app.use('/signup', signupRoute);
 app.use('/auth', authRoute);  
 app.use('/orders', ordersRoute);
 app.use('/menus', menusRoute);
-app.use('/transcations', transcationsRoute);
+app.use('/transcations', transactionsRoute);
 app.use('/restaurants', restaurantRoute);
 
 mongoose

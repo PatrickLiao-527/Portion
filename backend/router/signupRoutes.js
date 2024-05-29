@@ -22,7 +22,7 @@ router.post('/', async (req, res) => {
         });
 
         const user = await newUser.save();
-        res.json({ message: 'User saved successfully', user });
+        res.json({ message: 'User saved successfully' });
     } catch (err) {
         console.log(err);
     };

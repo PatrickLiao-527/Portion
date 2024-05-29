@@ -4,14 +4,13 @@ import TableWidget from './TableWidget';
 import '../assets/styles/MyOrders.css';
 
 const MyOrders = () => {
-  const [itemsPerPage, setItemsPerPage] = useState(15);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setLoading(true);
     axios
-      .get('http://localhost:5555/orders')
+      .get('http://localhost:5555/orders', { withCredentials: true })
       .then((response) => {
         const dateConvertedData = response.data.data.map(order => ({
           ...order,
@@ -46,7 +45,7 @@ const MyOrders = () => {
           title="New Orders"
           data={orders}
           columns={columns}
-          itemsPerPage={itemsPerPage}
+          itemsPerPage={15}
           maxItemsPerPage={30}
         />            
       )}

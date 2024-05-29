@@ -6,6 +6,11 @@ import '../assets/styles/Chart.css';
 import { ReactComponent as FilterIcon } from '../assets/icons/filters_icon.svg';
 
 const Chart = ({ title, data, dataKey, yAxisLabel }) => {
+  const xAxisDataKey = 'name';
+  const xAxisTick = { fontFamily: 'Poppins', fontWeight: '600', fontSize: 12 };
+  const yAxisTick = { fontFamily: 'Poppins', fontWeight: '600', fontSize: 12 };
+  const yAxisLabelStyle = { textAnchor: 'middle', fontFamily: 'Poppins', fontWeight: '600', fontSize: 14 };
+
   return (
     <div className="chart-container">
       <div className="chart-header">
@@ -25,13 +30,13 @@ const Chart = ({ title, data, dataKey, yAxisLabel }) => {
           }}
         >
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" tick={{ fontFamily: 'Poppins', fontWeight: '600', fontSize: 12 }} />
-          <YAxis tick={{ fontFamily: 'Poppins', fontWeight: '600', fontSize: 12 }}>
+          <XAxis dataKey={xAxisDataKey} tick={xAxisTick} />
+          <YAxis tick={yAxisTick}>
             <Label
               value={yAxisLabel}
               angle={-90}
               position="insideLeft"
-              style={{ textAnchor: 'middle', fontFamily: 'Poppins', fontWeight: '600', fontSize: 14 }}
+              style={yAxisLabelStyle}
             />
           </YAxis>
           <Tooltip />

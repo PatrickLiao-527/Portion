@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
 import '../assets/styles/Signup.css';
 import googleLogo from '../assets/icons/Google-logo.png';
 import showHideIcon from '../assets/icons/showHide_icon.png';
@@ -10,10 +10,24 @@ const Signup = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const navigate = useNavigate();
 
-  const handleSignup = (event) => {
+  const handleSignup = async (event) => {
     event.preventDefault();
-    
+    try {
+      const response = await axios.post('http://localhost:5555/signup', {
+        name: profileName,
+        email,
+        password
+      });
+
+      console.log('User registered successfully:', response.data);
+      navigate('/login'); // Redirect to login page after successful signup
+    } catch (error) {
+      console.error('Error registering user:', error);
+      setErrorMessage(error.response?.data?.error || 'Failed to register');
+    }
   };
 
   return (
@@ -23,6 +37,7 @@ const Signup = () => {
         <p className="signup-subtitle">
           Already have an account? <Link to="/login" className="login-link">Log in</Link>
         </p>
+        {errorMessage && <p className="error-message">{errorMessage}</p>}
         <form onSubmit={handleSignup}>
           <div className="form-group-signup">
             <label>What should we call you?</label>

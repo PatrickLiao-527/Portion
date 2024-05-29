@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import '../assets/styles/Login.css';
 import googleLogo from '../assets/icons/Google-logo.png';
 import showHideIcon from '../assets/icons/showHide_icon.png';
@@ -8,10 +9,27 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const navigate = useNavigate();
 
-  const handleLogin = (event) => {
+  const handleLogin = async (event) => {
     event.preventDefault();
-    // Handle login logic here
+    try {
+      const response = await axios.post('http://localhost:5555/auth', {
+        email,
+        password
+      }, {
+        withCredentials: true
+      });
+
+      console.log('User logged in successfully:', response.data);
+
+      localStorage.setItem('token', response.data.token);
+      navigate('/dashboard'); // Redirect to dashboard 
+    } catch (error) {
+      console.error('Error logging in:', error);
+      setErrorMessage(error.response?.data?.error || 'Failed to log in');
+    }
   };
 
   return (
@@ -46,6 +64,7 @@ const Login = () => {
                 required
               />
             </div>
+            {errorMessage && <p className="error-message">{errorMessage}</p>}
             <button type="submit" className="login-button">Log in</button>
           </form>
           <Link to="/forgot-password" className="forgot-password-link">
