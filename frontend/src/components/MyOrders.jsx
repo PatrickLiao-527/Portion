@@ -6,26 +6,33 @@ import '../assets/styles/MyOrders.css';
 const MyOrders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     setLoading(true);
     axios
       .get('http://localhost:5555/orders', { withCredentials: true })
       .then((response) => {
-        const dateConvertedData = response.data.data.map(order => ({
-          ...order,
-          // since date and time are calculated from js Date object which is unix time * 1000
-          date: new Date(order.time).toLocaleDateString(), // Extracting date part from data.time
-          time: new Date(order.time).toLocaleTimeString() // Extracting time part from data.time
-        }));
-        setOrders(dateConvertedData);
+        console.log(response); // Log the response to see its structure
+        if (response.data && response.data.data) {
+          const dateConvertedData = response.data.data.map(order => ({
+            ...order,
+            date: new Date(order.time).toLocaleDateString(), // Extracting date part from data.time
+            time: new Date(order.time).toLocaleTimeString() // Extracting time part from data.time
+          }));
+          setOrders(dateConvertedData);
+        } else {
+          console.error('Unexpected response structure:', response);
+          setError('Unexpected response structure');
+        }
         setLoading(false);
       })
       .catch((error) => {
         console.log(error);
+        setError('Failed to load orders');
         setLoading(false);
-      })
-  }, [])
+      });
+  }, []);
 
   const columns = [
     { header: 'Order ID', accessor: '_id' },
@@ -40,14 +47,18 @@ const MyOrders = () => {
 
   return (
     <div className="my-orders-page">
-      {loading ? (<p>loading...</p>) : (
+      {loading ? (
+        <p>Loading...</p>
+      ) : error ? (
+        <p>{error}</p>
+      ) : (
         <TableWidget
           title="New Orders"
           data={orders}
           columns={columns}
           itemsPerPage={15}
           maxItemsPerPage={30}
-        />            
+        />
       )}
     </div>
   );

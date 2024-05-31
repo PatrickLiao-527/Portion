@@ -6,8 +6,8 @@ import { ReactComponent as OrdersIcon } from '../assets/icons/myOrders_icon.svg'
 import { ReactComponent as MenuItemsIcon } from '../assets/icons/menuItems_icon.svg';
 import { ReactComponent as TransactionsIcon } from '../assets/icons/transactions.svg';
 import { ReactComponent as ReportsIcon } from '../assets/icons/reports_icon.svg';
-import { ReactComponent as SettingsIcon } from '../assets/icons/settings_icon.svg';
-import sidebarToggleIcon from 'C:/Users/Administrator/Desktop/Portion/Food-Order/frontend/src/assets/icons/sidebarToggle_icon.svg';
+// import { ReactComponent as SettingsIcon } from '../assets/icons/settings_icon.svg';
+import sidebarToggleIcon from '../assets/icons/sidebarToggle_icon.svg';
 
 const Sidebar = () => {
     const [isOpen, setIsOpen] = useState(true);

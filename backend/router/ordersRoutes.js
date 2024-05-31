@@ -1,27 +1,14 @@
 import express from 'express';
 import Order from '../models/orderModel.js';
 import authMiddleware from '../middleware/authMiddleware.js';
+import checkRole from '../middleware/checkRole.js';
 
 const router = express.Router();
 
-// Create a new order
-router.post('/', authMiddleware, async (req, res) => {
+// Create a new order (client only)
+router.post('/', authMiddleware, checkRole('client'), async (req, res) => {
   try {
-    // Check column integrity
-    const schemaPaths = Order.schema.paths;
-    const columnNames = Object.keys(schemaPaths).filter(
-      col_name => col_name !== '_id' && col_name !== '__v' && col_name !== 'ownerId' && schemaPaths[col_name].isRequired
-    );
-    for (const col_name of columnNames) {
-      if (!req.body.hasOwnProperty(col_name)) {
-        return res.status(400).json({
-          message: `Error: Send all required fields, missing ${col_name}`
-        });
-      }
-    }
-
-    // Create and add to database
-    const newOrder = { ...req.body, ownerId: req.user._id }; // Set ownerId from authenticated user
+    const newOrder = { ...req.body, ownerId: req.user._id };
     const order = await Order.create(newOrder);
 
     return res.status(201).json(order);
@@ -31,8 +18,19 @@ router.post('/', authMiddleware, async (req, res) => {
   }
 });
 
-// Get a specific order by ID
-router.get('/:id', authMiddleware, async (req, res) => {
+// Get all orders for the authenticated user (owner only)
+router.get('/', authMiddleware, checkRole('owner'), async (req, res) => {
+  try {
+    const orders = await Order.find({ ownerId: req.user._id });
+    res.status(200).json(orders);
+  } catch (err) {
+    console.log(err.message);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get a specific order by ID (owner only)
+router.get('/:id', authMiddleware, checkRole('owner'), async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
 
@@ -51,33 +49,9 @@ router.get('/:id', authMiddleware, async (req, res) => {
   }
 });
 
-// Get all orders for the authenticated user
-router.get('/', authMiddleware, async (req, res) => {
+// Update an order by ID (owner only)
+router.put('/:id', authMiddleware, checkRole('owner'), async (req, res) => {
   try {
-    const orders = await Order.find({ ownerId: req.user._id });
-    res.status(200).json(orders);
-  } catch (err) {
-    console.log(err.message);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// Update an order by ID
-router.put('/:id', authMiddleware, async (req, res) => {
-  try {
-    // Check column integrity
-    const schemaPaths = Order.schema.paths;
-    const columnNames = Object.keys(schemaPaths).filter(
-      col_name => col_name !== '_id' && col_name !== '__v' && col_name !== 'ownerId' && schemaPaths[col_name].isRequired
-    );
-    for (const col_name of columnNames) {
-      if (!req.body.hasOwnProperty(col_name)) {
-        return res.status(400).json({
-          message: `Error: Send all required fields, missing ${col_name}`
-        });
-      }
-    }
-
     const { id } = req.params;
     const order = await Order.findById(id);
 
@@ -99,8 +73,8 @@ router.put('/:id', authMiddleware, async (req, res) => {
   }
 });
 
-// Delete an order by ID
-router.delete('/:id', authMiddleware, async (req, res) => {
+// Delete an order by ID (owner only)
+router.delete('/:id', authMiddleware, checkRole('owner'), async (req, res) => {
   try {
     const { id } = req.params;
     const order = await Order.findById(id);
