@@ -4,28 +4,34 @@ import TableWidget from './TableWidget';
 import '../assets/styles/Transactions.css';
 
 const Transactions = () => {
-  const [itemsPerPage, setItemsPerPage] = useState(15);
   const [loading, setLoading] = useState(false);
-  const [transcations, setTranscations] = useState([]);
+  const [transactions, setTransactions] = useState([]);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     setLoading(true);
     axios
-      .get('http://localhost:5555/transcations')
+      .get('http://localhost:5555/transactions', { withCredentials: true })
       .then((response) => {
-        const transformedData = response.data.data.map(item => ({
-          ...item,
-          // since date and time are calculated from js Date object which is unix time * 1000
-          date: new Date(item.time).toLocaleDateString(), // Extracting date part from data.time
-          time: new Date(item.time).toLocaleTimeString() // Extracting time part from data.time
-        }));
-        setTranscations(transformedData);
+        if (Array.isArray(response.data)) {
+          const transformedData = response.data.map(item => ({
+            ...item,
+            // since date and time are calculated from js Date object which is unix time * 1000
+            date: new Date(item.time).toLocaleDateString(), // Extracting date part from data.time
+            time: new Date(item.time).toLocaleTimeString() // Extracting time part from data.time
+          }));
+          setTransactions(transformedData);
+        } else {
+          console.error('Unexpected response structure:', response.data);
+          setError('Unexpected response structure');
+        }
         setLoading(false);
       })
       .catch((error) => {
         console.log(error);
+        setError('Failed to load transactions');
         setLoading(false);
-      })
+      });
   }, []);
 
   const columns = [
@@ -40,13 +46,19 @@ const Transactions = () => {
 
   return (
     <div className="transactions-page">
-      <TableWidget
-        title="Transactions"
-        data={transcations}
-        columns={columns}
-        itemsPerPage={itemsPerPage}
-        maxItemsPerPage={30}
-      />
+      {loading ? (
+        <p>Loading...</p>
+      ) : error ? (
+        <p>{error}</p>
+      ) : (
+        <TableWidget
+          title="Transactions"
+          data={transactions}
+          columns={columns}
+          itemsPerPage={15}
+          maxItemsPerPage={30}
+        />
+      )}
     </div>
   );
 };

@@ -32,7 +32,7 @@ app.use('/signup', signupRoute);
 app.use('/auth', authRoute);  
 app.use('/orders', ordersRoute);
 app.use('/menus', menusRoute);
-app.use('/transcations', transactionsRoute);
+app.use('/transactions', transactionsRoute);
 app.use('/restaurants', restaurantRoute);
 
 mongoose

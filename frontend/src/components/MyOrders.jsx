@@ -13,9 +13,8 @@ const MyOrders = () => {
     axios
       .get('http://localhost:5555/orders', { withCredentials: true })
       .then((response) => {
-        console.log(response); // Log the response to see its structure
-        if (response.data && response.data.data) {
-          const dateConvertedData = response.data.data.map(order => ({
+        if (response.data) {
+          const dateConvertedData = response.data.map(order => ({
             ...order,
             date: new Date(order.time).toLocaleDateString(), // Extracting date part from data.time
             time: new Date(order.time).toLocaleTimeString() // Extracting time part from data.time

@@ -36,10 +36,7 @@ router.post('/', authMiddleware, async (req, res) => {
 router.get('/', authMiddleware, async (req, res) => {
     try {
         const transactions = await Transaction.find({ownerId: req.user._id});
-        return res.status(200).json({
-            count: transactions.length,
-            data: transactions
-        });
+        return res.status(200).json(transactions);
     } catch (error) {
         console.log(error.message);
         res.status(500).json({ message: error.message });
