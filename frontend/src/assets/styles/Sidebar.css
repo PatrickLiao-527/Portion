@@ -21,19 +21,27 @@
 
 .sidebar-toggle {
   position: absolute;
-  top: 5%;
-  right: -20px; /* Adjust to be at the edge of the sidebar when open */
+  top: 10%;
+  left: 2%; /* Adjust to be at the edge of the sidebar when open */
   cursor: pointer;
   z-index: 1001;
+  transition: left 0.3s ease;
 }
 
-.sidebar-wrapper.closed .sidebar-toggle {
-  right: 20; /* Move to the edge of the viewport when the sidebar is closed */
-}
 
 .sidebar-toggle img {
-  width: 200%; /* Make the toggle icons bigger */
+  width: 120%;
   height: auto;
+}
+
+@media (min-width: 769px) {
+  .sidebar-wrapper {
+      transform: translateX(0) !important; /* Ensure the sidebar is always open on desktop */
+  }
+
+  .sidebar-toggle {
+      display: none; /* Hide toggle button on desktop */
+  }
 }
 
 .nav-item {
@@ -84,4 +92,3 @@
   width: 120%; /* Adjust the icon size */
   height: auto;
 }
-

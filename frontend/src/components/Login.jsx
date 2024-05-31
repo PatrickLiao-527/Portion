@@ -31,6 +31,7 @@ const Login = () => {
       setErrorMessage(error.response?.data?.error || 'Failed to log in');
     }
   };
+  const isFormFilled = email !== '' && password !== '';
 
   return (
     <div className="login-page">
@@ -65,7 +66,13 @@ const Login = () => {
               />
             </div>
             {errorMessage && <p className="error-message">{errorMessage}</p>}
-            <button type="submit" className="login-button">Log in</button>
+            <button 
+              type="submit" 
+              className={`login-button ${isFormFilled ? 'filled' : 'unfilled'}`}
+              disabled={!isFormFilled}
+            >
+              Log in
+            </button>
           </form>
           <Link to="/forgot-password" className="forgot-password-link">
             Forgot your password?

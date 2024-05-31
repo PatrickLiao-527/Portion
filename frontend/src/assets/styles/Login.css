@@ -82,6 +82,13 @@
   cursor: pointer;
   font-family: 'Poppins', sans-serif;
 }
+.login-button.filled:hover {
+  background-color: green;
+}
+
+.login-button.unfilled:hover {
+  background-color: red;
+}
 
 .forgot-password-link {
   display: block;
@@ -135,6 +142,10 @@
   text-align: center;
   text-decoration: none;
   font-family: 'Poppins', sans-serif;
+}
+.signup-button:hover {
+  background-color: #000;
+  color: #fff; /* Change text color to white for better visibility */
 }
 
 @media (min-width: 768px) {
