@@ -3,6 +3,13 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import '../assets/styles/EditItem.css';
 
+const proteinTypes = [
+  "Chicken Breast", "Chicken Thigh", "Chicken Wing", "Chicken Drumstick", 
+  "Beef Sirloin", "Beef Ribeye", "Pork Loin", "Pork Belly", "Pork Chops", 
+  "Salmon", "Tuna", "Cod", "Shrimp", "Crab", "Lobster", "Scallops", 
+  "Tilapia", "Halibut", "Duck Breast", "Lamb Chops"
+];
+
 const EditItem = ({ item, setItems, onClose }) => {
   const navigate = useNavigate();
   const [currentItem, setCurrentItem] = useState(item);
@@ -114,6 +121,20 @@ const EditItem = ({ item, setItems, onClose }) => {
               onChange={handleInputChange}
               required
             />
+          </div>
+          <div className="form-group">
+            <label>Protein Type</label>
+            <select
+              name="proteinType"
+              value={currentItem.proteinType}
+              onChange={handleInputChange}
+              required
+            >
+              <option value="" disabled>Select Protein Type</option>
+              {proteinTypes.map((type, index) => (
+                <option key={index} value={type}>{type}</option>
+              ))}
+            </select>
           </div>
           <div className="form-buttons">
             <button type="submit" className="save-button">Save</button>

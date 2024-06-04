@@ -60,7 +60,8 @@
   margin-bottom: 20px;
 }
 
-.modal-content input {
+.modal-content input,
+.modal-content select {
   width: 100%;
   padding: 10px;
   border-radius: 5px;
@@ -69,7 +70,8 @@
   font-family: 'Poppins', sans-serif;
 }
 
-.modal-content input::placeholder {
+.modal-content input::placeholder,
+.modal-content select::placeholder {
   color: #999999;
 }
 

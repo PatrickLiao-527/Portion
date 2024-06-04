@@ -5,24 +5,37 @@ import TableWidget from './TableWidget';
 import editIcon from '../assets/icons/edit_icon.svg';
 import '../assets/styles/MenuItems.css';
 
+const proteinTypes = [
+  "Chicken Breast", "Chicken Thigh", "Chicken Wing", "Chicken Drumstick", 
+  "Beef Sirloin", "Beef Ribeye", "Pork Loin", "Pork Belly", "Pork Chops", 
+  "Salmon", "Tuna", "Cod", "Shrimp", "Crab", "Lobster", "Scallops", 
+  "Tilapia", "Halibut", "Duck Breast", "Lamb Chops"
+];
+
 const MenuItems = () => {
   const [menus, setMenus] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [newItem, setNewItem] = useState({
+    itemName: '',
+    carbsPrice: '',
+    proteinsPrice: '',
+    baseFat: '',
+    itemPicture: '',
+    proteinType: ''
+  });
 
   useEffect(() => {
     setLoading(true);
     axios
       .get('http://localhost:5555/menus', { withCredentials: true })
       .then((response) => {
-        // some attributes stored in db as Decimal128 which cannot be displayed directly
-        // transforming Decimal128 to String
         const transformedData = response.data.data.map(item => ({
           ...item,
           carbsPrice: parseFloat(item.carbsPrice.$numberDecimal),
           proteinsPrice: parseFloat(item.proteinsPrice.$numberDecimal),
           baseFat: parseFloat(item.baseFat.$numberDecimal),
-          editItem: <Link to={`/menu-items/edit/${item._id}`} className="edit-link"><img src={editIcon} alt="Edit" /></Link> // Add edit link
+          editItem: <Link to={`/menu-items/edit/${item._id}`} className="edit-link"><img src={editIcon} alt="Edit" /></Link>
         }));
         setMenus(transformedData);
         setLoading(false);
@@ -37,6 +50,7 @@ const MenuItems = () => {
     { header: 'Item ID', accessor: '_id' },
     { header: 'Item Name', accessor: 'itemName' },
     { header: '$/carbs', accessor: 'carbsPrice' },
+    { header: 'Protein type', accessor: 'proteinType' },
     { header: '$/proteins', accessor: 'proteinsPrice' },
     { header: 'Base Fat', accessor: 'baseFat' },
     { header: 'Item Picture', accessor: 'itemPicture' },
@@ -48,6 +62,20 @@ const MenuItems = () => {
   };
 
   const handleCloseModal = () => {
+    setShowModal(false);
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setNewItem((prevItem) => ({
+      ...prevItem, [name]: value
+    }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Add logic to save new item to the server
+    console.log(newItem);
     setShowModal(false);
   };
 
@@ -72,26 +100,35 @@ const MenuItems = () => {
           <div className="modal-content">
             <span className="close" onClick={handleCloseModal}>&times;</span>
             <h2>Create New Item</h2>
-            <form>
+            <form onSubmit={handleSubmit}>
               <label>
                 Item Name:
-                <input type="text" name="itemName" />
+                <input type="text" name="itemName" value={newItem.itemName} onChange={handleChange} />
               </label>
               <label>
                 $ per Carbs:
-                <input type="text" name="carbsPrice" />
+                <input type="text" name="carbsPrice" value={newItem.carbsPrice} onChange={handleChange} />
               </label>
               <label>
                 $ per Proteins:
-                <input type="text" name="proteinsPrice" />
+                <input type="text" name="proteinsPrice" value={newItem.proteinsPrice} onChange={handleChange} />
               </label>
               <label>
                 Base Fat:
-                <input type="text" name="baseFat" />
+                <input type="text" name="baseFat" value={newItem.baseFat} onChange={handleChange} />
               </label>
               <label>
                 Item Picture URL:
-                <input type="text" name="itemPicture" />
+                <input type="text" name="itemPicture" value={newItem.itemPicture} onChange={handleChange} />
+              </label>
+              <label>
+                Protein Type:
+                <select name="proteinType" value={newItem.proteinType} onChange={handleChange}>
+                  <option value="" disabled>Select Protein Type</option>
+                  {proteinTypes.map((type, index) => (
+                    <option key={index} value={type}>{type}</option>
+                  ))}
+                </select>
               </label>
               <button type="submit">Save</button>
             </form>
