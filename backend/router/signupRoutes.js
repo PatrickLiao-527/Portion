@@ -5,9 +5,9 @@ const router = express.Router();
 
 router.post('/', async (req, res) => {
     try {
-        const { name, email, password } = req.body;
-        if (!email || !password || !name) {
-            return res.status(422).json({ error: 'Submit all fields (email, name, password)' });
+        const { name, email, password, role } = req.body;
+        if (!email || !password || !name || !role) {
+            return res.status(422).json({ error: 'Submit all fields (email, name, password, role)' });
         }
 
         const savedUser = await User.findOne({ email: email });
@@ -18,7 +18,8 @@ router.post('/', async (req, res) => {
         const newUser = new User({
             email,
             name,
-            password
+            password,
+            role
         });
 
         await newUser.save();

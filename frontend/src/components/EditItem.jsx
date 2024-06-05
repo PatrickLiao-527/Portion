@@ -5,7 +5,12 @@ import '../assets/styles/EditItem.css';
 
 const EditItem = ({ item, setItems, onClose }) => {
   const navigate = useNavigate();
-  const [currentItem, setCurrentItem] = useState(item);
+  const [currentItem, setCurrentItem] = useState({
+    ...item,
+    carbsPrice: item.carbsPrice ? parseFloat(item.carbsPrice.$numberDecimal) : '', // Transform Decimal128
+    proteinsPrice: item.proteinsPrice ? parseFloat(item.proteinsPrice.$numberDecimal) : '',
+    baseFat: item.baseFat ? parseFloat(item.baseFat.$numberDecimal) : '',
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -43,8 +48,14 @@ const EditItem = ({ item, setItems, onClose }) => {
   const updateItem = async (updatedItem) => {
     try {
       const response = await axios.put(`http://localhost:5555/menus/${updatedItem._id}`, updatedItem);
+      const transformedData = {
+        ...response.data,
+        carbsPrice: parseFloat(response.data.carbsPrice.$numberDecimal), // Transform Decimal128
+        proteinsPrice: parseFloat(response.data.proteinsPrice.$numberDecimal),
+        baseFat: parseFloat(response.data.baseFat.$numberDecimal),
+      };
       setItems((prevItems) =>
-        prevItems.map((item) => (item._id === updatedItem._id ? response.data : item))
+        prevItems.map((item) => (item._id === updatedItem._id ? transformedData : item))    
       );
     } catch (error) {
       console.error('Error updating item:', error);

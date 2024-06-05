@@ -19,7 +19,8 @@ const Signup = () => {
       const response = await axios.post('http://localhost:5555/signup', {
         name: profileName,
         email,
-        password
+        password,
+        role: 'owner'
       });
 
       console.log('User registered successfully:', response.data);
