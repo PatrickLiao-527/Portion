@@ -17,12 +17,12 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: ['http://localhost:3001', 'http://localhost:3000'], // Specify multiple origins in an array
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type'],
     credentials: true 
-}));
-
+  }));
+  
 app.get('/', (request, response) => {
     console.log(request);
     return response.status(234).send('Returned status 234');

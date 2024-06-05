@@ -13,25 +13,23 @@ const MyOrders = () => {
     axios
       .get('http://localhost:5555/orders', { withCredentials: true })
       .then((response) => {
-        if (response.data) {
-          const dateConvertedData = response.data.map(order => ({
-            ...order,
-            date: new Date(order.time).toLocaleDateString(), // Extracting date part from data.time
-            time: new Date(order.time).toLocaleTimeString() // Extracting time part from data.time
-          }));
-          setOrders(dateConvertedData);
-        } else {
-          console.error('Unexpected response structure:', response);
-          setError('Unexpected response structure');
-        }
+        setOrders(response.data);
         setLoading(false);
       })
       .catch((error) => {
-        console.log(error);
+        console.error('Failed to load orders:', error);
         setError('Failed to load orders');
         setLoading(false);
       });
   }, []);
+
+  const formatOrders = (orders) => {
+    return orders.map(order => ({
+      ...order,
+      date: new Date(order.time).toLocaleDateString(), // Extracting date part from data.time
+      time: new Date(order.time).toLocaleTimeString() // Extracting time part from data.time
+    }));
+  };
 
   const columns = [
     { header: 'Order ID', accessor: '_id' },
@@ -53,7 +51,7 @@ const MyOrders = () => {
       ) : (
         <TableWidget
           title="New Orders"
-          data={orders}
+          data={formatOrders(orders)} // Format orders before passing to TableWidget
           columns={columns}
           itemsPerPage={15}
           maxItemsPerPage={30}

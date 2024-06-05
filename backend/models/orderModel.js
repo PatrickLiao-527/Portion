@@ -16,7 +16,7 @@ const orderSchema = new mongoose.Schema({
   paymentType: {
     type: String,
     required: true,
-    enum: ['Online', 'Offline'] // Assuming payment type can be either online or offline
+    enum: ['Online', 'In_Person'] // Assuming payment type can be either online or InPerson
   },
   status: {
     type: String,
@@ -30,6 +30,22 @@ const orderSchema = new mongoose.Schema({
   ownerId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
+    required: true
+  },
+  mealName: {
+    type: String,
+    required: true
+  },
+  carbs: {
+    type: Number,
+    required: true
+  },
+  proteins: {
+    type: Number,
+    required: true
+  },
+  fats: {
+    type: Number,
     required: true
   }
 });

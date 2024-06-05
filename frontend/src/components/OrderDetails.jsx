@@ -2,6 +2,7 @@ import React from 'react';
 import '../assets/styles/OrderDetails.css';
 
 const OrderDetails = ({ data }) => {
+  console.log('OrderDetails component - Received data:', data);
   if (!data || data.length === 0) {
     return <div>No order details found.</div>;
   }

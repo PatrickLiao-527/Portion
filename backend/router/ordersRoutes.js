@@ -6,7 +6,7 @@ import checkRole from '../middleware/checkRole.js';
 const router = express.Router();
 
 // Create a new order (client only)
-router.post('/', authMiddleware, checkRole('client'), async (req, res) => {
+router.post('/', authMiddleware, checkRole('owner'), async (req, res) => {
   try {
     const newOrder = { ...req.body, ownerId: req.user._id };
     const order = await Order.create(newOrder);
