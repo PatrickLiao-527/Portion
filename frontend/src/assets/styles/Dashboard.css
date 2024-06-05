@@ -81,14 +81,28 @@
   font-size: 14px;
 }
 
-.status.complete {
-  background-color: #CBEED4;
+.status-select {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  border: none;
+  background-color: #FFDD55; /* Default background color */
   color: #302D40;
 }
 
-.status.in-progress {
+.status-select.complete {
+  background-color: #CBEED4;
+}
+
+.status-select.in-progress {
   background-color: #FFDD55;
-  color: #302D40;
+}
+
+.status-select.cancelled {
+  background-color: #FF6666; /* Red background for cancelled status */
+  color: #fff;
 }
 
 @media (max-width: 1024px) {

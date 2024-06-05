@@ -81,7 +81,10 @@ td {
   background-color: #FFDD55;
   color: #302D40;
 }
-
+.status.cancelled{
+  background-color: #FF6666;
+  color: #302D40;
+}
 .find-icon, .edit-icon {
   width: 20px;
   height: 20px;
@@ -217,4 +220,5 @@ td {
   .dropdown-item {
     font-size: 14px;
   }
+
 }

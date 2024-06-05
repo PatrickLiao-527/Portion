@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';  // Ensure axios is imported
 import '../assets/styles/TableWidget.css';
 import { ReactComponent as ChevronLeftIcon } from '../assets/icons/chevronLeft_icon.svg';
 import { ReactComponent as ChevronRightIcon } from '../assets/icons/chevronRight_icon.svg';
 import { ReactComponent as ChevronDownIcon } from '../assets/icons/chevronDown_icon.svg';
 import { ReactComponent as MoreDetailsIcon } from '../assets/icons/moreDetails_icon.svg';
 import { ReactComponent as EditIcon } from '../assets/icons/edit_icon.svg';
-import { ReactComponent as FilterIcon } from '../assets/icons/filters_icon.svg';
 import Modal from './Modal';
 import OrderDetails from './OrderDetails';
 import EditItem from './EditItem';
@@ -16,6 +16,7 @@ const TableWidget = ({ title, data, columns, itemsPerPage, maxItemsPerPage, setI
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [selectedEditItem, setSelectedEditItem] = useState(null); // New state for selected item to edit
+  const [editingStatus, setEditingStatus] = useState(null); // New state for tracking which status is being edited
   const totalItems = data.length;
   const totalPages = Math.ceil(totalItems / currentItemsPerPage);
   const displayedItems = data.slice(
@@ -64,6 +65,23 @@ const TableWidget = ({ title, data, columns, itemsPerPage, maxItemsPerPage, setI
     setSelectedEditItem(null);
   };
 
+  const handleStatusClick = (orderId) => {
+    setEditingStatus(orderId);
+  };
+
+  const updateStatus = async (orderId, newStatus) => {
+    try {
+      const response = await axios.patch(`http://localhost:5555/orders/${orderId}/status`, { status: newStatus }, { withCredentials: true });
+      const updatedOrder = response.data;
+      
+      // Update the local state with the updated order
+      setItems((prevOrders) => prevOrders.map(order => (order._id === orderId ? updatedOrder : order)));
+      setEditingStatus(null);
+    } catch (error) {
+      console.error('Error updating order status:', error);
+    }
+  };
+
   return (
     <div className="table-widget">
       <div className="table-header">
@@ -93,9 +111,24 @@ const TableWidget = ({ title, data, columns, itemsPerPage, maxItemsPerPage, setI
                   ) : col.accessor === 'itemPicture' ? (
                     item[col.accessor] ? <img src={item[col.accessor]} alt="Item" className="item-picture" /> : null
                   ) : col.accessor === 'status' ? (
-                    <span className={`status ${item[col.accessor].toLowerCase().replace(' ', '-')}`}>
-                      {item[col.accessor]}
-                    </span>
+                    editingStatus === item._id ? (
+                      <select
+                        value={item[col.accessor]}
+                        onChange={(e) => updateStatus(item._id, e.target.value)}
+                        className={`status-select ${item[col.accessor].toLowerCase().replace(' ', '-')}`}
+                      >
+                        <option value="In Progress" className="status-select in-progress">In Progress</option>
+                        <option value="Complete" className="status-select complete">Complete</option>
+                        <option value="Cancelled" className="status-select cancelled">Cancelled</option>
+                      </select>
+                    ) : (
+                      <span
+                        className={`status ${item[col.accessor].toLowerCase().replace(' ', '-')}`}
+                        onClick={() => handleStatusClick(item._id)}
+                      >
+                        {item[col.accessor]}
+                      </span>
+                    )
                   ) : typeof item[col.accessor] === 'string' ? (
                     item[col.accessor] // Render string value directly
                   ) : (

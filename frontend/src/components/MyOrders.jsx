@@ -39,7 +39,7 @@ const MyOrders = () => {
     { header: 'Amount', accessor: 'amount' },
     { header: 'Payment Type', accessor: 'paymentType' },
     { header: 'Status', accessor: 'status' },
-    { header: 'Details', accessor: 'details' }
+    { header: 'Details', accessor: 'details' },
   ];
 
   return (
@@ -55,6 +55,7 @@ const MyOrders = () => {
           columns={columns}
           itemsPerPage={15}
           maxItemsPerPage={30}
+          setItems={setOrders} // Pass setOrders to allow updates from the TableWidget
         />
       )}
     </div>
