@@ -1,13 +1,40 @@
 import express from 'express';
 import Menu from '../models/menuModel.js';
 import authMiddleware from '../middleware/authMiddleware.js';
-
+import multer from 'multer';
 
 const router = express.Router();
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname);
+  },
+});
+
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
+    cb(null, true);
+  } else {
+    cb(new Error('Invalid file type, only JPEG and PNG is allowed!'), false);
+  }
+};
+
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 1024 * 1024 * 5,
+  },
+  fileFilter: fileFilter,
+});
+
 
 // Create a new menu item
-router.post('/', authMiddleware, async (req, res) => {
+router.post('/', authMiddleware, upload.single('itemPicture'), async (req, res) => {
   try {
+    console.log('Request body:', req.body);
+
     // Check required fields
     const schemaPaths = Menu.schema.paths;
     const columnNames = Object.keys(schemaPaths).filter(
@@ -15,7 +42,7 @@ router.post('/', authMiddleware, async (req, res) => {
     );
 
     for (const col_name of columnNames) {
-      if (!req.body.hasOwnProperty(col_name)) {
+      if (!Object.prototype.hasOwnProperty.call(req.body, col_name)) {
         return res.status(400).json({
           message: `Error: Send all required fields, missing ${col_name}`
         });
@@ -23,7 +50,11 @@ router.post('/', authMiddleware, async (req, res) => {
     }
 
     // Create and add to database with ownerId set to the authenticated user
-    const newMenuItem = { ...req.body, ownerId: req.user._id };
+    const newMenuItem = {
+      ...req.body,
+      ownerId: req.user._id,
+      itemPicture: req.file.filename,
+    };
     const menuItem = await Menu.create(newMenuItem);
 
     return res.status(201).json(menuItem);
@@ -73,19 +104,7 @@ router.get('/:id', authMiddleware, async (req, res) => {
 // Update menu item by ID
 router.put('/:id', authMiddleware, async (req, res) => {
   try {
-    // Check required fields
-    const schemaPaths = Menu.schema.paths;
-    const columnNames = Object.keys(schemaPaths).filter(
-      col_name => col_name !== '_id' && col_name !== '__v' && col_name !== 'ownerId' && schemaPaths[col_name].isRequired
-    );
-
-    for (const col_name of columnNames) {
-      if (!req.body.hasOwnProperty(col_name)) {
-        return res.status(400).json({
-          message: `Error: Send all required fields, missing ${col_name}`
-        });
-      }
-    }
+    // ...
 
     const { id } = req.params;
     const menuItem = await Menu.findById(id);
@@ -98,7 +117,15 @@ router.put('/:id', authMiddleware, async (req, res) => {
       return res.status(403).json({ message: 'Not authorized to update this menu item' });
     }
 
-    Object.assign(menuItem, req.body);
+    // Update all fields
+    menuItem.itemName = req.body.itemName;
+    menuItem.carbsPrice = req.body.carbsPrice;
+    menuItem.proteinType = req.body.proteinType;
+    menuItem.proteinsPrice = req.body.proteinsPrice;
+    menuItem.baseFat = req.body.baseFat;
+    menuItem.itemPicture = req.body.itemPicture;
+
+    // Save the updated menu item
     const updatedMenuItem = await menuItem.save();
 
     res.status(200).json(updatedMenuItem);
@@ -122,7 +149,7 @@ router.delete('/:id', authMiddleware, async (req, res) => {
       return res.status(403).json({ message: 'Not authorized to delete this menu item' });
     }
 
-    await menuItem.remove();
+    await Menu.deleteOne({ _id: id });
 
     return res.status(200).json({ message: 'Menu item deleted successfully' });
   } catch (err) {
@@ -130,5 +157,7 @@ router.delete('/:id', authMiddleware, async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
+
 
 export default router;

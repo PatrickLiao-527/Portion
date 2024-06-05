@@ -10,9 +10,11 @@ const proteinTypes = [
   "Tilapia", "Halibut", "Duck Breast", "Lamb Chops"
 ];
 
+
 const EditItem = ({ item, setItems, onClose }) => {
   const navigate = useNavigate();
   const [currentItem, setCurrentItem] = useState(item);
+  const [selectedFile, setSelectedFile] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -31,11 +33,43 @@ const EditItem = ({ item, setItems, onClose }) => {
 
   const handleSaveItem = async (e) => {
     e.preventDefault();
-    await updateItem(currentItem);
-    onClose(); // Close modal after saving
-    navigate('/menu-items');
+  
+    // Create a new FormData object
+    const formData = new FormData();
+  
+    // Append the current item data to the FormData object
+    for (const key in currentItem) {
+      if (currentItem.hasOwnProperty(key)) {
+        formData.append(key, currentItem[key]);
+      }
+    }
+  
+    // Append the selected file to the FormData object
+    if (selectedFile) {
+      formData.append('itemPicture', selectedFile);
+    }
+  
+    try {
+      const response = await axios.put(
+        `http://localhost:5555/menus/${currentItem._id}`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+          withCredentials: true,
+        }
+      );
+      setItems((prevItems) =>
+        prevItems.map((item) => (item._id === currentItem._id ? response.data : item))
+      );
+      onClose(); // Close modal after saving
+      navigate('/menu-items');
+    } catch (error) {
+      console.error('Error updating item:', error);
+    }
   };
-
+  
   const handleDeleteItem = async () => {
     await deleteItem(currentItem._id);
     onClose(); // Close modal after deleting
@@ -49,7 +83,7 @@ const EditItem = ({ item, setItems, onClose }) => {
 
   const updateItem = async (updatedItem) => {
     try {
-      const response = await axios.put(`http://localhost:5555/menus/${updatedItem._id}`, updatedItem);
+      const response = await axios.put(`http://localhost:5555/menus/${updatedItem._id}`, updatedItem, { withCredentials: true });
       setItems((prevItems) =>
         prevItems.map((item) => (item._id === updatedItem._id ? response.data : item))
       );
@@ -58,14 +92,17 @@ const EditItem = ({ item, setItems, onClose }) => {
     }
   };
 
-  const deleteItem = async (itemId) => {
-    try {
-      await axios.delete(`http://localhost:5555/menus/${itemId}`);
-      setItems((prevItems) => prevItems.filter((item) => item._id !== itemId));
-    } catch (error) {
-      console.error('Error deleting item:', error);
-    }
-  };
+const deleteItem = async (itemId) => {
+  try {
+    await axios.delete(`http://localhost:5555/menus/${itemId}`, { withCredentials: true });
+    setItems((prevItems) => prevItems.filter((item) => item._id !== itemId));
+    onClose(); // Close modal after deleting
+  } catch (error) {
+    console.error('Error deleting item:', error);
+  }
+};
+
+  
 
   return loading ? <p>Loading...</p> : (
     <div className="edit-item-page">
@@ -113,13 +150,13 @@ const EditItem = ({ item, setItems, onClose }) => {
             />
           </div>
           <div className="form-group">
-            <label>Item Picture URL</label>
+            <label>Item Picture</label>
             <input
-              type="text"
+              type="file"
               name="itemPicture"
-              value={currentItem.itemPicture}
-              onChange={handleInputChange}
-              required
+              onChange={(e) => {
+                setSelectedFile(e.target.files[0]);
+              }}
             />
           </div>
           <div className="form-group">

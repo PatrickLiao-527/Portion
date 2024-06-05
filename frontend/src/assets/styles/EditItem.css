@@ -1,70 +1,59 @@
 .edit-item-page {
-    padding: 20px;
-    position: relative;
-  }
-  
-  .edit-item-container {
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-  }
-  
-  .edit-item-title {
-    font-family: 'Poppins', sans-serif;
-    font-size: 24px;
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 20px;
-  }
-  
-  .form-group {
-    margin-bottom: 15px;
-  }
-  
-  .form-group label {
-    display: block;
-    font-family: 'Poppins', sans-serif;
-    font-size: 16px;
-    margin-bottom: 5px;
-  }
-  
-  .form-group input {
-    width: 100%;
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    font-family: 'Poppins', sans-serif;
-  }
-  
-  .form-buttons {
-    display: flex;
-    margin-top: 20px;
-    gap: 20px; 
-  }
-  
-  .save-button, .delete-button,.go-back-button {
-    width: 10%; 
-    padding: 10px;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    font-family: 'Poppins', sans-serif;
-    font-weight: 600; 
-  }
-  
-  .save-button {
-    background-color: #69C79F; 
-    color: #111111;
-  }
-  
-  .delete-button {
-    background-color: #ff4f4f; 
-    color: #111111;
-  }
-  
-  .go-back-button {
-    background-color: #007bff;
-    color: #111111;
-  }
-  
+  padding: 20px;
+  position: relative;
+}
+
+.edit-item-container {
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+.edit-item-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-family: 'Poppins', sans-serif;
+}
+
+.form-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.save-button {
+  background-color: #69C79F;
+  color: #111111;
+}
+
+.delete-button {
+  background-color: #ff4f4f;
+  color: #111111;
+}
+
+.go-back-button {
+  background-color: #007bff;
+  color: #111111;
+}

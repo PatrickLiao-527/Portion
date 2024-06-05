@@ -91,13 +91,15 @@ const TableWidget = ({ title, data, columns, itemsPerPage, maxItemsPerPage, setI
                   ) : col.accessor === 'editItem' ? (
                     <EditIcon className="edit-icon" onClick={() => openEditModal(item)} />
                   ) : col.accessor === 'itemPicture' ? (
-                    <img src={item[col.accessor]} alt="Item" className="item-picture" />
+                    item[col.accessor] ? <img src={item[col.accessor]} alt="Item" className="item-picture" /> : null
                   ) : col.accessor === 'status' ? (
                     <span className={`status ${item[col.accessor].toLowerCase().replace(' ', '-')}`}>
                       {item[col.accessor]}
                     </span>
+                  ) : typeof item[col.accessor] === 'string' ? (
+                    item[col.accessor] // Render string value directly
                   ) : (
-                    item[col.accessor]
+                    <span>{JSON.stringify(item[col.accessor])}</span>
                   )}
                 </td>
               ))}
@@ -105,6 +107,7 @@ const TableWidget = ({ title, data, columns, itemsPerPage, maxItemsPerPage, setI
           ))}
         </tbody>
       </table>
+
       <div className="pagination">
         <div className="items-per-page">
           <span className="showing-text">Showing</span>
