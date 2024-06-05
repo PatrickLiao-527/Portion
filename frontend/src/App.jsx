@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import React, { useContext } from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
@@ -12,9 +12,12 @@ import Settings from './components/Settings';
 import Login from './components/Login';
 import Signup from './components/Signup'; 
 import EmailVerification from './components/EmailVerification';
+import ContactUs from './components/ContactUs';
+import AuthContext from './AuthContext';
 import './App.css';
 
-function App() {
+const App = () => {
+  const { user } = useContext(AuthContext);
 
   return (
     <Router>
@@ -26,24 +29,29 @@ function App() {
           <Route
             path="/*"
             element={
-              <>
-                <Header />
-                <main>
-                  <Sidebar />
-                  <div className="content">
-                    <Routes>
-                      <Route path="/" element={<Dashboard />} />
-                      <Route path="/dashboard" element={<Dashboard />} />
-                      <Route path="/my-orders" element={<MyOrders />} />
-                      <Route path="/menu-items" element={<MenuItems />} />
-                      <Route path="/transactions" element={<Transactions />} />
-                      <Route path="/my-profile" element={<MyProfile />} />
-                      <Route path="/reports" element={<Reports />} />
-                      <Route path="/settings" element={<Settings />} />
-                    </Routes>
-                  </div>
-                </main>
-              </>
+              user ? (
+                <>
+                  <Header />
+                  <main>
+                    <Sidebar />
+                    <div className="content">
+                      <Routes>
+                        <Route path="/" element={<Dashboard />} />
+                        <Route path="/dashboard" element={<Dashboard />} />
+                        <Route path="/my-orders" element={<MyOrders />} />
+                        <Route path="/menu-items" element={<MenuItems />} />
+                        <Route path="/transactions" element={<Transactions />} />
+                        <Route path="/my-profile" element={<MyProfile />} />
+                        <Route path="/reports" element={<Reports />} />
+                        <Route path="/settings" element={<Settings />} />
+                        <Route path="/contact-us" element={<ContactUs />} />
+                      </Routes>
+                    </div>
+                  </main>
+                </>
+              ) : (
+                <Navigate to="/login" />
+              )
             }
           />
         </Routes>

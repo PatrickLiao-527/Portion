@@ -1,10 +1,11 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/userModel.js';
+import authMiddleware from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-router.post('/', async (req, res) => {
+router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -25,10 +26,14 @@ router.post('/', async (req, res) => {
       sameSite: 'Strict'
     });
 
-    res.status(200).json({ message: 'Authentication successful' });
+    res.status(200).json({ user, token });
   } catch (err) {
     res.status(500).json({ error: 'Internal server error' });
   }
+});
+
+router.get('/check', authMiddleware, (req, res) => {
+  res.json({ user: req.user });
 });
 
 export default router;

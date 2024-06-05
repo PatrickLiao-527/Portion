@@ -36,10 +36,7 @@ app.use('/transactions', transactionsRoute);
 app.use('/restaurants', restaurantRoute);
 
 mongoose
-  .connect(mongoDBURL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-  })
+  .connect(mongoDBURL)
   .then(() => {
     console.log('App connected to database');
     app.listen(PORT, () => {

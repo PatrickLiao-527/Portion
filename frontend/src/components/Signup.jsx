@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import AuthContext from '../AuthContext';
 import '../assets/styles/Signup.css';
 import googleLogo from '../assets/icons/Google-logo.png';
 import showHideIcon from '../assets/icons/showHide_icon.png';
@@ -13,6 +14,7 @@ const Signup = () => {
   const [restaurantName, setRestaurantName] = useState('');
   const [restaurantCategory, setRestaurantCategory] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const { setUser } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleSignup = async (event) => {
@@ -27,7 +29,8 @@ const Signup = () => {
       });
 
       console.log('User registered successfully:', response.data);
-      navigate('/login'); // Redirect to login page after successful signup
+      setUser(response.data.user); // Set the user context
+      navigate('/dashboard'); // Redirect to dashboard after successful signup
     } catch (error) {
       console.error('Error registering user:', error);
       setErrorMessage(error.response?.data?.error || 'Failed to register');

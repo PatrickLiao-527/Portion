@@ -32,9 +32,6 @@ const MyProfile = () => {
     }
 
     try {
-      const response = await axios.put('http://localhost:5555/user/profile/password', {
-        newPassword
-      }, { withCredentials: true });
 
       setSuccess('Password changed successfully');
       setError('');

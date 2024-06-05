@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import AuthContext from '../AuthContext';
 import '../assets/styles/Login.css';
 import googleLogo from '../assets/icons/Google-logo.png';
 import showHideIcon from '../assets/icons/showHide_icon.png';
@@ -10,12 +11,13 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const { setUser } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleLogin = async (event) => {
     event.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5555/auth', {
+      const response = await axios.post('http://localhost:5555/auth/login', {
         email,
         password
       }, {
@@ -24,13 +26,15 @@ const Login = () => {
 
       console.log('User logged in successfully:', response.data);
 
-      localStorage.setItem('token', response.data.token);
+      setUser(response.data.user); // Set the user context
+      localStorage.setItem('token', response.data.token); // Store the token
       navigate('/dashboard'); // Redirect to dashboard 
     } catch (error) {
       console.error('Error logging in:', error);
       setErrorMessage(error.response?.data?.error || 'Failed to log in');
     }
   };
+
   const isFormFilled = email !== '' && password !== '';
 
   return (
@@ -39,7 +43,7 @@ const Login = () => {
         <div className="login-container">
           <h2 className="login-title">Log in to your account</h2>
           <form onSubmit={handleLogin}>
-            <div className="form-group">
+            <div className="form-group-login">
               <label>Email address</label>
               <input
                 type="email"
@@ -82,7 +86,7 @@ const Login = () => {
             <img src={googleLogo} alt="Google" className="google-logo" /> Google
           </button>
         </div>
-        <div className="signup-container">
+        <div className="create-account-container">
           <h2 className="signup-title">Create your new account</h2>
           <Link to="/signup" className="signup-button">Create an account</Link>
         </div>
