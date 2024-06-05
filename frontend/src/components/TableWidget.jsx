@@ -16,7 +16,7 @@ const TableWidget = ({ title, data, columns, itemsPerPage, maxItemsPerPage, setI
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [selectedEditItem, setSelectedEditItem] = useState(null); // New state for selected item to edit
-  const [editingStatus, setEditingStatus] = useState(null); // New state for tracking which status is being edited
+  const [clickCounts, setClickCounts] = useState({}); // Track click counts for each order
   const totalItems = data.length;
   const totalPages = Math.ceil(totalItems / currentItemsPerPage);
   const displayedItems = data.slice(
@@ -65,18 +65,17 @@ const TableWidget = ({ title, data, columns, itemsPerPage, maxItemsPerPage, setI
     setSelectedEditItem(null);
   };
 
-  const handleStatusClick = (orderId) => {
-    setEditingStatus(orderId);
-  };
+  const handleStatusClick = async (orderId, currentStatus) => {
+    const statusOrder = ['In Progress', 'Complete', 'Cancelled'];
+    const currentStatusIndex = statusOrder.indexOf(currentStatus);
+    const newStatus = statusOrder[(currentStatusIndex + 1) % statusOrder.length];
 
-  const updateStatus = async (orderId, newStatus) => {
     try {
       const response = await axios.patch(`http://localhost:5555/orders/${orderId}/status`, { status: newStatus }, { withCredentials: true });
       const updatedOrder = response.data;
-      
+
       // Update the local state with the updated order
       setItems((prevOrders) => prevOrders.map(order => (order._id === orderId ? updatedOrder : order)));
-      setEditingStatus(null);
     } catch (error) {
       console.error('Error updating order status:', error);
     }
@@ -111,24 +110,12 @@ const TableWidget = ({ title, data, columns, itemsPerPage, maxItemsPerPage, setI
                   ) : col.accessor === 'itemPicture' ? (
                     item[col.accessor] ? <img src={item[col.accessor]} alt="Item" className="item-picture" /> : null
                   ) : col.accessor === 'status' ? (
-                    editingStatus === item._id ? (
-                      <select
-                        value={item[col.accessor]}
-                        onChange={(e) => updateStatus(item._id, e.target.value)}
-                        className={`status-select ${item[col.accessor].toLowerCase().replace(' ', '-')}`}
-                      >
-                        <option value="In Progress" className="status-select in-progress">In Progress</option>
-                        <option value="Complete" className="status-select complete">Complete</option>
-                        <option value="Cancelled" className="status-select cancelled">Cancelled</option>
-                      </select>
-                    ) : (
-                      <span
-                        className={`status ${item[col.accessor].toLowerCase().replace(' ', '-')}`}
-                        onClick={() => handleStatusClick(item._id)}
-                      >
-                        {item[col.accessor]}
-                      </span>
-                    )
+                    <span
+                      className={`status ${item[col.accessor].toLowerCase().replace(' ', '-')}`}
+                      onClick={() => handleStatusClick(item._id, item[col.accessor])}
+                    >
+                      {item[col.accessor]}
+                    </span>
                   ) : typeof item[col.accessor] === 'string' ? (
                     item[col.accessor] // Render string value directly
                   ) : (

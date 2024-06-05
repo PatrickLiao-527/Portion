@@ -1,55 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import Widget from './Widget';
 import Chart from './Chart';
 import TableWidget from './TableWidget';
 import '../assets/styles/Dashboard.css';
 import mealImage from '../assets/icons/chickenBreast.png';
-
-const revenueData = [
-  { name: 'Jan', revenue: 2000 },
-  { name: 'Feb', revenue: 4000 },
-  { name: 'Mar', revenue: 6000 },
-  { name: 'Apr', revenue: 8000 },
-  { name: 'May', revenue: 10000 },
-  { name: 'Jun', revenue: 12000 },
-  { name: 'Jul', revenue: 14000 },
-  { name: 'Aug', revenue: 16000 },
-  { name: 'Sep', revenue: 18000 },
-  { name: 'Oct', revenue: 16000 },
-  { name: 'Nov', revenue: 18000 },
-  { name: 'Dec', revenue: 20000 }
-];
-
-const ordersData = [
-  { name: 'Jan', orders: 500 },
-  { name: 'Feb', orders: 1000 },
-  { name: 'Mar', orders: 1500 },
-  { name: 'Apr', orders: 2000 },
-  { name: 'May', orders: 2500 },
-  { name: 'Jun', orders: 3000 },
-  { name: 'Jul', orders: 3500 },
-  { name: 'Aug', orders: 4000 },
-  { name: 'Sep', orders: 4500 },
-  { name: 'Oct', orders: 4000 },
-  { name: 'Nov', orders: 4500 },
-  { name: 'Dec', orders: 5000 }
-];
-
-const ordersTableData = Array.from({ length: 110 }, (_, index) => ({
-  orderId: `#${index + 1}`,
-  customerName: 'James Smith',
-  date: 'May 13th, 2024',
-  time: '9:15 AM',
-  amount: '$12.29',
-  paymentType: 'Online',
-  status: index % 2 === 0 ? 'Complete' : 'In Progress',
-  details: '...', // Placeholder for details column
-  mealImage: mealImage, // Using the imported image
-  mealName: 'Grilled Chicken Salad',
-  carbs: 20,
-  proteins: 30,
-  fats: 10
-}));
 
 const columns = [
   { header: 'Order ID', accessor: 'orderId' },
@@ -63,22 +18,99 @@ const columns = [
 ];
 
 const Dashboard = () => {
+  const [ordersData, setOrdersData] = useState([]);
+  const [revenueData, setRevenueData] = useState([]);
+  const [ordersChartData, setOrdersChartData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchOrdersData = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get('http://localhost:5555/orders', { withCredentials: true });
+        const orders = response.data;
+
+        // Format the orders data for the table
+        const formattedOrders = orders.map(order => ({
+          orderId: `#${order._id}`,
+          customerName: order.customerName,
+          date: new Date(order.time).toLocaleDateString(),
+          time: new Date(order.time).toLocaleTimeString(),
+          amount: `$${order.amount.toFixed(2)}`,
+          paymentType: order.paymentType,
+          status: order.status,
+          details: '...', // Placeholder for details column
+          mealImage: mealImage,
+          mealName: order.mealName,
+          carbs: order.carbs,
+          proteins: order.proteins,
+          fats: order.fats
+        }));
+
+        setOrdersData(formattedOrders);
+
+        // Generate revenue data
+        const revenue = orders.reduce((acc, order) => {
+          const month = new Date(order.time).toLocaleString('default', { month: 'short' });
+          const existingMonth = acc.find(item => item.name === month);
+          if (existingMonth) {
+            existingMonth.revenue += order.amount;
+          } else {
+            acc.push({ name: month, revenue: order.amount });
+          }
+          return acc;
+        }, []);
+
+        setRevenueData(revenue);
+
+        // Generate orders chart data
+        const ordersChart = orders.reduce((acc, order) => {
+          const month = new Date(order.time).toLocaleString('default', { month: 'short' });
+          const existingMonth = acc.find(item => item.name === month);
+          if (existingMonth) {
+            existingMonth.orders += 1;
+          } else {
+            acc.push({ name: month, orders: 1 });
+          }
+          return acc;
+        }, []);
+
+        setOrdersChartData(ordersChart);
+        setLoading(false);
+      } catch (error) {
+        console.error('Failed to load orders:', error);
+        setError('Failed to load orders');
+        setLoading(false);
+      }
+    };
+
+    fetchOrdersData();
+  }, []);
+
   return (
     <div className="dashboard">
       <div className="widgets">
-        <Widget title="Total Revenue" value="$16456" />
-        <Widget title="Total Orders" value="4012" />
+        <Widget title="Total Revenue" value={`$${revenueData.reduce((acc, item) => acc + item.revenue, 0).toFixed(2)}`} />
+        <Widget title="Total Orders" value={ordersData.length} />
         <Widget title="Total Menu Items" value="12" />
       </div>
       <Chart title="Total Revenue" data={revenueData} dataKey="revenue" yAxisLabel="Revenue" />
-      <Chart title="Total Orders" data={ordersData} dataKey="orders" yAxisLabel="Orders" />
-      <TableWidget
-        title="New Orders"
-        data={ordersTableData}
-        columns={columns}
-        itemsPerPage={5}
-        maxItemsPerPage={20}
-      />
+      <Chart title="Total Orders" data={ordersChartData} dataKey="orders" yAxisLabel="Orders" />
+      {loading ? (
+        <p>Loading...</p>
+      ) : error ? (
+        <p>{error}</p>
+      ) : (
+        <TableWidget
+          title="New Orders"
+          data={ordersData}
+          columns={columns}
+          itemsPerPage={5}
+          maxItemsPerPage={20}
+          setItems={setOrdersData}
+        />
+      )}
     </div>
   );
 };

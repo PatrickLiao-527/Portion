@@ -16,7 +16,7 @@ const orderSchema = new mongoose.Schema({
   paymentType: {
     type: String,
     required: true,
-    enum: ['Online', 'In_Person'] // Assuming payment type can be either online or InPerson
+    enum: ['Online', 'In Person'] // Assuming payment type can be either online or InPerson
   },
   status: {
     type: String,
