@@ -20,6 +20,14 @@ const userSchema = new mongoose.Schema({
     enum: ['owner', 'client'],
     required: true,
     default: 'client'
+  },
+  restaurantName: {
+    type: String,
+    required: function() { return this.role === 'owner'; }
+  },
+  restaurantCategory: {
+    type: String,
+    required: function() { return this.role === 'owner'; }
   }
 });
 

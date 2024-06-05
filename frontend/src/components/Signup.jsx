@@ -10,6 +10,8 @@ const Signup = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [restaurantName, setRestaurantName] = useState('');
+  const [restaurantCategory, setRestaurantCategory] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
@@ -19,7 +21,9 @@ const Signup = () => {
       const response = await axios.post('http://localhost:5555/signup', {
         name: profileName,
         email,
-        password
+        password,
+        restaurantName,
+        restaurantCategory
       });
 
       console.log('User registered successfully:', response.data);
@@ -79,6 +83,26 @@ const Signup = () => {
             <p className="password-hint">
               Use 8 or more characters with a mix of letters, numbers & symbols
             </p>
+          </div>
+          <div className="form-group-signup">
+            <label>Restaurant Name</label>
+            <input
+              type="text"
+              value={restaurantName}
+              onChange={(e) => setRestaurantName(e.target.value)}
+              placeholder="Enter your restaurant name"
+              required
+            />
+          </div>
+          <div className="form-group-signup">
+            <label>Restaurant Category</label>
+            <input
+              type="text"
+              value={restaurantCategory}
+              onChange={(e) => setRestaurantCategory(e.target.value)}
+              placeholder="Enter your restaurant category"
+              required
+            />
           </div>
           <button type="submit" className="signup-button">Create an account</button>
         </form>
