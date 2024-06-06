@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';  // Ensure axios is imported
+import axios from 'axios';
 import '../assets/styles/TableWidget.css';
 import { ReactComponent as ChevronLeftIcon } from '../assets/icons/chevronLeft_icon.svg';
 import { ReactComponent as ChevronRightIcon } from '../assets/icons/chevronRight_icon.svg';
@@ -16,17 +16,30 @@ const TableWidget = ({ title, data, columns, itemsPerPage, maxItemsPerPage, setI
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [selectedEditItem, setSelectedEditItem] = useState(null); // New state for selected item to edit
-  const [clickCounts, setClickCounts] = useState({}); // Track click counts for each order
+
+  const statusOrder = ['In Progress', 'Complete', 'Cancelled'];
+
+  const handleStatusClick = async (item) => {
+    const nextStatusIndex = (statusOrder.indexOf(item.status) + 1) % statusOrder.length;
+    const nextStatus = statusOrder[nextStatusIndex];
+  
+    try {
+      const response = await axios.patch(`http://localhost:5555/orders/${item._id}/status`, { status: nextStatus }, { withCredentials: true });
+      const updatedOrder = response.data;
+  
+      // Update the local state with the updated order
+      setItems((prevOrders) => prevOrders.map(order => (order._id === item._id ? updatedOrder : order)));
+    } catch (error) {
+      console.error('Error updating order status:', error);
+    }
+  };
+
   const totalItems = data.length;
   const totalPages = Math.ceil(totalItems / currentItemsPerPage);
   const displayedItems = data.slice(
     (currentPage - 1) * currentItemsPerPage,
     currentPage * currentItemsPerPage
   );
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [currentItemsPerPage]);
 
   const handleItemsPerPageChange = (number) => {
     setCurrentItemsPerPage(number);
@@ -65,30 +78,10 @@ const TableWidget = ({ title, data, columns, itemsPerPage, maxItemsPerPage, setI
     setSelectedEditItem(null);
   };
 
-  const handleStatusClick = async (orderId, currentStatus) => {
-    const statusOrder = ['In Progress', 'Complete', 'Cancelled'];
-    const currentStatusIndex = statusOrder.indexOf(currentStatus);
-    const newStatus = statusOrder[(currentStatusIndex + 1) % statusOrder.length];
-
-    try {
-      const response = await axios.patch(`http://localhost:5555/orders/${orderId}/status`, { status: newStatus }, { withCredentials: true });
-      const updatedOrder = response.data;
-
-      // Update the local state with the updated order
-      setItems((prevOrders) => prevOrders.map(order => (order._id === orderId ? updatedOrder : order)));
-    } catch (error) {
-      console.error('Error updating order status:', error);
-    }
-  };
-
   return (
     <div className="table-widget">
       <div className="table-header">
         <h3 className="table-title">{title}</h3>
-        {/*<div className="filter">
-          <span className="filter-text">Filter</span>
-          <FilterIcon className="filter-icon" />
-  </div>*/} 
       </div>
       <table>
         <thead>
@@ -112,7 +105,7 @@ const TableWidget = ({ title, data, columns, itemsPerPage, maxItemsPerPage, setI
                   ) : col.accessor === 'status' ? (
                     <span
                       className={`status ${item[col.accessor].toLowerCase().replace(' ', '-')}`}
-                      onClick={() => handleStatusClick(item._id, item[col.accessor])}
+                      onClick={() => handleStatusClick(item)}
                     >
                       {item[col.accessor]}
                     </span>

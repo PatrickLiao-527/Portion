@@ -122,8 +122,9 @@ router.patch('/:id/status', authMiddleware, checkRole('owner'), async (req, res)
 
     res.status(200).json(updatedOrder);
   } catch (err) {
-    console.log(err.message);
+    console.error('Error updating order status:', err.message);
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
 export default router;

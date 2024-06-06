@@ -13,7 +13,8 @@ const MyOrders = () => {
     axios
       .get('http://localhost:5555/orders', { withCredentials: true })
       .then((response) => {
-        setOrders(response.data);
+        const sortedOrders = response.data.sort((a, b) => new Date(b.time) - new Date(a.time));
+        setOrders(sortedOrders);
         setLoading(false);
       })
       .catch((error) => {

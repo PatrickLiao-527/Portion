@@ -29,7 +29,7 @@ const Dashboard = () => {
       setLoading(true);
       try {
         const response = await axios.get('http://localhost:5555/orders', { withCredentials: true });
-        const orders = response.data;
+        const orders = response.data.sort((a, b) => new Date(b.time) - new Date(a.time));
 
         // Format the orders data for the table
         const formattedOrders = orders.map(order => ({

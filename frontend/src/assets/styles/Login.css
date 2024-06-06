@@ -12,12 +12,12 @@
 .login-frame {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: start;
   width: 100%;
   max-width: 1440px;
 }
 
-.login-container, .signup-container {
+.login-container, .create-account-container {
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -26,6 +26,9 @@
   width: 100%;
   max-width: 450px;
   font-family: 'Poppins', sans-serif;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .login-title, .signup-title {
@@ -33,25 +36,24 @@
   font-weight: 500;
   color: #333333;
   margin-bottom: 20px;
-  font-family: 'Poppins', sans-serif;
 }
 
-.form-group-login {
+.form-group, .form-group-login {
   margin-bottom: 20px;
-  font-family: 'Poppins', sans-serif;
+  max-width: 100%;
 }
 
-.form-group-login label {
+.form-group label, .form-group-login label {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 5px;
-  font-weight: 500;
+  font-weight: 600;
   font-size: 16px;
   color: #666666;
 }
 
-.form-group-login input {
+.form-group input, .form-group-login input {
   width: 100%;
   padding: 10px;
   border-radius: 5px;
@@ -59,8 +61,7 @@
   font-family: 'Poppins', sans-serif;
 }
 
-.form-group-login input::placeholder {
-  font-family: 'Poppins', sans-serif;
+.form-group input::placeholder, .form-group-login input::placeholder {
   color: #999999;
 }
 
@@ -80,7 +81,6 @@
   font-weight: 500;
   font-size: 22px;
   cursor: pointer;
-  font-family: 'Poppins', sans-serif;
 }
 .login-button.filled:hover {
   background-color: green;
@@ -97,7 +97,6 @@
   font-size: 16px;
   color: #111111;
   text-align: right;
-  font-family: 'Poppins', sans-serif;
 }
 
 .login-divider {
@@ -106,7 +105,6 @@
   font-weight: 500;
   font-size: 16px;
   color: #666666;
-  font-family: 'Poppins', sans-serif;
 }
 
 .google-login-button {
@@ -121,7 +119,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Poppins', sans-serif;
 }
 
 .google-logo {
@@ -141,11 +138,10 @@
   cursor: pointer;
   text-align: center;
   text-decoration: none;
-  font-family: 'Poppins', sans-serif;
 }
 .signup-button:hover {
   background-color: #000;
-  color: #fff; /* Change text color to white for better visibility */
+  color: #fff;
 }
 
 @media (min-width: 768px) {
