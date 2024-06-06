@@ -7,11 +7,11 @@ const router = express.Router();
 
 // User signup
 router.post('/', async (req, res) => {
-  try {
-    const { name, email, password, restaurantName, restaurantCategory } = req.body;
-    if (!email || !password || !name) {
-      return res.status(422).json({ error: 'Submit all fields (email, name, password)' });
-    }
+    try {
+        const { name, email, password, role, restaurantName, restaurantCategory } = req.body;
+        if (!email || !password || !name || !role) {
+            return res.status(422).json({ error: 'Submit all fields (email, name, password, role)' });
+        }
 
     const savedUser = await User.findOne({ email });
     if (savedUser) {
@@ -19,11 +19,12 @@ router.post('/', async (req, res) => {
     }
 
     const newUser = new User({
-      email,
-      name,
-      password,
-      restaurantName,
-      restaurantCategory
+        email,
+        name,
+        password,
+        role,
+        restaurantName,
+        restaurantCategory
     });
 
     await newUser.save();

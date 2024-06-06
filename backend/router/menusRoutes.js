@@ -1,7 +1,7 @@
 import express from 'express';
 import Menu from '../models/menuModel.js';
 import authMiddleware from '../middleware/authMiddleware.js';
-import multer from 'multer';
+import checkRole from '../middleware/checkRole.js';import multer from 'multer';
 
 const router = express.Router();
 const storage = multer.diskStorage({
@@ -31,7 +31,7 @@ const upload = multer({
 
 
 // Create a new menu item
-router.post('/', authMiddleware, upload.single('itemPicture'), async (req, res) => {
+router.post('/', authMiddleware, checkRole('owner'), upload.single('itemPicture'), async (req, res) => {
   try {
     console.log('Request body:', req.body);
 
@@ -66,16 +66,16 @@ router.post('/', authMiddleware, upload.single('itemPicture'), async (req, res) 
 
 // Get all menu items
 router.get('/', authMiddleware, async (req, res) => {
-    try {
-        const menuItems = await Menu.find({ ownerId: req.user._id });
-        return res.status(200).json({
-            length: menuItems.length,
-            data: menuItems
-        });
-    } catch (err) {
-        console.log(err.message);
-        res.status(500).json({ message: err.message });
-    }
+  try {
+    const menuItems = await Menu.find({ ownerId: req.user._id });
+    return res.status(200).json({
+      length: menuItems.length,
+      data: menuItems
+    });
+  } catch (err) {
+    console.log(err.message);
+    res.status(500).json({ message: err.message });
+  }
 });
 
 // Get menu item by ID
@@ -102,9 +102,21 @@ router.get('/:id', authMiddleware, async (req, res) => {
 });
 
 // Update menu item by ID
-router.put('/:id', authMiddleware, async (req, res) => {
+router.put('/:id', authMiddleware , checkRole('owner'), async (req, res) => {
   try {
-    // ...
+    // Check required fields
+    const schemaPaths = Menu.schema.paths;
+    const columnNames = Object.keys(schemaPaths).filter(
+      col_name => col_name !== '_id' && col_name !== '__v' && col_name !== 'ownerId' && schemaPaths[col_name].isRequired
+    );
+
+    for (const col_name of columnNames) {
+      if (!req.body.hasOwnProperty(col_name)) {
+        return res.status(400).json({
+          message: `Error: Send all required fields, missing ${col_name}`
+        });
+      }
+    }
 
     const { id } = req.params;
     const menuItem = await Menu.findById(id);
@@ -136,7 +148,7 @@ router.put('/:id', authMiddleware, async (req, res) => {
 });
 
 // Delete menu item by ID
-router.delete('/:id', authMiddleware, async (req, res) => {
+router.delete('/:id', authMiddleware, checkRole('owner'), async (req, res) => {
   try {
     const { id } = req.params;
     const menuItem = await Menu.findById(id);

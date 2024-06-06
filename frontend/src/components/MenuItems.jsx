@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import TableWidget from './TableWidget';
+import AddMenuItem from './AddMenuItem';
 import editIcon from '../assets/icons/edit_icon.svg';
 import '../assets/styles/MenuItems.css';
 
@@ -31,6 +32,8 @@ const MenuItems = () => {
     axios
       .get('http://localhost:5555/menus', { withCredentials: true })
       .then((response) => {
+        // some attributes stored in db as Decimal128 which cannot be displayed directly
+        // transforming Decimal128 to String
         const transformedData = response.data.data.map(item => ({
           ...item,
           carbsPrice: parseFloat(item.carbsPrice.$numberDecimal),
@@ -139,6 +142,17 @@ const MenuItems = () => {
       console.error('Error creating new item:', error);
     }
   };  
+
+  const handleItemAdded = (newItem) => {
+    const transformedNewItem = {
+      ...newItem,
+      carbsPrice: parseFloat(newItem.carbsPrice.$numberDecimal),
+      proteinsPrice: parseFloat(newItem.proteinsPrice.$numberDecimal),
+      baseFat: parseFloat(newItem.baseFat.$numberDecimal),
+      editItem: <Link to={`/menu-items/edit/${newItem._id}`} className="edit-link"><img src={editIcon} alt="Edit" /></Link>
+    };
+    setMenus((prevMenus) => [...prevMenus, transformedNewItem]);
+  };
 
   return (
     <div className="menu-items-page">

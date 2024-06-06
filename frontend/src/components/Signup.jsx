@@ -24,6 +24,7 @@ const Signup = () => {
         name: profileName,
         email,
         password,
+        role: 'owner',
         restaurantName,
         restaurantCategory
       });
