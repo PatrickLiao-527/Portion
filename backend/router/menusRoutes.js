@@ -1,37 +1,14 @@
 import express from 'express';
 import Menu from '../models/menuModel.js';
 import authMiddleware from '../middleware/authMiddleware.js';
-import checkRole from '../middleware/checkRole.js';import multer from 'multer';
+import checkRole from '../middleware/checkRole.js';
+// import multer from 'multer';
 
 const router = express.Router();
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/');
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + '-' + file.originalname);
-  },
-});
-
-const fileFilter = (req, file, cb) => {
-  if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
-    cb(null, true);
-  } else {
-    cb(new Error('Invalid file type, only JPEG and PNG is allowed!'), false);
-  }
-};
-
-const upload = multer({
-  storage: storage,
-  limits: {
-    fileSize: 1024 * 1024 * 5,
-  },
-  fileFilter: fileFilter,
-});
 
 
 // Create a new menu item
-router.post('/', authMiddleware, checkRole('owner'), upload.single('itemPicture'), async (req, res) => {
+router.post('/', authMiddleware, checkRole('owner'), async (req, res) => {
   try {
     console.log('Request body:', req.body);
 
@@ -62,6 +39,10 @@ router.post('/', authMiddleware, checkRole('owner'), upload.single('itemPicture'
     console.log(error.message);
     res.status(500).json({ message: error.message });
   }
+});
+
+router.post('/upload', authMiddleware, checkRole('owner'), async (req, res) => {
+
 });
 
 // Get all menu items

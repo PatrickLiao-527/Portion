@@ -14,10 +14,7 @@ const proteinTypes = [
 const EditItem = ({ item, setItems, onClose }) => {
   const navigate = useNavigate();
   const [currentItem, setCurrentItem] = useState({
-    ...item,
-    carbsPrice: item.carbsPrice ? parseFloat(item.carbsPrice.$numberDecimal) : '', // Transform Decimal128
-    proteinsPrice: item.proteinsPrice ? parseFloat(item.proteinsPrice.$numberDecimal) : '',
-    baseFat: item.baseFat ? parseFloat(item.baseFat.$numberDecimal) : '',
+    ...item
   });
   const [selectedFile, setSelectedFile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -55,8 +52,8 @@ const EditItem = ({ item, setItems, onClose }) => {
     }
   
     try {
-      const response = await axios.put(
-        `http://localhost:5555/menus/${currentItem._id}`,
+      const response = await axios.post(
+        `http://localhost:5555/menus/upload?${currentItem._id}`,
         formData,
         {
           headers: {
@@ -73,7 +70,7 @@ const EditItem = ({ item, setItems, onClose }) => {
     } catch (error) {
       console.error('Error updating item:', error);
     }
-  };
+  };  
   
   const handleDeleteItem = async () => {
     await deleteItem(currentItem._id);

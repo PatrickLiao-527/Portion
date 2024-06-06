@@ -18,7 +18,7 @@ import ProtectedRoute from './ProtectedRoute';
 import './App.css';
 
 const AppContent = () => {
-  const { user } = useContext(AuthContext);
+  // const { user } = useContext(AuthContext);
 
   return (
     <Routes>
