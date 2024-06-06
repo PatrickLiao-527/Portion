@@ -32,6 +32,8 @@ const MenuItems = () => {
     axios
       .get('http://localhost:5555/menus', { withCredentials: true })
       .then((response) => {
+        // some attributes stored in db as Decimal128 which cannot be displayed directly
+        // transforming Decimal128 to String
         const transformedData = response.data.data.map(item => ({
           ...item,
           carbsPrice: parseFloat(item.carbsPrice.$numberDecimal),

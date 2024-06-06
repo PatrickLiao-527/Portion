@@ -23,8 +23,7 @@ const menuSchema = new mongoose.Schema({
     required: true
   },
   itemPicture: {
-    type: String,
-    required: true
+    type: String
   },
   ownerId: {
     type: mongoose.Schema.Types.ObjectId,
