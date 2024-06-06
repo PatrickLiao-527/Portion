@@ -95,35 +95,27 @@ router.delete('/:id', authMiddleware, checkRole('owner'), async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
-// Update the status of an order by ID (owner only)
-router.patch('/:id/status', authMiddleware, checkRole('owner'), async (req, res) => {
+// Route to change order status
+router.patch('/:id/status', authMiddleware, async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  console.log('Received order ID:', id); // Log received order ID
+  console.log('Received status:', status); // Log received status
+
   try {
-    const { id } = req.params;
-    const { status } = req.body;
-
-    // Validate the new status value
-    const validStatuses = ['Complete', 'In Progress', 'Cancelled'];
-    if (!validStatuses.includes(status)) {
-      return res.status(400).json({ message: 'Invalid status value' });
-    }
-
     const order = await Order.findById(id);
-
     if (!order) {
-      return res.status(404).json({ message: 'Order not found' });
-    }
-
-    if (order.ownerId.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ error: 'Not authorized to update this order' });
+      return res.status(404).json({ error: 'Order not found' });
     }
 
     order.status = status;
-    const updatedOrder = await order.save();
+    await order.save();
 
-    res.status(200).json(updatedOrder);
-  } catch (err) {
-    console.error('Error updating order status:', err.message);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(200).json(order); // Return the updated order
+  } catch (error) {
+    console.error('Error updating order status:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 

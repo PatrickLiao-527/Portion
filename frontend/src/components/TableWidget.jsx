@@ -15,11 +15,12 @@ const TableWidget = ({ title, data, columns, itemsPerPage, maxItemsPerPage, setI
   const [currentPage, setCurrentPage] = useState(1);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const [selectedEditItem, setSelectedEditItem] = useState(null); // New state for selected item to edit
+  const [selectedEditItem, setSelectedEditItem] = useState(null); 
 
   const statusOrder = ['In Progress', 'Complete', 'Cancelled'];
 
   const handleStatusClick = async (item) => {
+     //console.log('Item Object:', item);
     if (!item._id) {
       console.error('Order ID is undefined:', item);
       return;
@@ -29,6 +30,7 @@ const TableWidget = ({ title, data, columns, itemsPerPage, maxItemsPerPage, setI
     const nextStatus = statusOrder[nextStatusIndex];
   
     try {
+      console.log('Order ID:', item._id); // Log the order ID
       const response = await axios.patch(`http://localhost:5555/orders/${item._id}/status`, { status: nextStatus }, { withCredentials: true });
       const updatedOrder = response.data;
   

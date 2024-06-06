@@ -59,12 +59,13 @@ const Sidebar = () => {
                     </div>
                     Transactions
                 </NavLink>
+                {/*
                 <NavLink to="/reports" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
                     <div className="icon-wrapper">
                         <ReportsIcon />
                     </div>
                     Reports
-                </NavLink>
+                </NavLink>*/}
                 {/*<NavLink to="/settings" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
                     <div className="icon-wrapper">
                         <SettingsIcon />

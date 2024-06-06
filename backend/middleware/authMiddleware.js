@@ -5,7 +5,8 @@ const authMiddleware = async (req, res, next) => {
   const token = req.cookies.token; // Get token from cookies
 
   if (!token) {
-    return res.status(401).json({ error: 'No token provided' });
+    console.log('No token found in cookies');
+    return res.status(401).json({ error: 'No token, authorization denied' });
   }
 
   try {
@@ -13,13 +14,14 @@ const authMiddleware = async (req, res, next) => {
     const user = await User.findById(decoded.id).select('-password'); // Fetch user without password
 
     if (!user) {
+      console.log('User not found for token:', decoded.id);
       return res.status(401).json({ error: 'Invalid token' });
     }
 
     req.user = user; // Attach user to the request object
     next();
   } catch (err) {
-    console.error(err);
+    console.error('Token verification failed:', err);
     return res.status(401).json({ error: 'Token is not valid' });
   }
 };

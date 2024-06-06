@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext} from 'react';
+import AuthContext from '../AuthContext';
 import axios from 'axios';
 import '../assets/styles/MyProfile.css';
 import profilePic from '../assets/icons/profilePic.png';
@@ -40,7 +41,11 @@ const MyProfile = () => {
       setError('Failed to change password');
     }
   };
+  const {signOut } = useContext(AuthContext);
 
+  const handleSignOut = () => {
+    signOut();
+  };
   return (
     <div className="my-profile">
       <h2 className="profile-page-title">My Profile</h2>
@@ -94,6 +99,9 @@ const MyProfile = () => {
           <button type="submit" className="change-password-button">Change Password</button>
         </form>
       </div>
+      <button className="sign-out-button" onClick={handleSignOut}>
+        Sign Out
+      </button>
     </div>
   );
 };

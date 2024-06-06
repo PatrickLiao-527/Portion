@@ -31,9 +31,19 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-
+// checks whether the user has logged in 
 router.get('/check', authMiddleware, (req, res) => {
   res.json({ user: req.user });
 });
+// clears user's cookies info and logs out 
+router.post('/logout', (req, res) => {
+  res.clearCookie('token', {
+    httpOnly: true,
+    secure: false,
+    sameSite: 'Strict'
+  });
+  res.status(200).json({ message: 'Logged out successfully' });
+});
+
 
 export default router;
