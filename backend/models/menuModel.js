@@ -10,6 +10,10 @@ const menuSchema = new mongoose.Schema({
     type: Decimal128,
     required: true
   },
+  proteinType: {
+    type: String,
+    required: true
+  },
   proteinsPrice: {
     type: Decimal128,
     required: true
@@ -19,7 +23,7 @@ const menuSchema = new mongoose.Schema({
     required: true
   },
   itemPicture: {
-    type: Buffer,
+    type: String,
     required: true
   },
   ownerId: {

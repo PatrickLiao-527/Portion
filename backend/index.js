@@ -17,15 +17,15 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use(cors({
-    origin: 'http://localhost:3000',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type'],
-    credentials: true 
+  origin: ['http://localhost:3001', 'http://localhost:3000'], // Specify multiple origins in an array
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  allowedHeaders: ['Content-Type'],
+  credentials: true 
 }));
 
 app.get('/', (request, response) => {
-    console.log(request);
-    return response.status(234).send('Returned status 234');
+  console.log(request);
+  return response.status(234).send('Returned status 234');
 });
 
 app.use('/signup', signupRoute);
@@ -36,13 +36,16 @@ app.use('/transactions', transactionsRoute);
 app.use('/restaurants', restaurantRoute);
 
 mongoose
-    .connect(mongoDBURL)
-    .then(() => {
-        console.log('App connected to database');
-        app.listen(PORT, () => {
-            console.log(`App is listening to port: ${PORT}`);
-        });
-    })
-    .catch((error) => {
-        console.log(error);
+  .connect(mongoDBURL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  })
+  .then(() => {
+    console.log('App connected to database');
+    app.listen(PORT, () => {
+      console.log(`App is listening to port: ${PORT}`);
     });
+  })
+  .catch((error) => {
+    console.log(error);
+  });

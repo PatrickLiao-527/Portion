@@ -29,9 +29,9 @@
   position: fixed;
   z-index: 1;
   left: 40%;
-  top: 10%;
-  width: 30%;
-  height: 80%;
+  top: 5%;
+  width: 50%;
+  height: 90%;
   overflow: auto;
 }
 
@@ -39,12 +39,12 @@
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  padding: 30px;
   margin: 20px;
   width: 100%;
   max-width: 450px;
   text-align: start;
   font-family: 'Poppins', sans-serif;
+  
 }
 
 .modal-content h2 {
@@ -60,7 +60,8 @@
   margin-bottom: 20px;
 }
 
-.modal-content input {
+.modal-content input,
+.modal-content select {
   width: 100%;
   padding: 10px;
   border-radius: 5px;
@@ -69,26 +70,23 @@
   font-family: 'Poppins', sans-serif;
 }
 
-.modal-content input::placeholder {
+.modal-content input::placeholder,
+.modal-content select::placeholder {
   color: #999999;
 }
 
 .modal-content button {
-  width: 100%;
+  width: 50%;
   padding: 10px;
   border: none;
   border-radius: 10px;
-  background-color: #4CAF50;
-  color: #fff;
-  font-weight: 500;
-  font-size: 16px;
   cursor: pointer;
   font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  margin: 0 5px; 
 }
 
-.modal-content button:hover {
-  background-color: #45a049;
-}
 
 .close {
   color: #aaa;

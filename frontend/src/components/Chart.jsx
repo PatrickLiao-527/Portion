@@ -32,10 +32,12 @@ const Chart = ({ title, data, dataKey, yAxisLabel }) => {
     <div className="chart-container">
       <div className="chart-header">
         <h2 className="chart-title">{title}</h2>
+        {/*
         <div className="filter-container">
           <span className="filter-text">Filter</span>
           <FilterIcon className="filter-icon" />
         </div>
+  */}
       </div>
       <ResponsiveContainer width="100%" height={400}>
         <LineChart

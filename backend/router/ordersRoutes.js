@@ -6,7 +6,7 @@ import checkRole from '../middleware/checkRole.js';
 const router = express.Router();
 
 // Create a new order (client only)
-router.post('/', authMiddleware, checkRole('client'), async (req, res) => {
+router.post('/', authMiddleware, checkRole('owner'), async (req, res) => {
   try {
     const newOrder = { ...req.body, ownerId: req.user._id };
     const order = await Order.create(newOrder);
@@ -95,5 +95,35 @@ router.delete('/:id', authMiddleware, checkRole('owner'), async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+// Update the status of an order by ID (owner only)
+router.patch('/:id/status', authMiddleware, checkRole('owner'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
 
+    // Validate the new status value
+    const validStatuses = ['Complete', 'In Progress', 'Cancelled'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ message: 'Invalid status value' });
+    }
+
+    const order = await Order.findById(id);
+
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    if (order.ownerId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ error: 'Not authorized to update this order' });
+    }
+
+    order.status = status;
+    const updatedOrder = await order.save();
+
+    res.status(200).json(updatedOrder);
+  } catch (err) {
+    console.log(err.message);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
 export default router;

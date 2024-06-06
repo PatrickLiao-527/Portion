@@ -1,15 +1,47 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import '../assets/styles/MyProfile.css';
-import profilePic from '../assets/icons/profilePic.png'; 
+import profilePic from '../assets/icons/profilePic.png';
 
 const MyProfile = () => {
-  const [currentPassword, setCurrentPassword] = useState('');
+  const [profileData, setProfileData] = useState({});
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
-  const handlePasswordChange = (e) => {
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      try {
+        const response = await axios.get('http://localhost:5555/user/profile', { withCredentials: true });
+        console.log('Profile data:', response.data);
+        setProfileData(response.data);
+      } catch (error) {
+        console.error('Error fetching profile data:', error);
+      }
+    };
+
+    fetchProfileData();
+  }, []);
+
+  const handlePasswordChange = async (e) => {
     e.preventDefault();
-    // Add password change logic here
+    if (newPassword !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    try {
+      const response = await axios.put('http://localhost:5555/user/profile/password', {
+        newPassword
+      }, { withCredentials: true });
+
+      setSuccess('Password changed successfully');
+      setError('');
+    } catch (error) {
+      console.error('Error changing password:', error);
+      setError('Failed to change password');
+    }
   };
 
   return (
@@ -18,25 +50,25 @@ const MyProfile = () => {
       <div className="profile-card">
         <img src={profilePic} alt="Profile" className="profile-picture" />
         <div className="profile-info">
-          <h3 className="profile-name">Aiden Anovi</h3>
-          <p className="profile-email">aidenanovi32@gmail.com</p>
+          <h3 className="profile-name">{profileData.name}</h3>
+          <p className="profile-email">{profileData.email}</p>
         </div>
         <div className="contact-info">
-          <p className="contact-number">Contact Number: (308) 555-0121</p>
+          <p className="contact-number">Contact Number: {profileData.contactNumber}</p>
         </div>
       </div>
       <div className="profile-details">
         <div className="detail-item">
           <label>Name</label>
-          <p>Aiden Anovi</p>
+          <p>{profileData.name}</p>
         </div>
         <div className="detail-item">
           <label>Email Address</label>
-          <p>aidenanovi32@gmail.com</p>
+          <p>{profileData.email}</p>
         </div>
         <div className="detail-item">
           <label>Contact Number</label>
-          <p>(308) 555-0121</p>
+          <p>{profileData.contactNumber}</p>
         </div>
       </div>
       <div className="change-password">
@@ -60,6 +92,8 @@ const MyProfile = () => {
               required
             />
           </div>
+          {error && <p className="error-message">{error}</p>}
+          {success && <p className="success-message">{success}</p>}
           <button type="submit" className="change-password-button">Change Password</button>
         </form>
       </div>
