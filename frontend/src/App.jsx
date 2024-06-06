@@ -1,5 +1,4 @@
-import React, { useContext } from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes} from 'react-router-dom';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
@@ -13,12 +12,11 @@ import Login from './components/Login';
 import Signup from './components/Signup'; 
 import EmailVerification from './components/EmailVerification';
 import ContactUs from './components/ContactUs';
-import { AuthProvider, AuthContext } from './AuthContext'; // Ensure the path is correct
+import { AuthProvider} from './AuthContext'; 
 import ProtectedRoute from './ProtectedRoute';
 import './App.css';
 
 const AppContent = () => {
-  const { user } = useContext(AuthContext);
 
   return (
     <Routes>

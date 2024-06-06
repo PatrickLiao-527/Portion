@@ -27,8 +27,18 @@ const MyOrders = () => {
   const formatOrders = (orders) => {
     return orders.map(order => ({
       ...order,
-      date: new Date(order.time).toLocaleDateString(), // Extracting date part from data.time
-      time: new Date(order.time).toLocaleTimeString() // Extracting time part from data.time
+      orderId: `#${order._id}`,
+      customerName: order.customerName,
+      date: new Date(order.time).toLocaleDateString(), // Correctly format the date
+      time: new Date(order.time).toLocaleTimeString(), // Correctly format the time
+      amount: `$${order.amount.toFixed(2)}`,
+      paymentType: order.paymentType,
+      status: order.status,
+      details: '...', // Placeholder for details column
+      mealName: order.mealName,
+      carbs: order.carbs,
+      proteins: order.proteins,
+      fats: order.fats 
     }));
   };
 
@@ -52,11 +62,11 @@ const MyOrders = () => {
       ) : (
         <TableWidget
           title="New Orders"
-          data={formatOrders(orders)} // Format orders before passing to TableWidget
+          data={formatOrders(orders)} 
           columns={columns}
           itemsPerPage={15}
           maxItemsPerPage={30}
-          setItems={setOrders} // Pass setOrders to allow updates from the TableWidget
+          setItems={setOrders} 
         />
       )}
     </div>

@@ -30,7 +30,7 @@ const TableWidget = ({ title, data, columns, itemsPerPage, maxItemsPerPage, setI
     const nextStatus = statusOrder[nextStatusIndex];
   
     try {
-      console.log('Order ID:', item._id); // Log the order ID
+      //console.log('Order ID:', item._id); // Log the order ID
       const response = await axios.patch(`http://localhost:5555/orders/${item._id}/status`, { status: nextStatus }, { withCredentials: true });
       const updatedOrder = response.data;
   
@@ -40,7 +40,6 @@ const TableWidget = ({ title, data, columns, itemsPerPage, maxItemsPerPage, setI
       console.error('Error updating order status:', error);
     }
   };
-  
 
   const totalItems = data.length;
   const totalPages = Math.ceil(totalItems / currentItemsPerPage);
@@ -117,10 +116,8 @@ const TableWidget = ({ title, data, columns, itemsPerPage, maxItemsPerPage, setI
                     >
                       {item[col.accessor]}
                     </span>
-                  ) : typeof item[col.accessor] === 'string' ? (
-                    item[col.accessor] // Render string value directly
                   ) : (
-                    <span>{JSON.stringify(item[col.accessor])}</span>
+                    item[col.accessor] // Render string value directly
                   )}
                 </td>
               ))}
