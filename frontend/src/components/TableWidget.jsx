@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import '../assets/styles/TableWidget.css';
 import { ReactComponent as ChevronLeftIcon } from '../assets/icons/chevronLeft_icon.svg';
@@ -20,6 +20,11 @@ const TableWidget = ({ title, data, columns, itemsPerPage, maxItemsPerPage, setI
   const statusOrder = ['In Progress', 'Complete', 'Cancelled'];
 
   const handleStatusClick = async (item) => {
+    if (!item._id) {
+      console.error('Order ID is undefined:', item);
+      return;
+    }
+  
     const nextStatusIndex = (statusOrder.indexOf(item.status) + 1) % statusOrder.length;
     const nextStatus = statusOrder[nextStatusIndex];
   
@@ -33,6 +38,7 @@ const TableWidget = ({ title, data, columns, itemsPerPage, maxItemsPerPage, setI
       console.error('Error updating order status:', error);
     }
   };
+  
 
   const totalItems = data.length;
   const totalPages = Math.ceil(totalItems / currentItemsPerPage);

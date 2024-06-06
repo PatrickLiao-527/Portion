@@ -160,7 +160,6 @@ const MenuItems = () => {
       }
       {showModal && (
         <div className="modal">
-          <div className="modal-content">
             <span className="close" onClick={handleCloseModal}>&times;</span>
             <h2>Create New Item</h2>
             <form onSubmit={handleSubmit}>
@@ -195,7 +194,6 @@ const MenuItems = () => {
               </label>
               <button type="submit">Save</button>
             </form>
-          </div>
         </div>
       )}
     </div>

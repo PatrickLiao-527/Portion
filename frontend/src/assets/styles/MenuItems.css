@@ -28,10 +28,6 @@
   align-items: center;
   position: fixed;
   z-index: 1;
-  left: 40%;
-  top: 5%;
-  width: 50%;
-  height: 90%;
   overflow: auto;
 }
 
@@ -41,8 +37,7 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   margin: 20px;
   width: 100%;
-  max-width: 450px;
-  text-align: start;
+  text-align: center;
   font-family: 'Poppins', sans-serif;
   
 }

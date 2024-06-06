@@ -106,7 +106,6 @@ const deleteItem = async (itemId) => {
 
   return loading ? <p>Loading...</p> : (
     <div className="edit-item-page">
-      <div className="edit-item-container">
         <h2 className="edit-item-title">Edit Item</h2>
         <form onSubmit={handleSaveItem}>
           <div className="form-group">
@@ -179,7 +178,6 @@ const deleteItem = async (itemId) => {
             <button type="button" className="go-back-button" onClick={handleGoBack}>Go Back</button>
           </div>
         </form>
-      </div>
     </div>
   );
 };

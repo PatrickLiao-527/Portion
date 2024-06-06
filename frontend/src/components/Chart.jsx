@@ -73,15 +73,6 @@ const Chart = ({ title, data, dataKey, yAxisLabel }) => {
             </g>
           ))}
 
-          <text
-            x={0}
-            y={200}
-            transform="rotate(-90)"
-            textAnchor="middle"
-            style={{ textAnchor: 'middle', fontFamily: 'Poppins', fontWeight: '600', fontSize: 14 }}
-          >
-            {yAxisLabel}
-          </text>
         </LineChart>
       </ResponsiveContainer>
     </div>

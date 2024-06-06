@@ -50,7 +50,7 @@ const MyProfile = () => {
           <h3 className="profile-name">{profileData.name}</h3>
           <p className="profile-email">{profileData.email}</p>
         </div>
-        <div className="contact-info">
+        <div className="contact-info-profile">
           <p className="contact-number">Contact Number: {profileData.contactNumber}</p>
         </div>
       </div>
