@@ -44,6 +44,7 @@ const MenuItems = () => {
     { header: '$/proteins', accessor: 'proteinsPrice' },
     { header: 'Base Fat', accessor: 'baseFat' },
     { header: 'Item Picture', accessor: 'itemPicture', Cell: ({ value }) => <img src={value} alt="Item" width="100" height="100" /> },
+    { header: 'Item Picture', accessor: 'itemPicture', Cell: ({ value }) => <img src={value} alt="Item" width="100" height="100" /> },
     { header: 'Edit Item', accessor: 'editItem' }
   ];
 

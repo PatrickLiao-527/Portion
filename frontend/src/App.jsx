@@ -1,5 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
@@ -14,7 +16,6 @@ import Signup from './components/Signup';
 import EmailVerification from './components/EmailVerification';
 import ContactUs from './components/ContactUs';
 import { AuthProvider } from './AuthContext';
-import { AuthProvider} from './AuthContext'; 
 import ProtectedRoute from './ProtectedRoute';
 import './App.css';
 
