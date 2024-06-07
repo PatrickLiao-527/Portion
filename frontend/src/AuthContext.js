@@ -15,8 +15,12 @@ export const AuthProvider = ({ children }) => {
         console.log('Auth check response:', response.data);
         setUser(response.data.user);
       } catch (error) {
-        console.error('Error checking authentication:', error);
-        setUser(null);
+        if (error.response && error.response.status === 401) {
+          console.log('User not authenticated');
+          setUser(null);
+        } else {
+          console.error('Error checking authentication:', error);
+        }
       } finally {
         setLoading(false);
       }

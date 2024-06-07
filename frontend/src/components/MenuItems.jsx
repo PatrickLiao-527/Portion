@@ -82,6 +82,12 @@ const MenuItems = () => {
     );
   };
 
+  const updateItem = (updatedItem) => {
+    setMenus((prevMenus) =>
+      prevMenus.map((item) => (item._id === updatedItem._id ? updatedItem : item))
+    );
+  };
+
   return (
     <div className="menu-items-page">
       <div className="menu-items-header">

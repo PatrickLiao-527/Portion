@@ -43,6 +43,7 @@
   margin-bottom: 20px;
   text-align: left;
   font-family: 'Poppins', sans-serif;
+  position: relative; /* Added for error message positioning */
 }
 
 .form-group-signup label {
@@ -55,7 +56,14 @@
   color: #666666;
 }
 
-.form-group-signup input {
+.form-group-signup input{
+  width: 95%;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-family: 'Poppins', sans-serif;
+}
+.form-group-signup select {
   width: 100%;
   padding: 10px;
   border-radius: 5px;
@@ -129,6 +137,11 @@
 
 .google-logo {
   margin-right: 10px;
+}
+
+.error-message {
+  color: red;
+  font-size: 14px;
 }
 
 @media (max-width: 768px) {

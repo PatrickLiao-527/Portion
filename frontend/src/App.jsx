@@ -1,4 +1,5 @@
-import { BrowserRouter as Router, Route, Routes} from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
@@ -9,20 +10,21 @@ import MyProfile from './components/MyProfile';
 import Reports from './components/Reports';
 import Settings from './components/Settings';
 import Login from './components/Login';
-import Signup from './components/Signup'; 
+import Signup from './components/Signup';
 import EmailVerification from './components/EmailVerification';
 import ContactUs from './components/ContactUs';
+import { AuthProvider } from './AuthContext';
 import { AuthProvider} from './AuthContext'; 
 import ProtectedRoute from './ProtectedRoute';
 import './App.css';
 
 const AppContent = () => {
-
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/email-verification" element={<EmailVerification />} />
+      <Route path="/contact-us" element={<ContactUs />} />
       <Route element={<ProtectedRoute />}>
         <Route
           path="/*"
