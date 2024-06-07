@@ -4,20 +4,25 @@ import authMiddleware from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// Create a new restaurant
-router.post('/', authMiddleware, async (req, res) => {
+// Create a new restaurant (public access)
+router.post('/', async (req, res) => {
   try {
-    const { name, description, img } = req.body;
+    const { name, category, img } = req.body;
 
     // Check required fields
-    if (!name || !description || !img) {
-      return res.status(400).json({ message: 'Please provide all required fields: name, description, img' });
+    if (!name || !category) {
+      return res.status(400).json({ message: 'Please provide all required fields: name, category' });
+    }
+
+    // Check if restaurant name already exists
+    const existingRestaurant = await Restaurant.findOne({ name });
+    if (existingRestaurant) {
+      return res.status(400).json({ message: 'Restaurant name already exists' });
     }
 
     const newRestaurant = new Restaurant({
-      ownerId: req.user._id,
       name,
-      description,
+      category,
       img
     });
 
@@ -29,10 +34,10 @@ router.post('/', authMiddleware, async (req, res) => {
   }
 });
 
-// Get all restaurants for the authenticated user
-router.get('/', authMiddleware, async (req, res) => {
+// Get all restaurants (public access)
+router.get('/', async (req, res) => {
   try {
-    const restaurants = await Restaurant.find({ ownerId: req.user._id });
+    const restaurants = await Restaurant.find();
     res.status(200).json(restaurants);
   } catch (error) {
     console.error(error.message);

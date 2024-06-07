@@ -4,21 +4,21 @@ const restaurantSchema = new mongoose.Schema({
   ownerId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    required: false 
   },
   name: {
     type: String,
     required: true,
     trim: true
   },
-  description: {
+  category: {
     type: String,
-    required: true,
-    trim: true
+    ref: 'Category',
+    required: true
   },
   img: {
-    type: Buffer, 
-    required: true
+    type: Buffer,
+    required: false
   }
 });
 

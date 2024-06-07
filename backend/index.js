@@ -1,15 +1,16 @@
-import express from "express";
-import mongoose from "mongoose";
+import express from 'express';
+import mongoose from 'mongoose';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 
-import { PORT, mongoDBURL } from "./config.js";
-import ordersRoute from "./router/ordersRoutes.js";
-import menusRoute from "./router/menusRoutes.js";
-import transactionsRoute from "./router/transactionsRoutes.js";
-import signupRoute from "./router/signupRoutes.js";
-import authRoute from "./router/authRoutes.js";
-import restaurantRoute from "./router/restaurantRoutes.js";
+import { PORT, mongoDBURL } from './config.js';
+import ordersRoute from './router/ordersRoutes.js';
+import menusRoute from './router/menusRoutes.js';
+import transactionsRoute from './router/transactionsRoutes.js';
+import signupRoute from './router/signupRoutes.js';
+import authRoute from './router/authRoutes.js';
+import restaurantRoute from './router/restaurantRoutes.js';
+import categoryRoutes from './router/categoryRoutes.js';
 
 const app = express();
 
@@ -19,13 +20,13 @@ app.use(cookieParser());
 app.use(cors({
   origin: ['http://localhost:3001', 'http://localhost:3000'], // Specify multiple origins in an array
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  allowedHeaders: ['Content-Type'],
+  allowedHeaders: ['Content-Type', 'Authorization'],  // Add 'Authorization' to allowed headers
   credentials: true 
 }));
 
-app.get('/', (request, response) => {
-  console.log(request);
-  return response.status(234).send('Returned status 234');
+app.get('/', (req, res) => {
+  console.log(req);
+  return res.status(234).send('Returned status 234');
 });
 
 app.use('/signup', signupRoute);
@@ -34,6 +35,7 @@ app.use('/orders', ordersRoute);
 app.use('/menus', menusRoute);
 app.use('/transactions', transactionsRoute);
 app.use('/restaurants', restaurantRoute);
+app.use('/categories', categoryRoutes);
 
 mongoose
   .connect(mongoDBURL)

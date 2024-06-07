@@ -75,8 +75,8 @@ const Dashboard = () => {
   };
 
   const columns = [
-    { header: 'Order ID', accessor: '_id' },
     { header: 'Customer Name', accessor: 'customerName' },
+    { header: "Meal Item", accessor: 'mealName'},
     { header: 'Date', accessor: 'date' },
     { header: 'Time', accessor: 'time' },
     { header: 'Amount', accessor: 'amount' },
