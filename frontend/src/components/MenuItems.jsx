@@ -1,41 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 import axios from 'axios';
 import TableWidget from './TableWidget';
-// import AddMenuItem from './AddMenuItem';
 import editIcon from '../assets/icons/edit_icon.svg';
 import EditItem from './EditItem';
+import AddMenuItem from './AddMenuItem';
 import '../assets/styles/MenuItems.css';
-
 
 const MenuItems = () => {
   const [menus, setMenus] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [newItem, setNewItem] = useState({
-    itemName: '',
-    carbsPrice: '',
-    proteinsPrice: '',
-    baseFat: '',
-    itemPicture: '', 
-    proteinType: ''
-  });
-  const [selectedFile, setSelectedFile] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
 
   useEffect(() => {
     setLoading(true);
     axios
       .get('http://localhost:5555/menus', { withCredentials: true })
       .then((response) => {
-        // some attributes stored in db as Decimal128 which cannot be displayed directly
-        // transforming Decimal128 to String
         const transformedData = response.data.data.map(item => ({
           ...item,
           carbsPrice: parseFloat(item.carbsPrice.$numberDecimal),
           proteinsPrice: parseFloat(item.proteinsPrice.$numberDecimal),
           baseFat: parseFloat(item.baseFat.$numberDecimal),
-          editItem: <Link to={`/menu-items/edit/${item._id}`} className="edit-link"><img src={editIcon} alt="Edit" /></Link>,
-          itemPicture: `data:image/jpeg;base64,${item.itemPicture.toString('base64')}` // Convert itemPicture to string
+          editItem: <button onClick={() => handleEditClick(item)} className="edit-link"><img src={editIcon} alt="Edit" /></button>,
+          itemPicture: `data:image/jpeg;base64,${item.itemPicture.toString('base64')}`
         }));
         setMenus(transformedData);
         setLoading(false);
@@ -53,7 +43,7 @@ const MenuItems = () => {
     { header: 'Protein type', accessor: 'proteinType' },
     { header: '$/proteins', accessor: 'proteinsPrice' },
     { header: 'Base Fat', accessor: 'baseFat' },
-     { header: 'Item Picture', accessor: 'itemPicture', Cell: ({ value }) => <img src={value} alt="Item" width="100" height="100" /> },
+    { header: 'Item Picture', accessor: 'itemPicture', Cell: ({ value }) => <img src={value} alt="Item" width="100" height="100" /> },
     { header: 'Edit Item', accessor: 'editItem' }
   ];
 
@@ -64,90 +54,33 @@ const MenuItems = () => {
   const handleCloseModal = () => {
     setShowModal(false);
   };
+
+  const handleEditClick = (item) => {
+    setSelectedItem(item);
+    setShowEditModal(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setShowEditModal(false);
+    setSelectedItem(null);
+  };
+
+  const handleItemAdded = (newItem) => {
+    const transformedNewItem = {
+      ...newItem,
+      carbsPrice: parseFloat(newItem.carbsPrice.$numberDecimal),
+      proteinsPrice: parseFloat(newItem.proteinsPrice.$numberDecimal),
+      baseFat: parseFloat(newItem.baseFat.$numberDecimal),
+      editItem: <button onClick={() => handleEditClick(newItem)} className="edit-link"><img src={editIcon} alt="Edit" /></button>
+    };
+    setMenus((prevMenus) => [...prevMenus, transformedNewItem]);
+  };
+
   const updateItem = (updatedItem) => {
     setMenus((prevMenus) =>
       prevMenus.map((item) => (item._id === updatedItem._id ? updatedItem : item))
     );
   };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-  
-    if (e.target.type === 'file') {
-      const file = e.target.files[0];
-      setNewItem((prevItem) => ({
-        ...prevItem,
-        [name]: file // Set the file object directly
-      }));
-      setSelectedFile(file);
-    } else {
-      setNewItem((prevItem) => ({
-        ...prevItem,
-        [name]: value
-      }));
-    }
-  };
-  const handlePictureChange = (event) => {
-    const file = event.target.files[0];
-    setNewItem((prevItem) => ({
-      ...prevItem,
-      itemPicture: file // Set the file object directly
-    }));
-    setSelectedFile(file);
-  };
-  
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-      // Check that all required fields have been filled out
-    if (!newItem.itemName || !newItem.carbsPrice || !newItem.proteinsPrice || !newItem.baseFat || !selectedFile) {
-      return alert('Please fill out all required fields');
-    }
-  
-    const formData = new FormData();
-  
-    for (const key in newItem) {
-      if (newItem.hasOwnProperty(key)) {
-        formData.append(key, newItem[key]);
-      }
-    }
-  
-    if (selectedFile) {
-      formData.append('itemPicture', selectedFile);
-    }
-  
-    try {
-      const response = await axios.post('http://localhost:5555/menus', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        },
-        withCredentials: true
-      });
-  
-      setMenus((prevMenus) => [...prevMenus, response.data]);
-      setNewItem({
-        itemName: '',
-        carbsPrice: '',
-        proteinsPrice: '',
-        baseFat: '',
-        itemPicture: '',
-        proteinType: ''
-      });
-      setSelectedFile(null);
-    } catch (error) {
-      console.error('Error creating new item:', error);
-    }
-  };  
-
-  // const handleItemAdded = (newItem) => {
-  //   const transformedNewItem = {
-  //     ...newItem,
-  //     carbsPrice: parseFloat(newItem.carbsPrice.$numberDecimal),
-  //     proteinsPrice: parseFloat(newItem.proteinsPrice.$numberDecimal),
-  //     baseFat: parseFloat(newItem.baseFat.$numberDecimal),
-  //     editItem: <Link to={`/menu-items/edit/${newItem._id}`} className="edit-link"><img src={editIcon} alt="Edit" /></Link>
-  //   };
-  //   setMenus((prevMenus) => [...prevMenus, transformedNewItem]);
-  // };
 
   return (
     <div className="menu-items-page">
@@ -166,7 +99,20 @@ const MenuItems = () => {
         setItems={updateItem}
       /> 
       }
-      { showModal && EditItem }
+      {showModal && (
+        <AddMenuItem 
+          showModal={showModal}
+          handleCloseModal={handleCloseModal}
+          onItemAdded={handleItemAdded}
+        />
+      )}
+      {showEditModal && selectedItem && (
+        <EditItem 
+          item={selectedItem}
+          setItems={setMenus}
+          onClose={handleCloseEditModal}
+        />
+      )}
     </div>
   );
 };

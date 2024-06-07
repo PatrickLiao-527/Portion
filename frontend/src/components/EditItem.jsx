@@ -29,7 +29,7 @@ const EditItem = ({ item, setItems, onClose }) => {
     const { name, value } = e.target;
     setCurrentItem((prevItem) => ({
       ...prevItem,
-      [name]: value,
+      [name]: value
     }));
   };
 
@@ -52,8 +52,8 @@ const EditItem = ({ item, setItems, onClose }) => {
     }
   
     try {
-      const response = await axios.post(
-        `http://localhost:5555/menus/upload?${currentItem._id}`,
+      const response = await axios.put(
+        `http://localhost:5555/menus/${currentItem._id}`,
         formData,
         {
           headers: {
@@ -70,7 +70,7 @@ const EditItem = ({ item, setItems, onClose }) => {
     } catch (error) {
       console.error('Error updating item:', error);
     }
-  };  
+  };
   
   const handleDeleteItem = async () => {
     await deleteItem(currentItem._id);
@@ -181,7 +181,7 @@ const deleteItem = async (itemId) => {
             </select>
           </div>
           <div className="form-buttons">
-            <button type="submit" className="save-button">Save</button>
+            <button type="submit" className="save-button" onClick={handleSaveItem}>Save</button>
             <button type="button" className="delete-button" onClick={handleDeleteItem}>Delete</button>
             <button type="button" className="go-back-button" onClick={handleGoBack}>Go Back</button>
           </div>

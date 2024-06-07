@@ -2,26 +2,42 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import '../assets/styles/AddMenuItem.css';
 
+const proteinTypes = [
+  "Chicken Breast", "Chicken Thigh", "Chicken Wing", "Chicken Drumstick", 
+  "Beef Sirloin", "Beef Ribeye", "Pork Loin", "Pork Belly", "Pork Chops", 
+  "Salmon", "Tuna", "Cod", "Shrimp", "Crab", "Lobster", "Scallops", 
+  "Tilapia", "Halibut", "Duck Breast", "Lamb Chops"
+];
+
 const AddMenuItem = ({ showModal, handleCloseModal, onItemAdded }) => {
   const [itemName, setItemName] = useState('');
   const [carbsPrice, setCarbsPrice] = useState(0);
   const [proteinsPrice, setProteinsPrice] = useState(0);
   const [baseFat, setBaseFat] = useState(0);
-  const [itemPicture, setItemPicture] = useState('');
+  const [proteinType, setProteinType] = useState('');
+  const [selectedFile, setSelectedFile] = useState(null);
 
   const handleSave = async (event) => {
     event.preventDefault();
 
     try {
-      const newItem = {
-        itemName,
-        carbsPrice,
-        proteinsPrice,
-        baseFat,
-        itemPicture
-      };
+      const formData = new FormData();
+      formData.append('itemName', itemName);
+      formData.append('carbsPrice', carbsPrice);
+      formData.append('proteinsPrice', proteinsPrice);
+      formData.append('baseFat', baseFat);
+      formData.append('proteinType', proteinType);
+      if (selectedFile) {
+        formData.append('itemPicture', selectedFile);
+      }
 
-      const response = await axios.post('http://localhost:5555/menus', newItem, { withCredentials: true });
+      const response = await axios.post('http://localhost:5555/menus', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        withCredentials: true,
+      });
+
       onItemAdded(response.data); // Call the callback function to update the parent component
       handleCloseModal(); // Close the modal after successful save
     } catch (error) {
@@ -76,12 +92,27 @@ const AddMenuItem = ({ showModal, handleCloseModal, onItemAdded }) => {
             />
           </label>
           <label>
-            Item Picture URL:
-            <input
-              type="text"
-              value={itemPicture}
-              onChange={(e) => setItemPicture(e.target.value)}
+            Protein Type:
+            <select
+              name="proteinType"
+              value={proteinType}
+              onChange={(e) => setProteinType(e.target.value)}
               required
+            >
+              <option value="" disabled>Select Protein Type</option>
+              {proteinTypes.map((type, index) => (
+                <option key={index} value={type}>{type}</option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Item Picture:
+            <input
+              type="file"
+              name="itemPicture"
+              onChange={(e) => {
+                setSelectedFile(e.target.files[0]);
+              }}
             />
           </label>
           <button type="submit">Save</button>
