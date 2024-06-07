@@ -1,16 +1,9 @@
-.add-item-page {
+.item-form-page {
     padding: 20px;
     position: relative;
   }
   
-  .add-item-container {
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-  }
-  
-  .add-item-title {
+  .item-form-title {
     font-family: 'Poppins', sans-serif;
     font-size: 24px;
     font-weight: 600;
@@ -29,7 +22,8 @@
     margin-bottom: 5px;
   }
   
-  .form-group input {
+  .form-group input,
+  .form-group select {
     width: 100%;
     padding: 10px;
     border-radius: 5px;
@@ -39,11 +33,13 @@
   
   .form-buttons {
     display: flex;
+    justify-content: space-between;
     margin-top: 20px;
-    gap: 20px;
   }
   
-  .save-button, .delete-button, .go-back-button {
+  .save-button,
+  .delete-button,
+  .go-back-button {
     width: 10%;
     padding: 10px;
     border: none;
@@ -51,6 +47,7 @@
     cursor: pointer;
     font-family: 'Poppins', sans-serif;
     font-weight: 600;
+    margin-right: 10px;
   }
   
   .save-button {
@@ -66,5 +63,21 @@
   .go-back-button {
     background-color: #007bff;
     color: #111111;
+  }
+  
+  /* Hide scrollbar in the inner modal */
+  .modal-content {
+    max-height: 90vh; /* Adjust as needed */
+    overflow: hidden;
+    padding-right: 15px; /* To avoid content shifting */
+  }
+  
+  .modal-content::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .modal-content {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
   }
   

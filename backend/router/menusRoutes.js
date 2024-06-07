@@ -1,7 +1,9 @@
 import express from 'express';
+import mongoose from 'mongoose';
 import Menu from '../models/menuModel.js';
 import authMiddleware from '../middleware/authMiddleware.js';
-import checkRole from '../middleware/checkRole.js';import multer from 'multer';
+import checkRole from '../middleware/checkRole.js';
+import multer from 'multer';
 
 const router = express.Router();
 const storage = multer.diskStorage({
@@ -29,7 +31,6 @@ const upload = multer({
   fileFilter: fileFilter,
 });
 
-
 // Create a new menu item
 router.post('/', authMiddleware, checkRole('owner'), upload.single('itemPicture'), async (req, res) => {
   try {
@@ -42,7 +43,7 @@ router.post('/', authMiddleware, checkRole('owner'), upload.single('itemPicture'
     );
 
     for (const col_name of columnNames) {
-      if (!Object.prototype.hasOwnProperty.call(req.body, col_name)) {
+      if (!Object.prototype.hasOwnProperty.call(req.body, col_name) && col_name !== 'itemPicture') {
         return res.status(400).json({
           message: `Error: Send all required fields, missing ${col_name}`
         });
@@ -53,8 +54,12 @@ router.post('/', authMiddleware, checkRole('owner'), upload.single('itemPicture'
     const newMenuItem = {
       ...req.body,
       ownerId: req.user._id,
-      itemPicture: req.file.filename,
     };
+
+    if (req.file) {
+      newMenuItem.itemPicture = req.file.filename;
+    }
+
     const menuItem = await Menu.create(newMenuItem);
 
     return res.status(201).json(menuItem);
@@ -102,7 +107,7 @@ router.get('/:id', authMiddleware, async (req, res) => {
 });
 
 // Update menu item by ID
-router.put('/:id', authMiddleware , checkRole('owner'), async (req, res) => {
+router.put('/:id', authMiddleware , checkRole('owner'), upload.single('itemPicture'), async (req, res) => {
   try {
     // Check required fields
     const schemaPaths = Menu.schema.paths;
@@ -111,7 +116,7 @@ router.put('/:id', authMiddleware , checkRole('owner'), async (req, res) => {
     );
 
     for (const col_name of columnNames) {
-      if (!req.body.hasOwnProperty(col_name)) {
+      if (!Object.prototype.hasOwnProperty.call(req.body, col_name) && col_name !== 'itemPicture') {
         return res.status(400).json({
           message: `Error: Send all required fields, missing ${col_name}`
         });
@@ -135,7 +140,9 @@ router.put('/:id', authMiddleware , checkRole('owner'), async (req, res) => {
     menuItem.proteinType = req.body.proteinType;
     menuItem.proteinsPrice = req.body.proteinsPrice;
     menuItem.baseFat = req.body.baseFat;
-    menuItem.itemPicture = req.body.itemPicture;
+    if (req.file) {
+      menuItem.itemPicture = req.file.filename;
+    }
 
     // Save the updated menu item
     const updatedMenuItem = await menuItem.save();
@@ -169,7 +176,5 @@ router.delete('/:id', authMiddleware, checkRole('owner'), async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
-
-
 
 export default router;

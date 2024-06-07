@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import '../assets/styles/EditItem.css';
+import '../assets/styles/ItemForm.css'; // Updated to use shared CSS
 
 const proteinTypes = [
   "Chicken Breast", "Chicken Thigh", "Chicken Wing", "Chicken Drumstick", 
@@ -10,14 +10,13 @@ const proteinTypes = [
   "Tilapia", "Halibut", "Duck Breast", "Lamb Chops"
 ];
 
-
 const EditItem = ({ item, setItems, onClose }) => {
   const navigate = useNavigate();
   const [currentItem, setCurrentItem] = useState({
     ...item,
-    carbsPrice: item.carbsPrice ? parseFloat(item.carbsPrice.$numberDecimal) : '', // Transform Decimal128
-    proteinsPrice: item.proteinsPrice ? parseFloat(item.proteinsPrice.$numberDecimal) : '',
-    baseFat: item.baseFat ? parseFloat(item.baseFat.$numberDecimal) : '',
+    carbsPrice: item.carbsPrice ? parseFloat(item.carbsPrice.replace('$', '')) : '',
+    proteinsPrice: item.proteinsPrice ? parseFloat(item.proteinsPrice.replace('$', '')) : '',
+    baseFat: item.baseFat ? parseFloat(item.baseFat.replace(' gram(s)', '')) : '',
   });
   const [selectedFile, setSelectedFile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -39,22 +38,19 @@ const EditItem = ({ item, setItems, onClose }) => {
   const handleSaveItem = async (e) => {
     e.preventDefault();
   
-    // Create a new FormData object
     const formData = new FormData();
-  
-    // Append the current item data to the FormData object
     for (const key in currentItem) {
       if (currentItem.hasOwnProperty(key)) {
         formData.append(key, currentItem[key]);
       }
     }
   
-    // Append the selected file to the FormData object
     if (selectedFile) {
       formData.append('itemPicture', selectedFile);
     }
   
     try {
+      console.log("Saving item:", currentItem._id, formData);
       const response = await axios.put(
         `http://localhost:5555/menus/${currentItem._id}`,
         formData,
@@ -65,10 +61,11 @@ const EditItem = ({ item, setItems, onClose }) => {
           withCredentials: true,
         }
       );
+      console.log("Item saved:", response.data);
       setItems((prevItems) =>
         prevItems.map((item) => (item._id === currentItem._id ? response.data : item))
       );
-      onClose(); // Close modal after saving
+      onClose();
       navigate('/menu-items');
     } catch (error) {
       console.error('Error updating item:', error);
@@ -76,48 +73,24 @@ const EditItem = ({ item, setItems, onClose }) => {
   };
   
   const handleDeleteItem = async () => {
-    await deleteItem(currentItem._id);
-    onClose(); // Close modal after deleting
-    navigate('/menu-items');
-  };
-
-  const handleGoBack = () => {
-    onClose(); // Close modal when going back
-    navigate('/menu-items');
-  };
-
-  const updateItem = async (updatedItem) => {
     try {
-      const response = await axios.put(`http://localhost:5555/menus/${updatedItem._id}`, updatedItem);
-      const transformedData = {
-        ...response.data,
-        carbsPrice: parseFloat(response.data.carbsPrice.$numberDecimal), // Transform Decimal128
-        proteinsPrice: parseFloat(response.data.proteinsPrice.$numberDecimal),
-        baseFat: parseFloat(response.data.baseFat.$numberDecimal),
-      };
-      setItems((prevItems) =>
-        prevItems.map((item) => (item._id === updatedItem._id ? transformedData : item))    
-      );
+      await axios.delete(`http://localhost:5555/menus/${currentItem._id}`, { withCredentials: true });
+      setItems((prevItems) => prevItems.filter((item) => item._id !== currentItem._id));
+      onClose();
+      navigate('/menu-items');
     } catch (error) {
-      console.error('Error updating item:', error);
+      console.error('Error deleting item:', error);
     }
   };
 
-const deleteItem = async (itemId) => {
-  try {
-    await axios.delete(`http://localhost:5555/menus/${itemId}`, { withCredentials: true });
-    setItems((prevItems) => prevItems.filter((item) => item._id !== itemId));
-    onClose(); // Close modal after deleting
-  } catch (error) {
-    console.error('Error deleting item:', error);
-  }
-};
-
-  
+  const handleGoBack = () => {
+    onClose();
+    navigate('/menu-items');
+  };
 
   return loading ? <p>Loading...</p> : (
-    <div className="edit-item-page">
-        <h2 className="edit-item-title">Edit Item</h2>
+    <div className="item-form-page">
+        <h2 className="item-form-title">Edit Item</h2>
         <form onSubmit={handleSaveItem}>
           <div className="form-group">
             <label>Item Name</label>
@@ -186,7 +159,6 @@ const deleteItem = async (itemId) => {
           <div className="form-buttons">
             <button type="submit" className="save-button">Save</button>
             <button type="button" className="delete-button" onClick={handleDeleteItem}>Delete</button>
-            <button type="button" className="go-back-button" onClick={handleGoBack}>Go Back</button>
           </div>
         </form>
     </div>

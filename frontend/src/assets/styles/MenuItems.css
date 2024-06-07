@@ -77,7 +77,6 @@
   padding: 10px;
   border: none;
   border-radius: 10px;
-  background-color: #4CAF50;
   color: #fff;
   font-weight: 500;
   font-size: 16px;
@@ -85,9 +84,6 @@
   font-family: 'Poppins', sans-serif;
 }
 
-.modal-content button:hover {
-  background-color: #45a049;
-}
 
 .close {
   color: #aaa;

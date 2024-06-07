@@ -6,7 +6,6 @@ import AddMenuItem from './AddMenuItem';
 import editIcon from '../assets/icons/edit_icon.svg';
 import '../assets/styles/MenuItems.css';
 
-
 const MenuItems = () => {
   const [menus, setMenus] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -19,11 +18,11 @@ const MenuItems = () => {
       .then((response) => {
         const transformedData = response.data.data.map(item => ({
           ...item,
-          carbsPrice: parseFloat(item.carbsPrice.$numberDecimal),
-          proteinsPrice: parseFloat(item.proteinsPrice.$numberDecimal),
-          baseFat: parseFloat(item.baseFat.$numberDecimal),
+          carbsPrice: `$${item.carbsPrice}`,
+          proteinsPrice: `$${item.proteinsPrice}`,
+          baseFat: `${item.baseFat} gram(s)`,
           editItem: <Link to={`/menu-items/edit/${item._id}`} className="edit-link"><img src={editIcon} alt="Edit" /></Link>,
-          itemPicture: `data:image/jpeg;base64,${item.itemPicture.toString('base64')}`
+          itemPicture: item.itemPicture ? `/uploads/${item.itemPicture}` : null
         }));
         setMenus(transformedData);
         setLoading(false);
@@ -35,13 +34,12 @@ const MenuItems = () => {
   }, []);
 
   const columns = [
-    { header: 'Item ID', accessor: '_id' },
     { header: 'Item Name', accessor: 'itemName' },
     { header: '$/carbs', accessor: 'carbsPrice' },
     { header: 'Protein type', accessor: 'proteinType' },
     { header: '$/proteins', accessor: 'proteinsPrice' },
     { header: 'Base Fat', accessor: 'baseFat' },
-    { header: 'Item Picture', accessor: 'itemPicture', Cell: ({ value }) => <img src={value} alt="Item" width="100" height="100" /> },
+    { header: 'Item Picture', accessor: 'itemPicture', Cell: ({ value }) => value ? <img src={value} alt="Item" width="100" height="100" /> : 'No Image' },
     { header: 'Edit Item', accessor: 'editItem' }
   ];
 
@@ -56,17 +54,26 @@ const MenuItems = () => {
   const handleItemAdded = (newItem) => {
     const transformedNewItem = {
       ...newItem,
-      carbsPrice: parseFloat(newItem.carbsPrice.$numberDecimal),
-      proteinsPrice: parseFloat(newItem.proteinsPrice.$numberDecimal),
-      baseFat: parseFloat(newItem.baseFat.$numberDecimal),
-      editItem: <Link to={`/menu-items/edit/${newItem._id}`} className="edit-link"><img src={editIcon} alt="Edit" /></Link>
+      carbsPrice: `$${newItem.carbsPrice}`,
+      proteinsPrice: `$${newItem.proteinsPrice}`,
+      baseFat: `${newItem.baseFat} gram(s)`,
+      editItem: <Link to={`/menu-items/edit/${newItem._id}`} className="edit-link"><img src={editIcon} alt="Edit" /></Link>,
+      itemPicture: newItem.itemPicture ? `/uploads/${newItem.itemPicture}` : null
     };
     setMenus((prevMenus) => [...prevMenus, transformedNewItem]);
   };
 
   const updateItem = (updatedItem) => {
+    const transformedUpdatedItem = {
+      ...updatedItem,
+      carbsPrice: `$${updatedItem.carbsPrice}`,
+      proteinsPrice: `$${updatedItem.proteinsPrice}`,
+      baseFat: `${updatedItem.baseFat} gram(s)`,
+      editItem: <Link to={`/menu-items/edit/${updatedItem._id}`} className="edit-link"><img src={editIcon} alt="Edit" /></Link>,
+      itemPicture: updatedItem.itemPicture ? `/uploads/${updatedItem.itemPicture}` : null
+    };
     setMenus((prevMenus) =>
-      prevMenus.map((item) => (item._id === updatedItem._id ? updatedItem : item))
+      prevMenus.map((item) => (item._id === updatedItem._id ? transformedUpdatedItem : item))
     );
   };
 

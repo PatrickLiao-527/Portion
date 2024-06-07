@@ -2,7 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-
+import dotenv from 'dotenv';
 import { PORT, mongoDBURL } from './config.js';
 import ordersRoute from './router/ordersRoutes.js';
 import menusRoute from './router/menusRoutes.js';
@@ -48,3 +48,5 @@ mongoose
   .catch((error) => {
     console.log(error);
   });
+
+  dotenv.config();
