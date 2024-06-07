@@ -31,7 +31,7 @@ const EditItem = ({ item, setItems, onClose }) => {
     const { name, value } = e.target;
     setCurrentItem((prevItem) => ({
       ...prevItem,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -157,8 +157,9 @@ const EditItem = ({ item, setItems, onClose }) => {
             </select>
           </div>
           <div className="form-buttons">
-            <button type="submit" className="save-button" onClick={handleSaveItem}>Save</button>
+            <button type="submit" className="save-button">Save</button>
             <button type="button" className="delete-button" onClick={handleDeleteItem}>Delete</button>
+            <button type="button" className="go-back-button" onClick={handleGoBack}>Go Back</button>
           </div>
         </form>
     </div>

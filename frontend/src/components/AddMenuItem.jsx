@@ -9,13 +9,6 @@ const proteinTypes = [
   "Tilapia", "Halibut", "Duck Breast", "Lamb Chops"
 ];
 
-const proteinTypes = [
-  "Chicken Breast", "Chicken Thigh", "Chicken Wing", "Chicken Drumstick", 
-  "Beef Sirloin", "Beef Ribeye", "Pork Loin", "Pork Belly", "Pork Chops", 
-  "Salmon", "Tuna", "Cod", "Shrimp", "Crab", "Lobster", "Scallops", 
-  "Tilapia", "Halibut", "Duck Breast", "Lamb Chops"
-];
-
 const AddMenuItem = ({ showModal, handleCloseModal, onItemAdded }) => {
   const [itemName, setItemName] = useState('');
   const [carbsPrice, setCarbsPrice] = useState('');
@@ -34,16 +27,9 @@ const AddMenuItem = ({ showModal, handleCloseModal, onItemAdded }) => {
       formData.append('proteinsPrice', proteinsPrice);
       formData.append('baseFat', baseFat);
       formData.append('proteinType', proteinType);
-      if (selectedFile) {
-        formData.append('itemPicture', selectedFile);
+      if (itemPicture) {
+        formData.append('itemPicture', itemPicture);
       }
-
-      const response = await axios.post('http://localhost:5555/menus', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-        withCredentials: true,
-      });
 
       const response = await axios.post('http://localhost:5555/menus', formData, {
         withCredentials: true,

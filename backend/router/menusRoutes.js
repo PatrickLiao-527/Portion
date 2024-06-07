@@ -1,33 +1,47 @@
 import express from 'express';
-import mongoose from 'mongoose';
+import mongoose from 'mongoose'; // Import mongoose
 import Menu from '../models/menuModel.js';
 import authMiddleware from '../middleware/authMiddleware.js';
 import checkRole from '../middleware/checkRole.js';
 import multer from 'multer';
 
 const router = express.Router();
-
-// Configure storage
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/'); 
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
   },
-  filename: (req, file, cb) => {
-    const extension = path.extname(file.originalname);
-    cb(null, req.menuItemId + extension);  // needs handle bad file type
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname);
+  },
+});
+
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
+    cb(null, true);
+  } else {
+    cb(new Error('Invalid file type, only JPEG and PNG is allowed!'), false);
   }
+};
+
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 1024 * 1024 * 5,
+  },
+  fileFilter: fileFilter,
 });
 
 // Create a new menu item
-router.post('/', authMiddleware, checkRole('owner'), async (req, res, next) => {
+router.post('/', authMiddleware, checkRole('owner'), upload.single('itemPicture'), async (req, res) => {
   try {
-    console.log(JSON.stringify(req.body));
+    console.log('Request body:', req.body);
 
     // Check required fields
     const schemaPaths = Menu.schema.paths;
     const columnNames = Object.keys(schemaPaths).filter(
       col_name => col_name !== '_id' && col_name !== '__v' && col_name !== 'ownerId' && schemaPaths[col_name].isRequired
     );
+
     for (const col_name of columnNames) {
       if (!Object.prototype.hasOwnProperty.call(req.body, col_name) && col_name !== 'itemPicture') {
         return res.status(400).json({
@@ -36,11 +50,14 @@ router.post('/', authMiddleware, checkRole('owner'), async (req, res, next) => {
       }
     }
 
-    // Create the menu item with the data received
+    // Generate a unique itemId
+    const itemId = new mongoose.Types.ObjectId().toString();
+
+    // Create and add to database with ownerId set to the authenticated user
     const newMenuItem = {
       ...req.body,
+      itemId,
       ownerId: req.user._id,
-      itemPicture: req.file.filename,
     };
 
     if (req.file) {
@@ -48,31 +65,11 @@ router.post('/', authMiddleware, checkRole('owner'), async (req, res, next) => {
     }
 
     const menuItem = await Menu.create(newMenuItem);
-    req.menuItemId = menuItem._id; // Pass the menu item ID to the next middleware
-    next(); // Call the next middleware to handle file upload
+
+    return res.status(201).json(menuItem);
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ message: error.message });
-  }
-}, upload.single('itemPicture'), async (req, res) => {  // store image with menuItemId in req
-  try {
-    const { menuItemId } = req;
-    const menuItem = await Menu.findById(menuItemId);
-
-    if (!menuItem) {
-      // Delete the uploaded file if the menu item is not found
-      if (req.file) {
-        fs.unlinkSync(req.file.path);
-      }
-      return res.status(404).json({ message: 'Menu item not found' });
-    }
-
-    await menuItem.save();
-
-    res.status(201).json(menuItem);
-  } catch (err) {
-    console.log(err.message);
-    res.status(500).json({ message: 'Internal server error' });
   }
 });
 
@@ -80,6 +77,7 @@ router.post('/', authMiddleware, checkRole('owner'), async (req, res, next) => {
 router.get('/', authMiddleware, async (req, res) => {
   try {
     const menuItems = await Menu.find({ ownerId: req.user._id });
+    console.log('Fetched menu items:', menuItems.map(item => item._id));
     return res.status(200).json({
       length: menuItems.length,
       data: menuItems
@@ -141,7 +139,7 @@ router.put('/:id', authMiddleware , checkRole('owner'), upload.single('itemPictu
       return res.status(403).json({ message: 'Not authorized to update this menu item' });
     }
 
-    // Update all fields except the image
+    // Update all fields
     menuItem.itemName = req.body.itemName;
     menuItem.carbsPrice = req.body.carbsPrice;
     menuItem.proteinType = req.body.proteinType;
@@ -153,6 +151,7 @@ router.put('/:id', authMiddleware , checkRole('owner'), upload.single('itemPictu
 
     // Save the updated menu item
     const updatedMenuItem = await menuItem.save();
+
     res.status(200).json(updatedMenuItem);
   } catch (err) {
     console.log(err.message);
