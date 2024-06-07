@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 import axios from 'axios';
 import TableWidget from './TableWidget';
-import AddMenuItem from './AddMenuItem';
 import editIcon from '../assets/icons/edit_icon.svg';
+import EditItem from './EditItem';
+import AddMenuItem from './AddMenuItem';
 import '../assets/styles/MenuItems.css';
 
 const MenuItems = () => {
   const [menus, setMenus] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
 
   useEffect(() => {
     setLoading(true);
@@ -51,6 +54,16 @@ const MenuItems = () => {
     setShowModal(false);
   };
 
+  const handleEditClick = (item) => {
+    setSelectedItem(item);
+    setShowEditModal(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setShowEditModal(false);
+    setSelectedItem(null);
+  };
+
   const handleItemAdded = (newItem) => {
     const transformedNewItem = {
       ...newItem,
@@ -77,6 +90,20 @@ const MenuItems = () => {
     );
   };
 
+  const updateItem = (updatedItem) => {
+    const transformedUpdatedItem = {
+      ...updatedItem,
+      carbsPrice: `$${updatedItem.carbsPrice}`,
+      proteinsPrice: `$${updatedItem.proteinsPrice}`,
+      baseFat: `${updatedItem.baseFat} gram(s)`,
+      editItem: <Link to={`/menu-items/edit/${updatedItem._id}`} className="edit-link"><img src={editIcon} alt="Edit" /></Link>,
+      itemPicture: updatedItem.itemPicture ? `/uploads/${updatedItem.itemPicture}` : null
+    };
+    setMenus((prevMenus) =>
+      prevMenus.map((item) => (item._id === updatedItem._id ? transformedUpdatedItem : item))
+    );
+  };
+
   return (
     <div className="menu-items-page">
       <div className="menu-items-header">
@@ -84,21 +111,28 @@ const MenuItems = () => {
           Create New Item
         </button>
       </div>
-      {loading ? <p>Loading...</p> : 
-        <TableWidget
-          title="Menu Items"
-          data={menus}
-          columns={columns}
-          itemsPerPage={15}
-          maxItemsPerPage={30}
-          setItems={updateItem}
-        />
+      { loading ? <p>Loading...</p> : 
+      <TableWidget
+        title="Menu Items"
+        data={menus}
+        columns={columns}
+        itemsPerPage={15}
+        maxItemsPerPage={30}
+        setItems={updateItem}
+      /> 
       }
       {showModal && (
         <AddMenuItem 
           showModal={showModal}
           handleCloseModal={handleCloseModal}
           onItemAdded={handleItemAdded}
+        />
+      )}
+      {showEditModal && selectedItem && (
+        <EditItem 
+          item={selectedItem}
+          setItems={setMenus}
+          onClose={handleCloseEditModal}
         />
       )}
     </div>
