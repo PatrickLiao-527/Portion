@@ -5,15 +5,29 @@ import checkRole from '../middleware/checkRole.js';
 
 const router = express.Router();
 
-// Create a new order (client only)
-router.post('/', authMiddleware, checkRole('owner'), async (req, res) => {
+// Create a new order (public)
+router.post('/', async (req, res) => {
   try {
-    const newOrder = { ...req.body, ownerId: req.user._id };
+    // Log the incoming request body
+    console.log('Received order data:', req.body);
+
+    // Create the new order object without ownerId as it's a public API
+    const newOrder = { ...req.body };
+
+    // Log the order data before saving
+    console.log('Creating new order with data:', newOrder);
+
+    // Save the order to the database
     const order = await Order.create(newOrder);
 
+    // Log the created order
+    console.log('Order created successfully:', order);
+
+    // Return the created order
     return res.status(201).json(order);
   } catch (error) {
-    console.log(error.message);
+    // Log any errors that occur
+    console.error('Error creating order:', error.message);
     res.status(500).json({ message: 'Internal server error' });
   }
 });

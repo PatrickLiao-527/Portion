@@ -1,5 +1,6 @@
 import express from 'express';
 import User from '../models/userModel.js';
+import Restaurant from '../models/restaurantModel.js'; // Import Restaurant model
 import authMiddleware from '../middleware/authMiddleware.js';
 import bcrypt from 'bcrypt';
 
@@ -7,11 +8,11 @@ const router = express.Router();
 
 // User signup
 router.post('/', async (req, res) => {
-    try {
-        const { name, email, password, role, restaurantName, restaurantCategory } = req.body;
-        if (!email || !password || !name || !role) {
-            return res.status(422).json({ error: 'Submit all fields (email, name, password, role)' });
-        }
+  try {
+    const { name, email, password, role, restaurantName, restaurantCategory } = req.body;
+    if (!email || !password || !name || !role) {
+      return res.status(422).json({ error: 'Submit all fields (email, name, password, role)' });
+    }
 
     const savedUser = await User.findOne({ email });
     if (savedUser) {
@@ -19,15 +20,26 @@ router.post('/', async (req, res) => {
     }
 
     const newUser = new User({
-        email,
-        name,
-        password,
-        role,
-        restaurantName,
-        restaurantCategory
+      email,
+      name,
+      password,
+      role,
+      restaurantName,
+      restaurantCategory
     });
 
-    await newUser.save();
+    const createdUser = await newUser.save();
+
+    if (role === 'owner') {
+      const newRestaurant = new Restaurant({
+        ownerId: createdUser._id,
+        name: restaurantName,
+        category: restaurantCategory,
+        img: null // Assuming there's no image during signup
+      });
+      await newRestaurant.save();
+    }
+
     res.json({ message: 'User saved successfully' });
   } catch (err) {
     console.log(err);
