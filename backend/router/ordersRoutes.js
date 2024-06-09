@@ -8,26 +8,10 @@ const router = express.Router();
 // Create a new order (public)
 router.post('/', async (req, res) => {
   try {
-    // Log the incoming request body
-    console.log('Received order data:', req.body);
-
-    // Create the new order object without ownerId as it's a public API
     const newOrder = { ...req.body };
-
-    // Log the order data before saving
-    console.log('Creating new order with data:', newOrder);
-
-    // Save the order to the database
     const order = await Order.create(newOrder);
-
-    // Log the created order
-    console.log('Order created successfully:', order);
-
-    // Return the created order
     return res.status(201).json(order);
   } catch (error) {
-    // Log any errors that occur
-    console.error('Error creating order:', error.message);
     res.status(500).json({ message: 'Internal server error' });
   }
 });
@@ -125,7 +109,7 @@ router.patch('/:id/status', authMiddleware, async (req, res) => {
 
     order.status = status;
     await order.save();
-
+    console.log(`changing status for order ${order}`);
     res.status(200).json(order); // Return the updated order
   } catch (error) {
     console.error('Error updating order status:', error);

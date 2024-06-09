@@ -4,6 +4,7 @@ import Widget from './Widget';
 import Chart from './Chart';
 import TableWidget from './TableWidget';
 import '../assets/styles/Dashboard.css';
+import { formatOrders } from '../utils/formatOrders';
 
 const Dashboard = () => {
   const [orders, setOrders] = useState([]);
@@ -18,8 +19,7 @@ const Dashboard = () => {
       .get('http://localhost:5555/orders', { withCredentials: true })
       .then((response) => {
         const sortedOrders = response.data.sort((a, b) => new Date(b.time) - new Date(a.time));
-        setOrders(sortedOrders);
-
+        setOrders(formatOrders(sortedOrders));
 
         // Generate revenue data
         const revenue = sortedOrders.reduce((acc, order) => {
@@ -56,24 +56,6 @@ const Dashboard = () => {
       });
   }, []);
 
-  const formatOrders = (orders) => {
-    return orders.map(order => ({
-      ...order,
-      orderId: `#${order._id}`,
-      customerName: order.customerName,
-      date: new Date(order.time).toLocaleDateString(), // Correctly format the date
-      time: new Date(order.time).toLocaleTimeString(), // Correctly format the time
-      amount: `$${order.amount.toFixed(2)}`,
-      paymentType: order.paymentType,
-      status: order.status,
-      details: '...', // Placeholder for details column
-      mealName: order.mealName,
-      carbs: order.carbs,
-      proteins: order.proteins,
-      fats: order.fats 
-    }));
-  };
-
   const columns = [
     { header: 'Customer Name', accessor: 'customerName' },
     { header: "Meal Item", accessor: 'mealName'},
@@ -101,7 +83,7 @@ const Dashboard = () => {
       ) : (
         <TableWidget
           title="New Orders"
-          data={formatOrders(orders)} 
+          data={orders} 
           columns={columns}
           itemsPerPage={5}
           maxItemsPerPage={30}
