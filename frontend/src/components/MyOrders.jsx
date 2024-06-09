@@ -1,13 +1,16 @@
+// MyOrders.jsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import TableWidget from './TableWidget';
 import '../assets/styles/MyOrders.css';
 import { formatOrders } from '../utils/formatOrders';
+import { useWebSocket } from '../WebSocketContext';
 
 const MyOrders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const socket = useWebSocket();
 
   useEffect(() => {
     setLoading(true);
@@ -25,6 +28,18 @@ const MyOrders = () => {
         setLoading(false);
       });
   }, []);
+
+  useEffect(() => {
+    if (socket) {
+      socket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.type === 'NEW_ORDER') {
+          console.log('New order received:', data.order);
+          setOrders((prevOrders) => [data.order, ...prevOrders]);
+        }
+      };
+    }
+  }, [socket]);
 
   const columns = [
     { header: 'Customer Name', accessor: 'customerName' },

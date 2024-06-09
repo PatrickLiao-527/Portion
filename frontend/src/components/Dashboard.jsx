@@ -5,6 +5,7 @@ import Chart from './Chart';
 import TableWidget from './TableWidget';
 import '../assets/styles/Dashboard.css';
 import { formatOrders } from '../utils/formatOrders';
+import { useWebSocket } from '../WebSocketContext';
 
 const Dashboard = () => {
   const [orders, setOrders] = useState([]);
@@ -12,6 +13,7 @@ const Dashboard = () => {
   const [error, setError] = useState(null);
   const [revenueData, setRevenueData] = useState([]);
   const [ordersChartData, setOrdersChartData] = useState([]);
+  const socket = useWebSocket();
 
   useEffect(() => {
     setLoading(true);
@@ -19,7 +21,9 @@ const Dashboard = () => {
       .get('http://localhost:5555/orders', { withCredentials: true })
       .then((response) => {
         const sortedOrders = response.data.sort((a, b) => new Date(b.time) - new Date(a.time));
-        setOrders(formatOrders(sortedOrders));
+        const formattedOrders = formatOrders(sortedOrders);
+        //console.log('Formatted Orders:', formattedOrders);
+        setOrders(formattedOrders);
 
         // Generate revenue data
         const revenue = sortedOrders.reduce((acc, order) => {
@@ -55,6 +59,48 @@ const Dashboard = () => {
         setLoading(false);
       });
   }, []);
+
+  useEffect(() => {
+    if (socket) {
+      socket.onmessage = (event) => {
+        console.log('Dashboard has received socket message');
+        const data = JSON.parse(event.data);
+        if (data.type === 'NEW_ORDER') {
+          console.log('New order received:', data.order);
+          const formattedOrder = formatOrders([data.order])[0];
+          console.log('Formatted New Order:', formattedOrder);
+          setOrders((prevOrders) => {
+            const newOrders = [formattedOrder, ...prevOrders];
+            console.log('Updated Orders:', newOrders);
+            return newOrders;
+          });
+
+          // Update revenue data
+          const month = new Date(data.order.time).toLocaleString('default', { month: 'short' });
+          setRevenueData((prevRevenue) => {
+            const existingMonth = prevRevenue.find(item => item.name === month);
+            if (existingMonth) {
+              existingMonth.revenue += parseFloat(data.order.amount);
+            } else {
+              prevRevenue.push({ name: month, revenue: parseFloat(data.order.amount) });
+            }
+            return [...prevRevenue];
+          });
+
+          // Update orders chart data
+          setOrdersChartData((prevOrdersChart) => {
+            const existingMonth = prevOrdersChart.find(item => item.name === month);
+            if (existingMonth) {
+              existingMonth.orders += 1;
+            } else {
+              prevOrdersChart.push({ name: month, orders: 1 });
+            }
+            return [...prevOrdersChart];
+          });
+        }
+      };
+    }
+  }, [socket]);
 
   const columns = [
     { header: 'Customer Name', accessor: 'customerName' },

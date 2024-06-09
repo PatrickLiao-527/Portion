@@ -1,3 +1,4 @@
+// App.jsx
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Header from './components/Header';
@@ -13,6 +14,7 @@ import Login from './components/Login';
 import Signup from './components/Signup';
 import EmailVerification from './components/EmailVerification';
 import ContactUs from './components/ContactUs';
+import NotificationBar from './components/NotificationBar';
 import { AuthProvider } from './AuthContext';
 import ProtectedRoute from './ProtectedRoute';
 import './App.css';
@@ -30,6 +32,7 @@ const AppContent = () => {
           element={
             <>
               <Header />
+              <NotificationBar />
               <main>
                 <Sidebar />
                 <div className="content">

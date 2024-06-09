@@ -171,6 +171,7 @@ td {
 .page-controls {
   display: flex;
   align-items: center;
+  margin-right: 40px;
 }
 
 .pagination-button {
