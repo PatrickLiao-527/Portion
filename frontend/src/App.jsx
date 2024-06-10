@@ -1,4 +1,3 @@
-// App.jsx
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Header from './components/Header';
@@ -15,7 +14,8 @@ import Signup from './components/Signup';
 import EmailVerification from './components/EmailVerification';
 import ContactUs from './components/ContactUs';
 import NotificationBar from './components/NotificationBar';
-import { AuthProvider } from './AuthContext';
+import { AuthProvider } from './contexts/AuthContext';
+import { WebSocketProvider } from './contexts/WebSocketContext';
 import ProtectedRoute from './ProtectedRoute';
 import './App.css';
 
@@ -32,7 +32,7 @@ const AppContent = () => {
           element={
             <>
               <Header />
-              <NotificationBar />
+              <NotificationBar /> {/* Move NotificationBar here */}
               <main>
                 <Sidebar />
                 <div className="content">
@@ -60,11 +60,13 @@ const AppContent = () => {
 const App = () => {
   return (
     <AuthProvider>
-      <Router>
-        <div className="App">
-          <AppContent />
-        </div>
-      </Router>
+      <WebSocketProvider>
+        <Router>
+          <div className="App">
+            <AppContent />
+          </div>
+        </Router>
+      </WebSocketProvider>
     </AuthProvider>
   );
 };

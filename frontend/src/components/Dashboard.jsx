@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import Widget from './Widget';
 import Chart from './Chart';
 import TableWidget from './TableWidget';
 import '../assets/styles/Dashboard.css';
 import { formatOrders } from '../utils/formatOrders';
-import { useWebSocket } from '../WebSocketContext';
+import { WebSocketContext } from '../contexts/WebSocketContext';
 
 const Dashboard = () => {
   const [orders, setOrders] = useState([]);
@@ -13,7 +13,7 @@ const Dashboard = () => {
   const [error, setError] = useState(null);
   const [revenueData, setRevenueData] = useState([]);
   const [ordersChartData, setOrdersChartData] = useState([]);
-  const socket = useWebSocket();
+  const { notifications } = useContext(WebSocketContext);
 
   useEffect(() => {
     setLoading(true);
@@ -22,7 +22,6 @@ const Dashboard = () => {
       .then((response) => {
         const sortedOrders = response.data.sort((a, b) => new Date(b.time) - new Date(a.time));
         const formattedOrders = formatOrders(sortedOrders);
-        //console.log('Formatted Orders:', formattedOrders);
         setOrders(formattedOrders);
 
         // Generate revenue data
@@ -61,46 +60,39 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-    if (socket) {
-      socket.onmessage = (event) => {
-        console.log('Dashboard has received socket message');
-        const data = JSON.parse(event.data);
-        if (data.type === 'NEW_ORDER') {
-          console.log('New order received:', data.order);
-          const formattedOrder = formatOrders([data.order])[0];
-          console.log('Formatted New Order:', formattedOrder);
-          setOrders((prevOrders) => {
-            const newOrders = [formattedOrder, ...prevOrders];
-            console.log('Updated Orders:', newOrders);
-            return newOrders;
-          });
+    notifications.forEach((notification) => {
+      if (notification.type === 'NEW_ORDER') {
+        const formattedOrder = formatOrders([notification.order])[0];
+        setOrders((prevOrders) => {
+          const newOrders = [formattedOrder, ...prevOrders];
+          return newOrders;
+        });
 
-          // Update revenue data
-          const month = new Date(data.order.time).toLocaleString('default', { month: 'short' });
-          setRevenueData((prevRevenue) => {
-            const existingMonth = prevRevenue.find(item => item.name === month);
-            if (existingMonth) {
-              existingMonth.revenue += parseFloat(data.order.amount);
-            } else {
-              prevRevenue.push({ name: month, revenue: parseFloat(data.order.amount) });
-            }
-            return [...prevRevenue];
-          });
+        // Update revenue data
+        const month = new Date(notification.order.time).toLocaleString('default', { month: 'short' });
+        setRevenueData((prevRevenue) => {
+          const existingMonth = prevRevenue.find(item => item.name === month);
+          if (existingMonth) {
+            existingMonth.revenue += parseFloat(notification.order.amount);
+          } else {
+            prevRevenue.push({ name: month, revenue: parseFloat(notification.order.amount) });
+          }
+          return [...prevRevenue];
+        });
 
-          // Update orders chart data
-          setOrdersChartData((prevOrdersChart) => {
-            const existingMonth = prevOrdersChart.find(item => item.name === month);
-            if (existingMonth) {
-              existingMonth.orders += 1;
-            } else {
-              prevOrdersChart.push({ name: month, orders: 1 });
-            }
-            return [...prevOrdersChart];
-          });
-        }
-      };
-    }
-  }, [socket]);
+        // Update orders chart data
+        setOrdersChartData((prevOrdersChart) => {
+          const existingMonth = prevOrdersChart.find(item => item.name === month);
+          if (existingMonth) {
+            existingMonth.orders += 1;
+          } else {
+            prevOrdersChart.push({ name: month, orders: 1 });
+          }
+          return [...prevOrdersChart];
+        });
+      }
+    });
+  }, [notifications]);
 
   const columns = [
     { header: 'Customer Name', accessor: 'customerName' },

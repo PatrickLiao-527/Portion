@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import '../assets/styles/Header.css';
 import profilePic from '../assets/icons/profilePic.png';
 import portionLogo from '../assets/icons/portion-Logo.png';
-import AuthContext from '../AuthContext';
+import AuthContext from '../contexts/AuthContext';
 
 const Header = () => {
   const { user } = useContext(AuthContext);

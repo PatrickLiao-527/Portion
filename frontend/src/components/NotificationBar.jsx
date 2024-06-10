@@ -1,49 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import { useWebSocket } from '../WebSocketContext';
-import '../assets/styles/NotificationBar.css';
+import React, { useContext } from 'react';
+import { WebSocketContext } from '../contexts/WebSocketContext'; // Adjust the import path as needed
+import '../assets/styles/NotificationBar.css'; // Ensure you have the appropriate CSS file
 
 const NotificationBar = () => {
-  const [notification, setNotification] = useState(null);
-  const socket = useWebSocket();
-
-  useEffect(() => {
-    if (socket) {
-      console.log("WebSocket connected in NotificationBar");
-      socket.onmessage = (event) => {
-        console.log('Notification has received socket message');
-        const data = JSON.parse(event.data);
-        console.log("Notification bar received message:", data);
-        if (data.type === 'NEW_ORDER') {
-          setNotification(`New order received: ${data.order.mealName} - $${data.order.amount}`);
-          console.log("Notification set:", `New order received: ${data.order.mealName} - $${data.order.amount}`);
-        }
-      };
-      socket.onclose = (event) => {
-        console.log('WebSocket closed:', event);
-      };
-      socket.onerror = (error) => {
-        console.error('WebSocket error:', error);
-      };
-    } else {
-      console.log("WebSocket not available in NotificationBar");
-    }
-  }, [socket]);
-
-  const closeNotification = () => {
-    setNotification(null);
-  };
+  const { notifications } = useContext(WebSocketContext);
+  const latestNotification = notifications[notifications.length - 1];
 
   return (
-    notification && (
-      <div className="notification-bar">
-        <div className="notification-content">
-          {notification}
-          <button className="notification-close-button" onClick={closeNotification}>
-            &times;
-          </button>
+    <>
+      {latestNotification && (
+        <div className="notification-bar">
+          <div className="notification-content">
+            <button className="close-button" onClick={() => window.location.reload()}>&times;</button>
+            {latestNotification.type === 'NEW_ORDER' && (
+              <p>
+                You have received a new order from {latestNotification.order.customerName}. Check below for more details.
+              </p>
+            )}
+          </div>
         </div>
-      </div>
-    )
+      )}
+    </>
   );
 };
 

@@ -1,16 +1,15 @@
-// MyOrders.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import TableWidget from './TableWidget';
 import '../assets/styles/MyOrders.css';
 import { formatOrders } from '../utils/formatOrders';
-import { useWebSocket } from '../WebSocketContext';
+import { WebSocketContext } from '../contexts/WebSocketContext';
 
 const MyOrders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const socket = useWebSocket();
+  const { notifications } = useContext(WebSocketContext);
 
   useEffect(() => {
     setLoading(true);
@@ -30,16 +29,14 @@ const MyOrders = () => {
   }, []);
 
   useEffect(() => {
-    if (socket) {
-      socket.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        if (data.type === 'NEW_ORDER') {
-          console.log('New order received:', data.order);
-          setOrders((prevOrders) => [data.order, ...prevOrders]);
-        }
-      };
-    }
-  }, [socket]);
+    notifications.forEach((notification) => {
+      if (notification.type === 'NEW_ORDER') {
+        console.log('New order received by my orders:', notification.order);
+        const formattedOrder = formatOrders([notification.order])[0];
+        setOrders((prevOrders) => [formattedOrder, ...prevOrders]);
+      }
+    });
+  }, [notifications]);
 
   const columns = [
     { header: 'Customer Name', accessor: 'customerName' },
