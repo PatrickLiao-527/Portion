@@ -6,16 +6,19 @@ import bcrypt from 'bcrypt';
 
 const router = express.Router();
 
-// User signup
+//sign up route 
 router.post('/', async (req, res) => {
   try {
+    console.log('Received signup data:', req.body); // Log received data
     const { name, email, password, role, restaurantName, restaurantCategory } = req.body;
     if (!email || !password || !name || !role) {
+      console.log('Missing fields:', { email, password, name, role });
       return res.status(422).json({ error: 'Submit all fields (email, name, password, role)' });
     }
 
     const savedUser = await User.findOne({ email });
     if (savedUser) {
+      console.log('Email already in use:', email);
       return res.status(422).json({ error: 'Email already in use' });
     }
 
@@ -24,11 +27,12 @@ router.post('/', async (req, res) => {
       name,
       password,
       role,
-      restaurantName,
-      restaurantCategory
+      restaurantName: role === 'owner' ? restaurantName : undefined,
+      restaurantCategory: role === 'owner' ? restaurantCategory : undefined
     });
 
     const createdUser = await newUser.save();
+    console.log('User created:', createdUser);
 
     if (role === 'owner') {
       const newRestaurant = new Restaurant({
@@ -38,14 +42,17 @@ router.post('/', async (req, res) => {
         img: null // Assuming there's no image during signup
       });
       await newRestaurant.save();
+      console.log('Restaurant created for owner:', newRestaurant);
     }
 
     res.json({ message: 'User saved successfully' });
   } catch (err) {
-    console.log(err);
+    console.log('Error during signup:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+
 
 // Get user profile
 router.get('/profile', authMiddleware, async (req, res) => {
