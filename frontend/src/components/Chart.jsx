@@ -1,9 +1,9 @@
 import React from 'react';
 import {
-  LineChart, Line, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Label
+  LineChart, Line, CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from 'recharts';
 import '../assets/styles/Chart.css';
-import { ReactComponent as FilterIcon } from '../assets/icons/filters_icon.svg';
+//import { ReactComponent as FilterIcon } from '../assets/icons/filters_icon.svg';
 
 // Custom XAxis Component
 const CustomXAxis = ({ x, y, payload }) => {

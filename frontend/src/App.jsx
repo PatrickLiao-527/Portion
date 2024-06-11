@@ -32,7 +32,7 @@ const AppContent = () => {
           element={
             <>
               <Header />
-              <NotificationBar /> {/* Move NotificationBar here */}
+              <NotificationBar /> 
               <main>
                 <Sidebar />
                 <div className="content">

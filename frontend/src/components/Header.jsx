@@ -1,5 +1,6 @@
+// src/components/Header.js
 import React, { useContext } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import '../assets/styles/Header.css';
 import profilePic from '../assets/icons/profilePic.png';
 import portionLogo from '../assets/icons/portion-Logo.png';
@@ -7,6 +8,7 @@ import AuthContext from '../contexts/AuthContext';
 
 const Header = () => {
   const { user } = useContext(AuthContext);
+  const location = useLocation();
 
   return (
     <div className="header-wrapper">
@@ -17,7 +19,8 @@ const Header = () => {
         </div>
       </div>
       <div className="nav-links">
-        <a href="/contact-us">Contact Us</a>
+        <Link to="/dashboard" className={location.pathname === '/dashboard' ? 'active' : ''}>Dashboard</Link>
+        <Link to="/contact-us" className={location.pathname === '/contact-us' ? 'active' : ''}>Contact Us</Link>
         <div className="user-wrapper">
           <Link to="/my-profile" className="user-link">
             <img src={profilePic} alt="Profile" className="user-avatar" />
