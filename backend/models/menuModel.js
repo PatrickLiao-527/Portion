@@ -5,7 +5,6 @@ const menuSchema = new mongoose.Schema({
   carbsPrice: { type: Number, required: true },
   proteinsPrice: { type: Number, required: true },
   baseFat: { type: Number, required: true },
-  itemPicture: { type: String },
   proteinType: { 
     type: String, 
     required: true,
