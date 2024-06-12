@@ -10,191 +10,188 @@ import { validImageExtensions, validMimeTypes } from '../config.js';
 
 const router = express.Router();
 
-router.post('/', authMiddleware, checkRole('owner'), async (req, res) => {
+const handleFileUpload = async (fileBuffer, menuItemId) => {
+  const fileType = await fileTypeFromBuffer(Buffer.concat(fileBuffer));
+  if (!fileType || !fileType.mime in validMimeTypes) {
+    throw new Error('Invalid file type');
+  }
+  if (!validImageExtensions.includes(fileType.ext)) {
+    throw new Error('Invalid file extension');
+  }
+  const extension = fileType.ext ? `.${fileType.ext}` : '';
+  const saveTo = path.join('uploads', menuItemId + extension);
+  fs.writeFileSync(saveTo, Buffer.concat(fileBuffer));
+  return extension;
+};
+
+const handleBusboy = (req, res, next) => {
+  const busboy = Busboy({ headers: req.headers });
+  const formData = {};
+  const fileBuffer = [];
+  let fileFieldName = '';
+
+  busboy.on('field', (fieldname, val) => {
+    formData[fieldname] = val;
+  });
+
+  busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
+    fileFieldName = fieldname;
+    file.on('data', (data) => {
+      fileBuffer.push(data);
+    });
+  });
+
+  busboy.on('finish', async () => {
+    req.formData = formData;
+    req.fileBuffer = fileBuffer;
+    req.fileFieldName = fileFieldName;
+    next();
+  });
+
+  req.pipe(busboy);
+};
+
+const getImageBase64 = (menuItemId, extension) => {
+  const filePath = path.join('uploads', `${menuItemId}${extension}`);
+  if (fs.existsSync(filePath)) {
+    return fs.readFileSync(filePath, 'base64');
+  }
+  return null;
+};
+
+router.post('/', authMiddleware, checkRole('owner'), handleBusboy, async (req, res) => {
   try {
-    const busboy = Busboy({ headers: req.headers });
-    let formData = {};
-    let fileBuffer = [];
-    let extension = '';
-    // let fileMimeType = '';
-    let detectedMimeType = '';
+    const { formData, fileBuffer } = req;
 
-    busboy.on('field', (fieldname, val) => {
-      formData[fieldname] = val;
-    });
+    const schemaPaths = Menu.schema.paths;
+    const columnNames = Object.keys(schemaPaths).filter(
+      col_name => col_name !== '_id' && col_name !== '__v' && col_name !== 'ownerId' && schemaPaths[col_name].isRequired
+    );
 
-    busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
-      file.on('data', (data) => {
-        fileBuffer.push(data);
-      });
-
-      file.on('end', async () => {
-        // console.log(`File [${fieldname}] Finished`);
-        const completeFileBuffer = Buffer.concat(fileBuffer);
-        const fileType = await fileTypeFromBuffer(completeFileBuffer);
-        if (fileType) {
-          detectedMimeType = fileType.mime;
-          extension = fileType.ext ? `.${fileType.ext}` : '';
-          console.log(`Detected file type: ${detectedMimeType}, extension: ${extension}`);
-        } else {
-          console.error('Unable to detect file type');
-          return res.status(400).json({ message: 'Invalid file type' });
-        }
-      });
-    });
-
-    busboy.on('finish', async () => {
-      // console.log('Received fields:', formData);
-      // console.log('Received file:', fileName);
-
-      const schemaPaths = Menu.schema.paths;
-      const columnNames = Object.keys(schemaPaths).filter(
-        col_name => col_name !== '_id' && col_name !== '__v' && col_name !== 'ownerId' && schemaPaths[col_name].isRequired
-      );
-
-      for (const col_name of columnNames) {
-        if (!Object.prototype.hasOwnProperty.call(formData, col_name)) {
-          return res.status(400).json({
-            message: `Error: Send all required fields, missing ${col_name}`
-          });
-        }
+    for (const col_name of columnNames) {
+      if (!Object.prototype.hasOwnProperty.call(formData, col_name)) {
+        return res.status(400).json({
+          message: `Error: Send all required fields, missing ${col_name}`
+        });
       }
+    }
 
-      const newMenuItem = {
-        ...formData,
-        ownerId: req.user._id
-      };
-      // console.log(JSON.stringify(newMenuItem));  // debug
+    const newMenuItem = {
+      ...formData,
+      ownerId: req.user._id
+    };
 
-      const menuItem = await Menu.create(newMenuItem);  // save to db except image
+    const menuItem = await Menu.create(newMenuItem);
 
-      const completeFileBuffer = Buffer.concat(fileBuffer);
-      // console.log(`Complete File Buffer: ${completeFileBuffer.length} bytes`);
-      
-      const saveTo = path.join('uploads', menuItem._id + extension);
-      fs.writeFile(saveTo, completeFileBuffer, (err) => {
-        if (err) {
-          console.error('Error saving file:', err);
-          return res.status(500).json({ message: 'Error saving item image' });
-        }
-        res.status(201).json(menuItem);  // Move this inside the writeFile callback to ensure response is sent after file is saved
-      });
-    });
+    if (fileBuffer.length > 0) {
+      await handleFileUpload(fileBuffer, menuItem._id.toString());
+      // menuItem.itemPicture = `${menuItem._id}${extension}`;
+      await menuItem.save();
+    }
 
-    req.pipe(busboy);
-
+    res.status(201).json(menuItem);
   } catch (error) {
-    console.log(error.message);
+    console.error(error.message);
     res.status(500).json({ message: error.message });
   }
 });
 
-// Get all menu items
+router.put('/:id', authMiddleware, checkRole('owner'), handleBusboy, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { formData, fileBuffer } = req;
+
+    const menuItem = await Menu.findById(id);
+    if (!menuItem) return res.status(404).json({ message: 'Menu item not found' });
+    if (menuItem.ownerId.toString() !== req.user._id.toString()) return res.status(403).json({ message: 'Not authorized to update this menu item' });
+
+    Object.assign(menuItem, formData);
+
+    if (fileBuffer.length > 0) {
+      await handleFileUpload(fileBuffer, id);
+      // menuItem.itemPicture = `${id}${extension}`;
+    }
+
+    const updatedMenuItem = await menuItem.save();
+    res.status(200).json(updatedMenuItem);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Get all menu items with images
+// res.body.image is base64 encoded image
 router.get('/', authMiddleware, async (req, res) => {
   try {
     const menuItems = await Menu.find({ ownerId: req.user._id });
-    return res.status(200).json({ length: menuItems.length, data: menuItems });
+
+    const menuItemsWithImages = menuItems.map(menuItem => {
+      const extension = validImageExtensions.find(ext => fs.existsSync(path.join('uploads', `${menuItem._id}.${ext}`)));
+      const imageBase64 = extension ? getImageBase64(menuItem._id, `.${extension}`) : null;
+      return {
+        ...menuItem.toObject(),
+        image: imageBase64,
+        imageExtension: extension
+      };
+    });
+
+    return res.status(200).json({ length: menuItemsWithImages.length, data: menuItemsWithImages });
   } catch (err) {
     console.log(err.message);
     res.status(500).json({ message: err.message });
   }
 });
 
-// Get all menu items for a specific restaurant
 router.get('/restaurant/:restaurantId', async (req, res) => {
   try {
     const { restaurantId } = req.params;
-    //console.log('Received restaurantId:', restaurantId);
-
     if (!mongoose.Types.ObjectId.isValid(restaurantId)) {
-      console.log('Invalid restaurant ID');
       return res.status(400).json({ message: 'Invalid restaurant ID' });
     }
 
-    // Log the connection status
-    //console.log('Mongoose connection state:', mongoose.connection.readyState);
-
     const menuItems = await Menu.find({ ownerId: restaurantId });
-    //console.log('Query executed with ownerId:', restaurantId);
-    //console.log('Fetched menu items:', menuItems);
-
-    if (menuItems.length === 0) {
-      console.log('No menu items found for restaurant:', restaurantId);
-    }
-
-    return res.status(200).json(menuItems); // Sending the array directly
+    res.status(200).json(menuItems);
   } catch (err) {
-    console.log('Error fetching menu items:', err.message);
+    console.error(err.message);
     res.status(500).json({ message: err.message });
   }
 });
 
-// Get menu item by ID
 router.get('/:id', authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
     const menuItem = await Menu.findById(id);
     if (!menuItem) return res.status(404).json({ message: 'Menu item not found' });
     if (menuItem.ownerId.toString() !== req.user._id.toString()) return res.status(403).json({ message: 'Not authorized to view this menu item' });
-    return res.status(200).json({ data: menuItem });
+
+    const imagePath = path.join('uploads', `${id}${path.extname(menuItem.itemPicture)}`);
+    if (fs.existsSync(imagePath)) {
+      menuItem.imageData = fs.readFileSync(imagePath, 'base64');
+    }
+    res.status(200).json(menuItem);
   } catch (err) {
-    console.log(err.message);
-    return res.status(500).json({ message: err.message });
+    console.error(err.message);
+    res.status(500).json({ message: err.message });
   }
 });
 
-// Update menu item by ID
-router.put('/:id', authMiddleware, checkRole('owner'), async (req, res) => {
-  const busboy = Busboy({ headers: req.headers });
-  const updateData = {};
-  let menuItemId = req.params.id;
-
-  busboy.on('field', (fieldname, val) => {
-    updateData[fieldname] = val;
-  });
-
-  busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
-    const saveTo = path.join('uploads', menuItemId + path.extname(filename));
-    const writeStream = fs.createWriteStream(saveTo);
-    file.pipe(writeStream);
-    writeStream.on('close', async () => {
-      try {
-        await Menu.findByIdAndUpdate(menuItemId, { itemPicture: menuItemId + path.extname(filename) });
-      } catch (error) {
-        console.log(error.message);
-        res.status(500).json({ message: 'Internal server error' });
-      }
-    });
-  });
-
-  busboy.on('finish', async () => {
-    try {
-      const menuItem = await Menu.findById(menuItemId);
-      if (!menuItem) return res.status(404).json({ message: 'Menu item not found' });
-      if (menuItem.ownerId.toString() !== req.user._id.toString()) return res.status(403).json({ message: 'Not authorized to update this menu item' });
-      Object.assign(menuItem, updateData);
-      const updatedMenuItem = await menuItem.save();
-      res.status(200).json(updatedMenuItem);
-    } catch (error) {
-      console.log(error.message);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  });
-
-  req.pipe(busboy);
-});
-
-// Delete menu item by ID
 router.delete('/:id', authMiddleware, checkRole('owner'), async (req, res) => {
   try {
     const { id } = req.params;
     const menuItem = await Menu.findById(id);
     if (!menuItem) return res.status(404).json({ message: 'Menu item not found' });
     if (menuItem.ownerId.toString() !== req.user._id.toString()) return res.status(403).json({ message: 'Not authorized to delete this menu item' });
+
+    const imagePath = path.join('uploads', `${id}${path.extname(menuItem.itemPicture)}`);
+    if (fs.existsSync(imagePath)) {
+      fs.unlinkSync(imagePath);
+    }
+
     await Menu.deleteOne({ _id: id });
-    return res.status(200).json({ message: 'Menu item deleted successfully' });
+    res.status(200).json({ message: 'Menu item deleted successfully' });
   } catch (err) {
-    console.log(err.message);
+    console.error(err.message);
     res.status(500).json({ message: 'Internal server error' });
   }
 });

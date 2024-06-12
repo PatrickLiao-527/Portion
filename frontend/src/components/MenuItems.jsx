@@ -22,7 +22,7 @@ const MenuItems = () => {
           proteinsPrice: `$${item.proteinsPrice}`,
           baseFat: `${item.baseFat} gram(s)`,
           editItem: <Link to={`/menu-items/edit/${item._id}`} className="edit-link"><img src={editIcon} alt="Edit" /></Link>,
-          itemPicture: item.itemPicture ? `/uploads/${item.itemPicture}` : null
+          itemPicture: item.image ? `data:image/${item.imageExtension};base64,${item.image}` : null
         }));
         setMenus(transformedData);
         setLoading(false);
