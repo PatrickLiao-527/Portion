@@ -27,23 +27,24 @@
   align-items: center;
   position: fixed;
   z-index: 1;
-  left: 40%;
+  left: 30%;
   top: 10%;
-  width: 30%;
-  height: 80%;
+  width: 40%;
+  height: 70%;
   overflow: auto;
+  border-radius: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .modal-content {
   background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   padding: 30px;
   margin: 20px;
   width: 100%;
   max-width: 450px;
   text-align: start;
   font-family: 'Poppins', sans-serif;
+  overflow-y:auto;
 }
 
 .modal-content h2 {

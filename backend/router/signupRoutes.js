@@ -1,39 +1,58 @@
 import express from 'express';
 import User from '../models/userModel.js';
+import Restaurant from '../models/restaurantModel.js'; // Import Restaurant model
 import authMiddleware from '../middleware/authMiddleware.js';
 import bcrypt from 'bcrypt';
 
 const router = express.Router();
 
-// User signup
+//sign up route 
 router.post('/', async (req, res) => {
-    try {
-        const { name, email, password, role, restaurantName, restaurantCategory } = req.body;
-        if (!email || !password || !name || !role) {
-            return res.status(422).json({ error: 'Submit all fields (email, name, password, role)' });
-        }
+  try {
+    console.log('Received signup data:', req.body); // Log received data
+    const { name, email, password, role, restaurantName, restaurantCategory } = req.body;
+    if (!email || !password || !name || !role) {
+      console.log('Missing fields:', { email, password, name, role });
+      return res.status(422).json({ error: 'Submit all fields (email, name, password, role)' });
+    }
 
     const savedUser = await User.findOne({ email });
     if (savedUser) {
+      console.log('Email already in use:', email);
       return res.status(422).json({ error: 'Email already in use' });
     }
 
     const newUser = new User({
-        email,
-        name,
-        password,
-        role,
-        restaurantName,
-        restaurantCategory
+      email,
+      name,
+      password,
+      role,
+      restaurantName: role === 'owner' ? restaurantName : undefined,
+      restaurantCategory: role === 'owner' ? restaurantCategory : undefined
     });
 
-    await newUser.save();
+    const createdUser = await newUser.save();
+    console.log('User created:', createdUser);
+
+    if (role === 'owner') {
+      const newRestaurant = new Restaurant({
+        ownerId: createdUser._id,
+        name: restaurantName,
+        category: restaurantCategory,
+        img: null // Assuming there's no image during signup
+      });
+      await newRestaurant.save();
+      console.log('Restaurant created for owner:', newRestaurant);
+    }
+
     res.json({ message: 'User saved successfully' });
   } catch (err) {
-    console.log(err);
+    console.log('Error during signup:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+
 
 // Get user profile
 router.get('/profile', authMiddleware, async (req, res) => {

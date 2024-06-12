@@ -100,6 +100,35 @@ router.get('/', authMiddleware, async (req, res) => {
   }
 });
 
+// Get all menu items for a specific restaurant
+router.get('/restaurant/:restaurantId', async (req, res) => {
+  try {
+    const { restaurantId } = req.params;
+    //console.log('Received restaurantId:', restaurantId);
+
+    if (!mongoose.Types.ObjectId.isValid(restaurantId)) {
+      console.log('Invalid restaurant ID');
+      return res.status(400).json({ message: 'Invalid restaurant ID' });
+    }
+
+    // Log the connection status
+    //console.log('Mongoose connection state:', mongoose.connection.readyState);
+
+    const menuItems = await Menu.find({ ownerId: restaurantId });
+    //console.log('Query executed with ownerId:', restaurantId);
+    //console.log('Fetched menu items:', menuItems);
+
+    if (menuItems.length === 0) {
+      console.log('No menu items found for restaurant:', restaurantId);
+    }
+
+    return res.status(200).json(menuItems); // Sending the array directly
+  } catch (err) {
+    console.log('Error fetching menu items:', err.message);
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // Get menu item by ID
 router.get('/:id', authMiddleware, async (req, res) => {
   try {

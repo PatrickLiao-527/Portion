@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext} from 'react';
-import AuthContext from '../AuthContext';
+import AuthContext from '../contexts/AuthContext';
 import axios from 'axios';
 import '../assets/styles/MyProfile.css';
 import profilePic from '../assets/icons/profilePic.png';

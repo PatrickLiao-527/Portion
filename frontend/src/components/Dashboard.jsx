@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import Widget from './Widget';
 import Chart from './Chart';
 import TableWidget from './TableWidget';
 import '../assets/styles/Dashboard.css';
+import { formatOrders } from '../utils/formatOrders';
+import { WebSocketContext } from '../contexts/WebSocketContext';
 
 const Dashboard = () => {
   const [orders, setOrders] = useState([]);
@@ -11,6 +13,7 @@ const Dashboard = () => {
   const [error, setError] = useState(null);
   const [revenueData, setRevenueData] = useState([]);
   const [ordersChartData, setOrdersChartData] = useState([]);
+  const { notifications } = useContext(WebSocketContext);
 
   useEffect(() => {
     setLoading(true);
@@ -18,8 +21,8 @@ const Dashboard = () => {
       .get('http://localhost:5555/orders', { withCredentials: true })
       .then((response) => {
         const sortedOrders = response.data.sort((a, b) => new Date(b.time) - new Date(a.time));
-        setOrders(sortedOrders);
-
+        const formattedOrders = formatOrders(sortedOrders);
+        setOrders(formattedOrders);
 
         // Generate revenue data
         const revenue = sortedOrders.reduce((acc, order) => {
@@ -56,23 +59,40 @@ const Dashboard = () => {
       });
   }, []);
 
-  const formatOrders = (orders) => {
-    return orders.map(order => ({
-      ...order,
-      orderId: `#${order._id}`,
-      customerName: order.customerName,
-      date: new Date(order.time).toLocaleDateString(), // Correctly format the date
-      time: new Date(order.time).toLocaleTimeString(), // Correctly format the time
-      amount: `$${order.amount.toFixed(2)}`,
-      paymentType: order.paymentType,
-      status: order.status,
-      details: '...', // Placeholder for details column
-      mealName: order.mealName,
-      carbs: order.carbs,
-      proteins: order.proteins,
-      fats: order.fats 
-    }));
-  };
+  useEffect(() => {
+    notifications.forEach((notification) => {
+      if (notification.type === 'NEW_ORDER') {
+        const formattedOrder = formatOrders([notification.order])[0];
+        setOrders((prevOrders) => {
+          const newOrders = [formattedOrder, ...prevOrders];
+          return newOrders;
+        });
+
+        // Update revenue data
+        const month = new Date(notification.order.time).toLocaleString('default', { month: 'short' });
+        setRevenueData((prevRevenue) => {
+          const existingMonth = prevRevenue.find(item => item.name === month);
+          if (existingMonth) {
+            existingMonth.revenue += parseFloat(notification.order.amount);
+          } else {
+            prevRevenue.push({ name: month, revenue: parseFloat(notification.order.amount) });
+          }
+          return [...prevRevenue];
+        });
+
+        // Update orders chart data
+        setOrdersChartData((prevOrdersChart) => {
+          const existingMonth = prevOrdersChart.find(item => item.name === month);
+          if (existingMonth) {
+            existingMonth.orders += 1;
+          } else {
+            prevOrdersChart.push({ name: month, orders: 1 });
+          }
+          return [...prevOrdersChart];
+        });
+      }
+    });
+  }, [notifications]);
 
   const columns = [
     { header: 'Customer Name', accessor: 'customerName' },
@@ -101,7 +121,7 @@ const Dashboard = () => {
       ) : (
         <TableWidget
           title="New Orders"
-          data={formatOrders(orders)} 
+          data={orders} 
           columns={columns}
           itemsPerPage={5}
           maxItemsPerPage={30}

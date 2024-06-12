@@ -20,22 +20,40 @@ const TableWidget = ({ title, data, columns, itemsPerPage, maxItemsPerPage, setI
   const statusOrder = ['In Progress', 'Complete', 'Cancelled'];
 
   const handleStatusClick = async (item) => {
-     //console.log('Item Object:', item);
+    console.log('Status click initiated for item:', item);
     if (!item._id) {
       console.error('Order ID is undefined:', item);
       return;
     }
-  
+
     const nextStatusIndex = (statusOrder.indexOf(item.status) + 1) % statusOrder.length;
     const nextStatus = statusOrder[nextStatusIndex];
-  
+    console.log(`Updating status for order ${item._id} from ${item.status} to ${nextStatus}`);
+
     try {
-      //console.log('Order ID:', item._id); // Log the order ID
+      //console.log('Sending patch request to update status...');
       const response = await axios.patch(`http://localhost:5555/orders/${item._id}/status`, { status: nextStatus }, { withCredentials: true });
-      const updatedOrder = response.data;
-  
+      let updatedOrder = response.data;
+      //console.log('Patch response:', updatedOrder);
+
+      // Ensure consistent date formatting
+      updatedOrder = {
+        ...updatedOrder,
+        time: new Date(updatedOrder.time).toLocaleTimeString(),
+        date: new Date(updatedOrder.time).toLocaleDateString()
+      };
+      //console.log('Formatted patch response:', updatedOrder);
+
       // Update the local state with the updated order
-      setItems((prevOrders) => prevOrders.map(order => (order._id === item._id ? updatedOrder : order)));
+      setItems((prevOrders) => {
+        return prevOrders.map(order => {
+          if (order._id === item._id) {
+            //console.log(`Comparing order._id: ${order._id} with item._id: ${item._id}`);
+            return updatedOrder;
+          }
+          return order;
+        });
+      });
     } catch (error) {
       console.error('Error updating order status:', error);
     }
@@ -85,6 +103,8 @@ const TableWidget = ({ title, data, columns, itemsPerPage, maxItemsPerPage, setI
     setSelectedEditItem(null);
   };
 
+  //console.log('Rendering TableWidget with data:', data);
+
   return (
     <div className="table-widget">
       <div className="table-header">
@@ -116,6 +136,8 @@ const TableWidget = ({ title, data, columns, itemsPerPage, maxItemsPerPage, setI
                     >
                       {item[col.accessor]}
                     </span>
+                  ) : col.accessor === 'amount' ? (
+                    `$${item[col.accessor]}` // Add dollar sign to the amount
                   ) : (
                     item[col.accessor] // Render string value directly
                   )}

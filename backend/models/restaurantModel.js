@@ -4,7 +4,7 @@ const restaurantSchema = new mongoose.Schema({
   ownerId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: false 
+    required: true 
   },
   name: {
     type: String,
@@ -13,7 +13,6 @@ const restaurantSchema = new mongoose.Schema({
   },
   category: {
     type: String,
-    ref: 'Category',
     required: true
   },
   img: {

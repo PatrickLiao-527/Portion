@@ -53,12 +53,14 @@ const Sidebar = () => {
                     </div>
                     Menu Items
                 </NavLink>
+                {/*
                 <NavLink to="/transactions" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
                     <div className="icon-wrapper">
                         <TransactionsIcon />
                     </div>
                     Transactions
                 </NavLink>
+                */}
                 {/*
                 <NavLink to="/reports" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
                     <div className="icon-wrapper">

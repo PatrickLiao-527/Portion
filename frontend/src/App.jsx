@@ -13,7 +13,9 @@ import Login from './components/Login';
 import Signup from './components/Signup';
 import EmailVerification from './components/EmailVerification';
 import ContactUs from './components/ContactUs';
-import { AuthProvider } from './AuthContext';
+import NotificationBar from './components/NotificationBar';
+import { AuthProvider } from './contexts/AuthContext';
+import { WebSocketProvider } from './contexts/WebSocketContext';
 import ProtectedRoute from './ProtectedRoute';
 import './App.css';
 
@@ -30,6 +32,7 @@ const AppContent = () => {
           element={
             <>
               <Header />
+              <NotificationBar /> 
               <main>
                 <Sidebar />
                 <div className="content">
@@ -57,11 +60,13 @@ const AppContent = () => {
 const App = () => {
   return (
     <AuthProvider>
-      <Router>
-        <div className="App">
-          <AppContent />
-        </div>
-      </Router>
+      <WebSocketProvider>
+        <Router>
+          <div className="App">
+            <AppContent />
+          </div>
+        </Router>
+      </WebSocketProvider>
     </AuthProvider>
   );
 };

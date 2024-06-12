@@ -1,20 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import TableWidget from './TableWidget';
 import '../assets/styles/MyOrders.css';
+import { formatOrders } from '../utils/formatOrders';
+import { WebSocketContext } from '../contexts/WebSocketContext';
 
 const MyOrders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { notifications } = useContext(WebSocketContext);
 
   useEffect(() => {
     setLoading(true);
     axios
       .get('http://localhost:5555/orders', { withCredentials: true })
       .then((response) => {
+        console.log('Fetched orders:', response.data);
         const sortedOrders = response.data.sort((a, b) => new Date(b.time) - new Date(a.time));
-        setOrders(sortedOrders);
+        setOrders(formatOrders(sortedOrders));
         setLoading(false);
       })
       .catch((error) => {
@@ -24,23 +28,15 @@ const MyOrders = () => {
       });
   }, []);
 
-  const formatOrders = (orders) => {
-    return orders.map(order => ({
-      ...order,
-      orderId: `#${order._id}`,
-      customerName: order.customerName,
-      date: new Date(order.time).toLocaleDateString(), // Correctly format the date
-      time: new Date(order.time).toLocaleTimeString(), // Correctly format the time
-      amount: `$${order.amount.toFixed(2)}`,
-      paymentType: order.paymentType,
-      status: order.status,
-      details: '...', // Placeholder for details column
-      mealName: order.mealName,
-      carbs: order.carbs,
-      proteins: order.proteins,
-      fats: order.fats 
-    }));
-  };
+  useEffect(() => {
+    notifications.forEach((notification) => {
+      if (notification.type === 'NEW_ORDER') {
+        console.log('New order received by my orders:', notification.order);
+        const formattedOrder = formatOrders([notification.order])[0];
+        setOrders((prevOrders) => [formattedOrder, ...prevOrders]);
+      }
+    });
+  }, [notifications]);
 
   const columns = [
     { header: 'Customer Name', accessor: 'customerName' },
@@ -62,7 +58,7 @@ const MyOrders = () => {
       ) : (
         <TableWidget
           title="New Orders"
-          data={formatOrders(orders)} 
+          data={orders} 
           columns={columns}
           itemsPerPage={15}
           maxItemsPerPage={30}

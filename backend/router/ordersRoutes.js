@@ -2,22 +2,20 @@ import express from 'express';
 import Order from '../models/orderModel.js';
 import authMiddleware from '../middleware/authMiddleware.js';
 import checkRole from '../middleware/checkRole.js';
-
+import { broadcast } from '../websocket.js';
 const router = express.Router();
 
-// Create a new order (client only)
-router.post('/', authMiddleware, checkRole('owner'), async (req, res) => {
+// Create new order -> Now public and uses websocket for notification pushing 
+router.post('/', async (req, res) => {
   try {
-    const newOrder = { ...req.body, ownerId: req.user._id };
-    const order = await Order.create(newOrder);
-
-    return res.status(201).json(order);
+    const newOrder = new Order(req.body);
+    await newOrder.save();
+    broadcast({ type: 'NEW_ORDER', order: newOrder });
+    res.status(201).json(newOrder);
   } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(400).json({ message: error.message });
   }
 });
-
 // Get all orders for the authenticated user (owner only)
 router.get('/', authMiddleware, checkRole('owner'), async (req, res) => {
   try {
@@ -111,7 +109,7 @@ router.patch('/:id/status', authMiddleware, async (req, res) => {
 
     order.status = status;
     await order.save();
-
+    console.log(`changing status for order ${order}`);
     res.status(200).json(order); // Return the updated order
   } catch (error) {
     console.error('Error updating order status:', error);

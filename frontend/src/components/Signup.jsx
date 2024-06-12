@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import AuthContext from '../AuthContext';
+import AuthContext from '../contexts/AuthContext';
 import '../assets/styles/Signup.css';
 import googleLogo from '../assets/icons/Google-logo.png';
 import showHideIcon from '../assets/icons/showHide_icon.png';
@@ -36,6 +36,20 @@ const fetchRestaurants = async () => {
   }
 };
 
+const fetchRestaurantByName = async (restaurantName) => {
+  try {
+    const response = await axios.get(`${BASE_URL}/restaurants/name/${restaurantName}`, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching restaurant by name:', error);
+    throw error;
+  }
+};
+
 const createCategory = async (categoryName) => {
   try {
     const response = await axios.post(`${BASE_URL}/categories`, { name: categoryName }, {
@@ -50,9 +64,9 @@ const createCategory = async (categoryName) => {
   }
 };
 
-const createRestaurant = async (restaurantName, category) => {
+const createRestaurant = async (restaurantName, category, ownerId) => {
   try {
-    const response = await axios.post(`${BASE_URL}/restaurants`, { name: restaurantName, category }, {
+    const response = await axios.post(`${BASE_URL}/restaurants`, { name: restaurantName, category, ownerId }, {
       headers: {
         'Content-Type': 'application/json'
       }
@@ -109,7 +123,6 @@ const Signup = () => {
     const regex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~])[A-Za-z\d!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]{8,}$/;
     return regex.test(password);
   };
-  
 
   const handleSignup = async (event) => {
     event.preventDefault();
@@ -124,28 +137,42 @@ const Signup = () => {
 
     try {
       let finalCategory = restaurantCategory;
-      if (restaurantCategory === 'Other') {
-        const newCategoryData = await createCategory(newCategory);
-        finalCategory = newCategoryData.name;
-      }
-
       let finalRestaurantName = restaurantName;
+
       if (restaurantName === 'Other') {
-        const newRestaurant = await createRestaurant(newRestaurantName, finalCategory);
+        if (restaurantCategory === 'Other') {
+          const newCategoryData = await createCategory(newCategory);
+          finalCategory = newCategoryData.name;
+        }
+
+        const signupResponse = await axios.post(`${BASE_URL}/signup`, {
+          name: profileName,
+          email,
+          password,
+          role: 'owner',
+          restaurantName: newRestaurantName,
+          restaurantCategory: finalCategory
+        });
+
+        const userId = signupResponse.data.user._id;
+        const newRestaurant = await createRestaurant(newRestaurantName, finalCategory, userId);
         finalRestaurantName = newRestaurant.name;
+      } else {
+        const existingRestaurant = await fetchRestaurantByName(restaurantName);
+        finalRestaurantName = existingRestaurant.name;
+        finalCategory = existingRestaurant.category;
+
+        await axios.post(`${BASE_URL}/signup`, {
+          name: profileName,
+          email,
+          password,
+          role: 'owner',
+          restaurantName: finalRestaurantName,
+          restaurantCategory: finalCategory
+        });
       }
 
-      const response = await axios.post(`${BASE_URL}/signup`, {
-        name: profileName,
-        email,
-        password,
-        role: 'owner',
-        restaurantName: finalRestaurantName,
-        restaurantCategory: finalCategory
-      });
-
-      console.log('User registered successfully:', response.data);
-      setUser(response.data.user);
+      console.log('User registered successfully');
       navigate('/dashboard');
     } catch (error) {
       console.error('Error registering user:', error);

@@ -1,83 +1,72 @@
+/* src/assets/styles/Header.css */
 .header-wrapper {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px;
-  background-color: #fff;
+  padding: 1rem;
+  background-color: #FFFFFF;
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-  position: fixed;
-  width: 100%;
+  position: relative;
   z-index: 10;
-  top: 0;
-  flex-wrap: wrap;
 }
 
 .logo-wrapper {
   display: flex;
   align-items: center;
-  flex: 1;
-  min-width: 200px;
 }
 
 .logo {
-  width: 10%;
+  width: 100px;
   height: auto;
-  margin-right: 20px;
-}
-
-.titles-wrapper {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.header-title {
-  font-family: 'Poppins', sans-serif;
-  font-weight: 600;
-  color: #302D40;
-  font-size: 24px;
-  margin-right: 100px;
+  margin-left: 1rem;
 }
 
 .nav-links {
   display: flex;
+  gap: 2rem;
+  margin-top: 7px;
   align-items: center;
-  justify-content: flex-end;
-  padding-right: 20px;
-  flex: 1;
-  min-width: 200px;
 }
 
 .nav-links a {
-  text-decoration: none;
-  color: #302D40;
   font-family: 'Poppins', sans-serif;
   font-weight: 600;
-  font-size: 16px;
-  margin-right: 20px;
+  font-size: 1rem;
+  color: #302D40;
+  text-decoration: none;
+  position: relative;
+  padding-bottom: 0.25rem;
 }
 
-.nav-links a:last-child {
-  margin-right: 0;
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background-color: transparent;
+  transition: background-color 0.3s ease;
+}
+
+.nav-links a.active::after {
+  background-color: #302D40;
 }
 
 .user-wrapper {
   display: flex;
   align-items: center;
-  margin-right: 20px;
 }
 
 .user-link {
   display: flex;
   align-items: center;
   text-decoration: none;
-  color: inherit;
 }
 
 .user-avatar {
-  width: 45px;
-  height: 45px;
-  background-color: #ccc;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   margin-right: 10px;
 }
@@ -85,42 +74,21 @@
 .user-name {
   font-family: 'Poppins', sans-serif;
   font-weight: 600;
-  font-size: 16px;
+  font-size: 1rem;
+  color: #302D40;
+  margin-right: 40px;
 }
 
-@media (max-width: 1200px) {
-  .header-wrapper {
-    padding: 10px;
-    flex-direction: row;
-  }
-  .logo {
-    width: 20%;
-    height: auto;
-    margin-right: 20px;
-  }
-  
-  .logo-wrapper {
-    justify-content: center;
-    margin-bottom: 10px;
-  }
+.titles-wrapper {
+  display: flex;
+  flex-direction: column;
+  margin-left: 10px;
+}
 
-  .header-title {
-    font-size: 18px;
-    margin-right: 20px;
-  }
-
-  .nav-links {
-    justify-content: center;
-    padding-right: 0;
-    margin-bottom: 5px;
-  }
-
-  .nav-links a {
-    font-size: 14px;
-    margin-right: 10px;
-  }
-
-  .user-name {
-    display: none;
-  }
+.header-title {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: #302D40;
+  margin-left: 100px;
 }

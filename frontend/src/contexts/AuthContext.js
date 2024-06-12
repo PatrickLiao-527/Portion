@@ -12,7 +12,7 @@ export const AuthProvider = ({ children }) => {
     const checkLoggedIn = async () => {
       try {
         const response = await axios.get('http://localhost:5555/auth/check', { withCredentials: true });
-        console.log('Auth check response:', response.data);
+        //console.log('Auth check response:', response.data);
         setUser(response.data.user);
       } catch (error) {
         if (error.response && error.response.status === 401) {
