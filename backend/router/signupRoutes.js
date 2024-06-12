@@ -1,19 +1,26 @@
 import express from 'express';
 import User from '../models/userModel.js';
-import Restaurant from '../models/restaurantModel.js'; // Import Restaurant model
 import authMiddleware from '../middleware/authMiddleware.js';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 const router = express.Router();
 
-//sign up route 
+
+
+// Signup route
 router.post('/', async (req, res) => {
   try {
-    console.log('Received signup data:', req.body); // Log received data
+    console.log('Received signup data:', req.body);
     const { name, email, password, role, restaurantName, restaurantCategory } = req.body;
+
     if (!email || !password || !name || !role) {
       console.log('Missing fields:', { email, password, name, role });
       return res.status(422).json({ error: 'Submit all fields (email, name, password, role)' });
+    }
+
+    if (role === 'owner' && (!restaurantName || !restaurantCategory)) {
+      return res.status(422).json({ error: 'Owners must specify restaurant name and category' });
     }
 
     const savedUser = await User.findOne({ email });
@@ -22,10 +29,12 @@ router.post('/', async (req, res) => {
       return res.status(422).json({ error: 'Email already in use' });
     }
 
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const newUser = new User({
       email,
       name,
-      password,
+      password: hashedPassword,
       role,
       restaurantName: role === 'owner' ? restaurantName : undefined,
       restaurantCategory: role === 'owner' ? restaurantCategory : undefined
@@ -34,24 +43,22 @@ router.post('/', async (req, res) => {
     const createdUser = await newUser.save();
     console.log('User created:', createdUser);
 
-    if (role === 'owner') {
-      const newRestaurant = new Restaurant({
-        ownerId: createdUser._id,
-        name: restaurantName,
-        category: restaurantCategory,
-        img: null // Assuming there's no image during signup
-      });
-      await newRestaurant.save();
-      console.log('Restaurant created for owner:', newRestaurant);
-    }
+    // Generate token
+    const token = jwt.sign({ id: createdUser._id, role: createdUser.role }, 'your_jwt_secret_key', { expiresIn: '1h' });
 
-    res.json({ message: 'User saved successfully' });
+    // Set token in HTTP-only cookie
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: false, // Set to true if using HTTPS
+      sameSite: 'Strict'
+    });
+
+    res.status(201).json({ user: createdUser, token, message: 'User saved successfully' });
   } catch (err) {
     console.log('Error during signup:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-
 
 
 // Get user profile

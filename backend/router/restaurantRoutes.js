@@ -9,11 +9,11 @@ const router = express.Router();
 // Create a new restaurant (public access)
 router.post('/', async (req, res) => {
   try {
-    const { name, category, img } = req.body;
+    const { name, category, img, ownerId } = req.body;
 
     // Check required fields
-    if (!name || !category) {
-      return res.status(400).json({ message: 'Please provide all required fields: name, category' });
+    if (!name || !category || !ownerId) {
+      return res.status(400).json({ message: 'Please provide all required fields: name, category, ownerId' });
     }
 
     // Check if restaurant name already exists
@@ -25,7 +25,8 @@ router.post('/', async (req, res) => {
     const newRestaurant = new Restaurant({
       name,
       category,
-      img
+      img,
+      ownerId
     });
 
     const savedRestaurant = await newRestaurant.save();
@@ -35,7 +36,6 @@ router.post('/', async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
-
 // Get all restaurants (public access)
 router.get('/', async (req, res) => {
   try {
@@ -101,10 +101,10 @@ router.get('/name/:name', async (req, res) => {
     const restaurant = await Restaurant.findOne({ name: req.params.name });
 
     if (!restaurant) {
-      return res.status(404).json({ message: 'Restaurant not found' });
+      return res.status(200).json({ exists: false, message: 'Restaurant not found' });
     }
 
-    res.status(200).json(restaurant);
+    res.status(200).json({ exists: true, restaurant });
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ message: 'Internal server error' });

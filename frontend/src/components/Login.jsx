@@ -78,7 +78,7 @@ const Login = () => {
               Log in
             </button>
           </form>
-          <Link to="/forgot-password" className="forgot-password-link">
+          <Link to="/contact-us?subject=Forgot Password" className="forgot-password-link">
             Forgot your password?
           </Link>
           <div className="login-divider">Or log in with</div>

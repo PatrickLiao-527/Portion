@@ -13,25 +13,12 @@ const fetchCategories = async () => {
     const response = await axios.get(`${BASE_URL}/categories`, {
       headers: {
         'Content-Type': 'application/json'
-      }
+      },
+      withCredentials: true // Ensure cookies are sent
     });
     return response.data;
   } catch (error) {
     console.error('Error fetching categories:', error);
-    throw error;
-  }
-};
-
-const fetchRestaurants = async () => {
-  try {
-    const response = await axios.get(`${BASE_URL}/restaurants`, {
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching restaurants:', error);
     throw error;
   }
 };
@@ -41,12 +28,16 @@ const fetchRestaurantByName = async (restaurantName) => {
     const response = await axios.get(`${BASE_URL}/restaurants/name/${restaurantName}`, {
       headers: {
         'Content-Type': 'application/json'
-      }
+      },
+      withCredentials: true // Ensure cookies are sent
     });
     return response.data;
   } catch (error) {
-    console.error('Error fetching restaurant by name:', error);
-    throw error;
+    if (error.response && error.response.status === 404) {
+      return { exists: false }; // Restaurant not found
+    } else {
+      throw error;
+    }
   }
 };
 
@@ -55,7 +46,8 @@ const createCategory = async (categoryName) => {
     const response = await axios.post(`${BASE_URL}/categories`, { name: categoryName }, {
       headers: {
         'Content-Type': 'application/json'
-      }
+      },
+      withCredentials: true // Ensure cookies are sent
     });
     return response.data;
   } catch (error) {
@@ -69,7 +61,8 @@ const createRestaurant = async (restaurantName, category, ownerId) => {
     const response = await axios.post(`${BASE_URL}/restaurants`, { name: restaurantName, category, ownerId }, {
       headers: {
         'Content-Type': 'application/json'
-      }
+      },
+      withCredentials: true // Ensure cookies are sent
     });
     return response.data;
   } catch (error) {
@@ -84,16 +77,15 @@ const Signup = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [restaurantName, setRestaurantName] = useState('');
-  const [newRestaurantName, setNewRestaurantName] = useState('');
   const [restaurantCategory, setRestaurantCategory] = useState('');
   const [newCategory, setNewCategory] = useState('');
   const [categories, setCategories] = useState([]);
-  const [restaurants, setRestaurants] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [categoryError, setCategoryError] = useState('');
-  const { setUser } = useContext(AuthContext);
+  const [restaurantError, setRestaurantError] = useState('');
+  const { setUser, setToken } = useContext(AuthContext);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -106,17 +98,7 @@ const Signup = () => {
       }
     };
 
-    const fetchRestaurantsData = async () => {
-      try {
-        const restaurantsData = await fetchRestaurants();
-        setRestaurants(restaurantsData);
-      } catch (error) {
-        console.error('Error fetching restaurants:', error);
-      }
-    };
-
     fetchCategoriesData();
-    fetchRestaurantsData();
   }, []);
 
   const validatePassword = (password) => {
@@ -129,6 +111,7 @@ const Signup = () => {
     setEmailError('');
     setPasswordError('');
     setCategoryError('');
+    setRestaurantError('');
 
     if (!validatePassword(password)) {
       setPasswordError('Password must be at least 8 characters long and include letters, numbers, and symbols.');
@@ -136,52 +119,51 @@ const Signup = () => {
     }
 
     try {
-      let finalCategory = restaurantCategory;
-      let finalRestaurantName = restaurantName;
-
-      if (restaurantName === 'Other') {
-        if (restaurantCategory === 'Other') {
-          const newCategoryData = await createCategory(newCategory);
-          finalCategory = newCategoryData.name;
-        }
-
-        const signupResponse = await axios.post(`${BASE_URL}/signup`, {
-          name: profileName,
-          email,
-          password,
-          role: 'owner',
-          restaurantName: newRestaurantName,
-          restaurantCategory: finalCategory
-        });
-
-        const userId = signupResponse.data.user._id;
-        const newRestaurant = await createRestaurant(newRestaurantName, finalCategory, userId);
-        finalRestaurantName = newRestaurant.name;
-      } else {
-        const existingRestaurant = await fetchRestaurantByName(restaurantName);
-        finalRestaurantName = existingRestaurant.name;
-        finalCategory = existingRestaurant.category;
-
-        await axios.post(`${BASE_URL}/signup`, {
-          name: profileName,
-          email,
-          password,
-          role: 'owner',
-          restaurantName: finalRestaurantName,
-          restaurantCategory: finalCategory
-        });
+      console.log(`Checking if restaurant exists: ${restaurantName}`);
+      const existingRestaurant = await fetchRestaurantByName(restaurantName);
+      if (existingRestaurant.exists) {
+        setRestaurantError('Restaurant name already exists');
+        return;
       }
 
+      let finalCategory = restaurantCategory;
+
+      if (restaurantCategory === 'Other') {
+        console.log(`Creating new category: ${newCategory}`);
+        const newCategoryData = await createCategory(newCategory);
+        finalCategory = newCategoryData.name;
+      }
+
+      console.log('Signing up new user...');
+      const signupResponse = await axios.post(`${BASE_URL}/signup`, {
+        name: profileName,
+        email,
+        password,
+        role: 'owner',
+        restaurantName,
+        restaurantCategory: finalCategory
+      }, { withCredentials: true });
+
+      console.log('Signup response:', signupResponse);
+
+      const userId = signupResponse.data.user._id;
+      console.log(`Creating restaurant for user: ${userId}`);
+      await createRestaurant(restaurantName, finalCategory, userId);
+
       console.log('User registered successfully');
+      setUser(signupResponse.data.user); // Set the user in context
+      setToken(signupResponse.data.token); // Set the token in context
       navigate('/dashboard');
     } catch (error) {
       console.error('Error registering user:', error);
 
-      if (error.response?.data?.message.includes('Email already in use')) {
+      const errorMessage = error.response?.data?.error || '';
+      
+      if (errorMessage.includes('Email already in use')) {
         setEmailError('Email already in use');
-      } else if (error.response?.data?.message.includes('Restaurant name already exists')) {
-        setErrorMessage('Restaurant name already exists');
-      } else if (error.response?.data?.message.includes('Category name already exists')) {
+      } else if (errorMessage.includes('Restaurant name already exists')) {
+        setRestaurantError('Restaurant name already exists');
+      } else if (errorMessage.includes('Category name already exists')) {
         setCategoryError('Category name already exists');
       } else {
         setErrorMessage('Failed to register');
@@ -242,58 +224,41 @@ const Signup = () => {
           </div>
           <div className="form-group-signup">
             <label>Restaurant Name</label>
-            <select
+            <input
+              type="text"
               value={restaurantName}
               onChange={(e) => setRestaurantName(e.target.value)}
+              placeholder="Enter your restaurant name"
+              required
+            />
+            {restaurantError && <p className="error-message">{restaurantError}</p>}
+          </div>
+          <div className="form-group-signup">
+            <label>Restaurant Category</label>
+            <select
+              value={restaurantCategory}
+              onChange={(e) => setRestaurantCategory(e.target.value)}
               required
             >
-              <option value="" disabled>Select a restaurant</option>
-              {restaurants.map((restaurant) => (
-                <option key={restaurant._id} value={restaurant.name}>
-                  {restaurant.name}
+              <option value="" disabled>Select a category</option>
+              {categories.map((category) => (
+                <option key={category._id} value={category.name}>
+                  {category.name}
                 </option>
               ))}
               <option value="Other">Other (Please specify)</option>
             </select>
-            {errorMessage && <p className="error-message">{errorMessage}</p>}
-            {restaurantName === 'Other' && (
+            {categoryError && <p className="error-message">{categoryError}</p>}
+            {restaurantCategory === 'Other' && (
               <input
                 type="text"
-                value={newRestaurantName}
-                onChange={(e) => setNewRestaurantName(e.target.value)}
-                placeholder="Enter your restaurant name"
+                value={newCategory}
+                onChange={(e) => setNewCategory(e.target.value)}
+                placeholder="Enter your restaurant category"
                 required
               />
             )}
           </div>
-          {restaurantName === 'Other' && (
-            <div className="form-group-signup">
-              <label>Restaurant Category</label>
-              <select
-                value={restaurantCategory}
-                onChange={(e) => setRestaurantCategory(e.target.value)}
-                required
-              >
-                <option value="" disabled>Select a category</option>
-                {categories.map((category) => (
-                  <option key={category._id} value={category.name}>
-                    {category.name}
-                  </option>
-                ))}
-                <option value="Other">Other (Please specify)</option>
-              </select>
-              {categoryError && <p className="error-message">{categoryError}</p>}
-              {restaurantCategory === 'Other' && (
-                <input
-                  type="text"
-                  value={newCategory}
-                  onChange={(e) => setNewCategory(e.target.value)}
-                  placeholder="Enter your restaurant category"
-                  required
-                />
-              )}
-            </div>
-          )}
           <button type="submit" className="signup-button">Create an account</button>
         </form>
         <div className="terms">

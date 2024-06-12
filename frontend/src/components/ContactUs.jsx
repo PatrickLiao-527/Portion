@@ -1,8 +1,8 @@
-// src/components/ContactUs.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Header from './Header';
 import '../assets/styles/ContactUs.css';
+import { useLocation } from 'react-router-dom';
 
 const ContactUs = () => {
   const [formData, setFormData] = useState({
@@ -13,6 +13,16 @@ const ContactUs = () => {
     subject: 'General Inquiry',
     message: ''
   });
+
+  const location = useLocation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const subject = params.get('subject');
+    if (subject) {
+      setFormData((prevData) => ({ ...prevData, subject }));
+    }
+  }, [location]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -93,6 +103,15 @@ const ContactUs = () => {
                   checked={formData.subject === 'General Inquiry'}
                   onChange={handleChange}
                 /> General Inquiry
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="subject"
+                  value="Forgot Password"
+                  checked={formData.subject === 'Forgot Password'}
+                  onChange={handleChange}
+                /> Forgot Password
               </label>
             </div>
           </div>
