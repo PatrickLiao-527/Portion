@@ -20,14 +20,6 @@ const userSchema = new mongoose.Schema({
     enum: ['owner', 'client'],
     required: true,
     default: 'client'
-  },
-  restaurantName: {
-    type: String,
-    required: function() { return this.role === 'owner'; }
-  },
-  restaurantCategory: {
-    type: String,
-    required: function() { return this.role === 'owner'; }
   }
 });
 
@@ -35,12 +27,19 @@ userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) {
     next();
   }
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
+  const saltRounds = 10;
+  await bcrypt.hash(this.password, saltRounds);
+  next();
 });
 
 userSchema.methods.matchPassword = async function(enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
+
+  try {
+    return await bcrypt.compare(enteredPassword, this.password);
+  } catch (error) {
+    console.error('Error during password comparison:', error);
+    throw error;
+  }
 };
 
 const User = mongoose.model('User', userSchema);
