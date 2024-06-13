@@ -47,6 +47,10 @@ const orderSchema = new mongoose.Schema({
   fats: {
     type: Number,
     required: true
+  },
+  userEmail: {
+    type: String,
+    required: true
   }
 });
 

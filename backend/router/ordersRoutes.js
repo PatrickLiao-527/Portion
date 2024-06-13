@@ -110,11 +110,26 @@ router.patch('/:id/status', authMiddleware, async (req, res) => {
     order.status = status;
     await order.save();
     console.log(`changing status for order ${order}`);
+
+    // Broadcast the status change
+    broadcast({ type: 'ORDER_STATUS_UPDATED', order });
+
     res.status(200).json(order); // Return the updated order
   } catch (error) {
     console.error('Error updating order status:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+// Get all orders for the authenticated user (client only)
+router.get('/customer/:email', async (req, res) => {
+  try {
+    const orders = await Order.find({ userEmail: req.params.email });
+    res.status(200).json(orders);
+  } catch (err) {
+    console.log(err.message);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 
 export default router;

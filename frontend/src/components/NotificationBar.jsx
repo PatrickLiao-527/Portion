@@ -8,15 +8,13 @@ const NotificationBar = () => {
 
   return (
     <>
-      {latestNotification && (
+      {latestNotification && latestNotification.type === 'NEW_ORDER' && (
         <div className="notification-bar">
           <div className="notification-content">
             <button className="close-button" onClick={() => window.location.reload()}>&times;</button>
-            {latestNotification.type === 'NEW_ORDER' && (
-              <p>
-                You have received a new order from {latestNotification.order.customerName}. Check below for more details.
-              </p>
-            )}
+            <p>
+              You have received a new order from {latestNotification.order.customerName}. Check below for more details.
+            </p>
           </div>
         </div>
       )}
