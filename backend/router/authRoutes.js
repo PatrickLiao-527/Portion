@@ -1,6 +1,7 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/userModel.js';
+import bcrypt from 'bcrypt';
 import authMiddleware from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -14,7 +15,14 @@ router.post('/login', async (req, res) => {
 
   try {
     const user = await User.findOne({ email });
-    if (!user || !(await user.matchPassword(password))) {
+    if (!user) {
+      console.log('User not found');
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    const isPasswordMatch = await user.matchPassword(password);
+    if (!isPasswordMatch) {
+      console.log('Password mismatch');
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
@@ -28,6 +36,7 @@ router.post('/login', async (req, res) => {
 
     res.status(200).json({ user, token });
   } catch (err) {
+    console.error('Error during login process:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

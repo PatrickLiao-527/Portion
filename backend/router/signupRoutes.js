@@ -23,18 +23,16 @@ router.post('/', async (req, res) => {
       return res.status(422).json({ error: 'Owners must specify restaurant name and category' });
     }
 
-    const savedUser = await User.findOne({ email });
-    if (savedUser) {
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
       console.log('Email already in use:', email);
       return res.status(422).json({ error: 'Email already in use' });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
     const newUser = new User({
-      email,
       name,
-      password: hashedPassword,
+      email,
+      password,
       role,
       restaurantName: role === 'owner' ? restaurantName : undefined,
       restaurantCategory: role === 'owner' ? restaurantCategory : undefined
