@@ -11,7 +11,7 @@ import signupRoute from './router/signupRoutes.js';
 import authRoute from './router/authRoutes.js';
 import restaurantRoute from './router/restaurantRoutes.js';
 import categoryRoutes from './router/categoryRoutes.js';
-
+import contactRoutes from './router/contactUsRoutes.js';
 const app = express();
 
 app.use(express.json());
@@ -36,6 +36,7 @@ app.use('/menus', menusRoute);
 app.use('/transactions', transactionsRoute);
 app.use('/restaurants', restaurantRoute);
 app.use('/categories', categoryRoutes);
+app.use('/contact', contactRoutes);
 
 mongoose
   .connect(mongoDBURL)
