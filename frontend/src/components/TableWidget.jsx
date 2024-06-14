@@ -16,6 +16,7 @@ const TableWidget = ({ title, data, columns, itemsPerPage, maxItemsPerPage, setI
   const [currentPage, setCurrentPage] = useState(1);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [selectedEditItem, setSelectedEditItem] = useState(null); 
   const { notifications } = useContext(WebSocketContext); // Access WebSocket notifications
 
   useEffect(() => {

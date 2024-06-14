@@ -36,6 +36,12 @@
     justify-content: space-between;
     margin-top: 20px;
   }
+  .error-message-forms{
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: #ff4f4f;
+  }
   
   .save-button,
   .delete-button,

@@ -16,9 +16,15 @@ const AddMenuItem = ({ showModal, handleCloseModal, onItemAdded }) => {
   const [baseFat, setBaseFat] = useState('');
   const [proteinType, setProteinType] = useState('Chicken Breast'); // Default protein type
   const [itemPicture, setItemPicture] = useState(null);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleSave = async (event) => {
     event.preventDefault();
+
+    if (carbsPrice <= 0 || proteinsPrice <= 0 || baseFat <= 0) {
+      setErrorMessage('$/carbs, $/proteins, and base fat cannot be zero or less.');
+      return;
+    }
 
     try {
       const formData = new FormData();
@@ -114,6 +120,7 @@ const AddMenuItem = ({ showModal, handleCloseModal, onItemAdded }) => {
               onChange={handleFileChange}
             />
           </div>
+          {errorMessage && <div className="error-message-forms">{errorMessage}</div>}
           <div className="form-buttons">
             <button type="submit" className="save-button">Save</button>
           </div>

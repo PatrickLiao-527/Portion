@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 import '../assets/styles/ItemForm.css'; // Updated to use shared CSS
 
 const proteinTypes = [
@@ -11,7 +10,6 @@ const proteinTypes = [
 ];
 
 const EditItem = ({ item, setItems, onClose }) => {
-  const navigate = useNavigate();
   const [currentItem, setCurrentItem] = useState({
     ...item,
     carbsPrice: item.carbsPrice ? parseFloat(item.carbsPrice.replace('$', '')) : '',
@@ -20,6 +18,7 @@ const EditItem = ({ item, setItems, onClose }) => {
   });
   const [selectedFile, setSelectedFile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     if (currentItem) {
@@ -38,6 +37,11 @@ const EditItem = ({ item, setItems, onClose }) => {
   const handleSaveItem = async (e) => {
     e.preventDefault();
   
+    if (currentItem.carbsPrice <= 0 || currentItem.proteinsPrice <= 0 || currentItem.baseFat <= 0) {
+      setErrorMessage('$/carbs, $/proteins, and base fat cannot be zero or less.');
+      return;
+    }
+  
     const formData = new FormData();
     for (const key in currentItem) {
       if (currentItem.hasOwnProperty(key)) {
@@ -50,7 +54,6 @@ const EditItem = ({ item, setItems, onClose }) => {
     }
   
     try {
-      console.log("Saving item:", currentItem._id, formData);
       const response = await axios.put(
         `http://localhost:5555/menus/${currentItem._id}`,
         formData,
@@ -61,12 +64,19 @@ const EditItem = ({ item, setItems, onClose }) => {
           withCredentials: true,
         }
       );
-      console.log("Item saved:", response.data);
+      
+      const updatedItem = response.data;
       setItems((prevItems) =>
-        prevItems.map((item) => (item._id === currentItem._id ? response.data : item))
+        prevItems.map((item) => (item._id === currentItem._id ? {
+          ...updatedItem,
+          carbsPrice: `$${updatedItem.carbsPrice}`,
+          proteinsPrice: `$${updatedItem.proteinsPrice}`,
+          baseFat: `${updatedItem.baseFat} gram(s)`,
+          itemPicture: updatedItem.image ? `data:image/${updatedItem.imageExtension};base64,${updatedItem.image}` : null
+        } : item))
       );
-      onClose();
-      navigate('/menu-items');
+      
+      onClose(); // Automatically close the modal
     } catch (error) {
       console.error('Error updating item:', error);
     }
@@ -76,16 +86,10 @@ const EditItem = ({ item, setItems, onClose }) => {
     try {
       await axios.delete(`http://localhost:5555/menus/${currentItem._id}`, { withCredentials: true });
       setItems((prevItems) => prevItems.filter((item) => item._id !== currentItem._id));
-      onClose();
-      navigate('/menu-items');
+      onClose(); // Automatically close the modal
     } catch (error) {
       console.error('Error deleting item:', error);
     }
-  };
-
-  const handleGoBack = () => {
-    onClose();
-    navigate('/menu-items');
   };
 
   return loading ? <p>Loading...</p> : (
@@ -156,10 +160,10 @@ const EditItem = ({ item, setItems, onClose }) => {
               ))}
             </select>
           </div>
+          {errorMessage && <div className="error-message-forms">{errorMessage}</div>}
           <div className="form-buttons">
             <button type="submit" className="save-button">Save</button>
             <button type="button" className="delete-button" onClick={handleDeleteItem}>Delete</button>
-            <button type="button" className="go-back-button" onClick={handleGoBack}>Go Back</button>
           </div>
         </form>
     </div>

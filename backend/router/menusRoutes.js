@@ -7,6 +7,7 @@ import checkRole from '../middleware/checkRole.js';
 import Busboy from 'busboy';
 import { fileTypeFromBuffer } from 'file-type';
 import { validImageExtensions, validMimeTypes } from '../config.js';
+import { broadcast } from '../websocket.js';
 
 const router = express.Router();
 
@@ -88,8 +89,10 @@ router.post('/', authMiddleware, checkRole('owner'), handleBusboy, async (req, r
       // menuItem.itemPicture = `${menuItem._id}${extension}`;
       await menuItem.save();
     }
-
+    // Broadcast the new menu item to all connected clients
+    broadcast({ type: 'ITEM_ADDED', item: menuItem });
     res.status(201).json(menuItem);
+
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ message: error.message });
@@ -109,10 +112,14 @@ router.put('/:id', authMiddleware, checkRole('owner'), handleBusboy, async (req,
 
     if (fileBuffer.length > 0) {
       await handleFileUpload(fileBuffer, id);
-      // menuItem.itemPicture = `${id}${extension}`;
+      menuItem.itemPicture = `${id}${extension}`;
     }
 
     const updatedMenuItem = await menuItem.save();
+
+    // Broadcast the updated menu item to all connected clients
+    broadcast({ type: 'ITEM_UPDATED', item: updatedMenuItem });
+
     res.status(200).json(updatedMenuItem);
   } catch (error) {
     console.error(error.message);
@@ -187,6 +194,9 @@ router.delete('/:id', authMiddleware, checkRole('owner'), async (req, res) => {
     if (fs.existsSync(imagePath)) {
       fs.unlinkSync(imagePath);
     }
+
+    // Broadcast the deletion to all connected clients
+    broadcast({ type: 'ITEM_DELETED', itemId: id });
 
     await Menu.deleteOne({ _id: id });
     res.status(200).json({ message: 'Menu item deleted successfully' });
