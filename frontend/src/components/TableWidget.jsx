@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
+import { WebSocketContext } from '../contexts/WebSocketContext'; // Import WebSocket context
 import '../assets/styles/TableWidget.css';
 import { ReactComponent as ChevronLeftIcon } from '../assets/icons/chevronLeft_icon.svg';
 import { ReactComponent as ChevronRightIcon } from '../assets/icons/chevronRight_icon.svg';
@@ -15,7 +16,16 @@ const TableWidget = ({ title, data, columns, itemsPerPage, maxItemsPerPage, setI
   const [currentPage, setCurrentPage] = useState(1);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const [selectedEditItem, setSelectedEditItem] = useState(null); 
+  const { notifications } = useContext(WebSocketContext); // Access WebSocket notifications
+
+  useEffect(() => {
+    if (notifications.length > 0) {
+      const latestNotification = notifications[notifications.length - 1];
+      if (latestNotification.type === 'NEW_ORDER') {
+        setItems((prevItems) => [latestNotification.order, ...prevItems]);
+      }
+    }
+  }, [notifications, setItems]);
 
   const statusOrder = ['In Progress', 'Complete', 'Cancelled'];
 
