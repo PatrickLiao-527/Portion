@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import TableWidget from './TableWidget';
 import '../assets/styles/MyOrders.css';
-import { formatOrders } from '../utils/formatOrders';
+import { formatOrders } from '../utils/formatOrders'; // Ensure formatOrders is imported
 import { WebSocketContext } from '../contexts/WebSocketContext';
 
 const MyOrders = () => {
@@ -18,7 +18,7 @@ const MyOrders = () => {
       .then((response) => {
         console.log('Fetched orders:', response.data);
         const sortedOrders = response.data.sort((a, b) => new Date(b.time) - new Date(a.time));
-        setOrders(formatOrders(sortedOrders));
+        setOrders(formatOrders(sortedOrders)); // Use formatOrders
         setLoading(false);
       })
       .catch((error) => {
@@ -32,7 +32,7 @@ const MyOrders = () => {
     notifications.forEach((notification) => {
       if (notification.type === 'NEW_ORDER') {
         console.log('New order received by my orders:', notification.order);
-        const formattedOrder = formatOrders([notification.order])[0];
+        const formattedOrder = formatOrders([notification.order])[0]; // Use formatOrders
         setOrders((prevOrders) => [formattedOrder, ...prevOrders]);
       }
     });
