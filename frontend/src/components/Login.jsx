@@ -17,14 +17,15 @@ const Login = () => {
   const handleLogin = async (event) => {
     event.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5555/auth/login', {
+      const response = await axios.post('http://localhost:5555/auth/owner/login', {
         email,
         password
       }, {
         withCredentials: true
       });
 
-      console.log('User logged in successfully:', response.data);
+      // console.log('User logged in successfully:', response.data);
+      console.log('User logged in successfully');
 
       setUser(response.data.user); // Set the user context
       localStorage.setItem('token', response.data.token); // Store the token

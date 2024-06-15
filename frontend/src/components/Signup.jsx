@@ -58,7 +58,7 @@ const createCategory = async (categoryName) => {
 
 const createRestaurant = async (restaurantName, category, ownerId) => {
   try {
-    const response = await axios.post(`${BASE_URL}/restaurants`, { name: restaurantName, category, ownerId }, {
+    const response = await axios.post(`${BASE_URL}/restaurants/create`, { name: restaurantName, category, ownerId }, {
       headers: {
         'Content-Type': 'application/json'
       },
@@ -119,35 +119,27 @@ const Signup = () => {
     }
 
     try {
-      console.log(`Checking if restaurant exists: ${restaurantName}`);
-      const existingRestaurant = await fetchRestaurantByName(restaurantName);
-      if (existingRestaurant.exists) {
-        setRestaurantError('Restaurant name already exists');
-        return;
-      }
 
       let finalCategory = restaurantCategory;
 
-      if (restaurantCategory === 'Other') {
+      // TBD: owners should not be able to create categories
+      if (restaurantCategory === 'Other') {  
         console.log(`Creating new category: ${newCategory}`);
         const newCategoryData = await createCategory(newCategory);
         finalCategory = newCategoryData.name;
       }
 
-      console.log('Signing up new user...');
-      const signupResponse = await axios.post(`${BASE_URL}/signup`, {
+      // console.log('Signing up new user...');
+      const signupResponse = await axios.post(`${BASE_URL}/owner/signup`, {
         name: profileName,
         email,
-        password,
-        role: 'owner',
-        restaurantName,
-        restaurantCategory: finalCategory
+        password
       }, { withCredentials: true });
 
-      console.log('Signup response:', signupResponse);
+      // console.log('Signup response:', signupResponse);
 
-      const userId = signupResponse.data.user._id;
-      console.log(`Creating restaurant for user: ${userId}`);
+      const userId = signupResponse.data.owner._id;
+      // console.log(`Creating restaurant for user: ${userId}`);
       await createRestaurant(restaurantName, finalCategory, userId);
 
       console.log('User registered successfully');

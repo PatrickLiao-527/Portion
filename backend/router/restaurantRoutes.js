@@ -1,41 +1,47 @@
 import express from 'express';
 import Restaurant from '../models/restaurantModel.js';
 import Menu from '../models/menuModel.js';
+import Owner from '../models/ownerModel.js';
 import mongoose from 'mongoose';
 import authMiddleware from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
 // Create a new restaurant (public access)
-router.post('/', async (req, res) => {
+router.post('/create', authMiddleware('owner'), async (req, res) => {
   try {
     const { name, category, img, ownerId } = req.body;
-
+    const token = req.cookies.token;
     // Check required fields
     if (!name || !category || !ownerId) {
       return res.status(400).json({ message: 'Please provide all required fields: name, category, ownerId' });
     }
 
-    // Check if restaurant name already exists
-    const existingRestaurant = await Restaurant.findOne({ name });
-    if (existingRestaurant) {
-      return res.status(400).json({ message: 'Restaurant name already exists' });
+    // check owner exists
+    if (!Owner.findById(ownerId)) {
+      return res.status(500).json("Internal server error: Passed ownerId when creating restaurant does not exist");
     }
 
     const newRestaurant = new Restaurant({
-      name,
-      category,
-      img,
-      ownerId
+      name: name,
+      category: category,
+      img: img,
+      ownerId: ownerId
     });
-
+    
     const savedRestaurant = await newRestaurant.save();
+    Owner.findByIdAndUpdate(  // push restaurant id to owner
+      token.user, 
+      { $push: { restaurantIds: savedRestaurant._id }},
+      { new: true, runValidators: true }
+    );
     res.status(201).json(savedRestaurant);
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
 // Get all restaurants (public access)
 router.get('/', async (req, res) => {
   try {
@@ -48,7 +54,7 @@ router.get('/', async (req, res) => {
 });
 
 // Get a specific restaurant by ID
-router.get('/:id', authMiddleware, async (req, res) => {
+router.get('/:id', async (req, res) => {
   try {
     const restaurant = await Restaurant.findById(req.params.id);
 
@@ -96,6 +102,7 @@ router.get('/:restaurantId/menu-items', async (req, res) => {
 });
 
 // Get a restaurant by name (public access)
+// warning: name may not be unique
 router.get('/name/:name', async (req, res) => {
   try {
     const restaurant = await Restaurant.findOne({ name: req.params.name });

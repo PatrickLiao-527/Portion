@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 
-const userSchema = new mongoose.Schema({
+const ownerSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true
@@ -14,10 +14,14 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true
+  },
+  restaurantIds: {
+    type: [String],
+    ref: 'Restaurant'
   }
 });
 
-userSchema.pre('save', async function(next) {
+ownerSchema.pre('save', async function(next) {
   if (!this.isModified('password')) {
     next();
   }
@@ -30,10 +34,10 @@ userSchema.pre('save', async function(next) {
   }
 });
 
-userSchema.methods.matchPassword = async function(enteredPassword) {
+ownerSchema.methods.matchPassword = async function(enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-const User = mongoose.model('User', userSchema);
+const Owner = mongoose.model('Owner', ownerSchema);
 
-export default User;
+export default Owner;

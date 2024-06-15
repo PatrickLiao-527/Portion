@@ -9,7 +9,7 @@ yarn run dev
 Fire up another terminal
 ```
 cd frontend
-npm install  # also make sure you had nodemon installed globally
-npm run start
+yarn install  # also make sure you had nodemon installed globally
+yarn run start
 ```
 
