@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AuthContext from '../contexts/AuthContext';
 import '../assets/styles/Signup.css';
-import googleLogo from '../assets/icons/Google-logo.png';
 import showHideIcon from '../assets/icons/showHide_icon.png';
 
 const BASE_URL = 'http://localhost:5555';
@@ -264,10 +263,6 @@ const Signup = () => {
         <div className="terms">
           By creating an account, you agree to the <Link to="/terms">Terms of use</Link> and <Link to="/privacy">Privacy Policy</Link>.
         </div>
-        <div className="signup-divider">OR Continue with</div>
-        <button className="google-signup-button">
-          <img src={googleLogo} alt="Google" className="google-logo" /> Google
-        </button>
       </div>
     </div>
   );

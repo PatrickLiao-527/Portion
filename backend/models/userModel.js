@@ -13,7 +13,7 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true
+    required: false
   },
   role: {
     type: String,
@@ -23,11 +23,11 @@ const userSchema = new mongoose.Schema({
   },
   restaurantName: {
     type: String,
-    required: function() { return this.role === 'owner'; }
+    required: false
   },
   restaurantCategory: {
     type: String,
-    required: function() { return this.role === 'owner'; }
+    required: false
   }
 });
 

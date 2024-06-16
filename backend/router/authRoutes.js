@@ -2,9 +2,11 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/userModel.js';
 import bcrypt from 'bcrypt';
+import { OAuth2Client } from 'google-auth-library';
 import authMiddleware from '../middleware/authMiddleware.js';
 
 const router = express.Router();
+const client = new OAuth2Client(process.env.REACT_APP_GOOGLE_CLIENT_ID);
 
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
@@ -40,6 +42,54 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+
+// Google login route
+router.post('/google-login', async (req, res) => {
+  const { token } = req.body;
+
+  try {
+    // Verify the token using Google's OAuth2Client
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.REACT_APP_GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    const { email, name, sub: googleId, picture: profilePic } = payload;
+
+    let user = await User.findOne({ email });
+    if (!user) {
+      // If user does not exist, create a new user
+      user = new User({
+        name: name,
+        email: email,
+        role: 'owner'
+      });
+
+      user = await user.save();
+      console.log('User created:', user);
+    } else {
+      console.log('User already exists:', user);
+    }
+
+    // Generate token
+    const authToken = jwt.sign({ id: user._id, role: user.role }, 'your_jwt_secret_key', { expiresIn: '1h' });
+
+    // Set token in HTTP-only cookie
+    res.cookie('token', authToken, {
+      httpOnly: true,
+      secure: false, // Set to true if using HTTPS
+      sameSite: 'Strict'
+    });
+
+    res.status(200).json({ user, token: authToken });
+  } catch (err) {
+    console.error('Error during Google login process:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // checks whether the user has logged in 
 router.get('/check', authMiddleware, (req, res) => {
   res.json({ user: req.user });
