@@ -5,8 +5,8 @@ import AuthContext from '../contexts/AuthContext';
 import '../assets/styles/Login.css';
 import googleLogo from '../assets/icons/Google-logo.png';
 import showHideIcon from '../assets/icons/showHide_icon.png';
-import { GoogleLogin } from '@react-oauth/google';
-
+import { useGoogleLogin } from '@react-oauth/google';
+const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -38,11 +38,11 @@ const Login = () => {
 
   const isFormFilled = email !== '' && password !== '';
 
-  const handleGoogleLoginSuccess = async (response) => {
+  const handleGoogleLoginSuccess = async (tokenResponse) => {
     try {
-      const { credential } = response;
+      const { access_token } = tokenResponse;
       const googleResponse = await axios.post('http://localhost:5555/auth/google-login', {
-        token: credential,
+        token: access_token,
       }, {
         withCredentials: true
       });
@@ -62,6 +62,12 @@ const Login = () => {
     console.error('Google login error:', error);
     setErrorMessage('Google login failed. Please try again.');
   };
+
+  const googleLogin = useGoogleLogin({
+    onSuccess: handleGoogleLoginSuccess,
+    onError: handleGoogleLoginFailure,
+    clientId: googleClientId,
+  });
 
   return (
     <div className="login-page">
@@ -108,19 +114,12 @@ const Login = () => {
             Forgot your password?
           </Link>
           <div className="login-divider">Or log in with</div>
-          <GoogleLogin
-            onSuccess={handleGoogleLoginSuccess}
-            onFailure={handleGoogleLoginFailure}
-            render={renderProps => (
-              <button 
-                className="google-login-button" 
-                onClick={renderProps.onClick} 
-                disabled={renderProps.disabled}
-              >
-                <img src={googleLogo} alt="Google" className="google-logo" /> Google
-              </button>
-            )}
-          />
+          <button 
+            className="google-login-button" 
+            onClick={googleLogin}
+          >
+            <img src={googleLogo} alt="Google" className="google-logo" /> Google
+          </button>
         </div>
         <div className="create-account-container">
           <h2 className="signup-title">Create your new account</h2>
