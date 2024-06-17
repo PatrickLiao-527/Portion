@@ -37,7 +37,7 @@ const ContactUs = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5555/contact', {
+      await axios.post('http://localhost:5555/contact', {
         name: `${formData.firstName} ${formData.lastName}`,
         email: formData.email,
         message: formData.message,

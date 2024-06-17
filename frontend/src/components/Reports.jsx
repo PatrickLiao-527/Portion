@@ -1,10 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import TableWidget from './TableWidget';
 import '../assets/styles/Reports.css';
 
 const Reports = () => {
-  const [itemsPerPage, setItemsPerPage] = useState(14);
-
   const data = Array.from({ length: 30 }, (_, index) => ({
     date: `May ${index + 1}th, 2024`,
     dailyRevenue: `$${(Math.random() * 1000).toFixed(2)}`,
@@ -33,7 +31,7 @@ const Reports = () => {
         title="Daily Reports"
         data={data}
         columns={columns}
-        itemsPerPage={itemsPerPage}
+        itemsPerPage={14}
         maxItemsPerPage={30}
       />
     </div>

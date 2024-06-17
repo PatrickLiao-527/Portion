@@ -7,13 +7,14 @@ import showHideIcon from '../assets/icons/showHide_icon.png';
 
 const BASE_URL = 'http://localhost:5555';
 
+// Fetch categories
 const fetchCategories = async () => {
   try {
     const response = await axios.get(`${BASE_URL}/categories`, {
       headers: {
         'Content-Type': 'application/json'
       },
-      withCredentials: true // Ensure cookies are sent
+      withCredentials: true
     });
     return response.data;
   } catch (error) {
@@ -22,31 +23,33 @@ const fetchCategories = async () => {
   }
 };
 
+// Fetch restaurant by name
 const fetchRestaurantByName = async (restaurantName) => {
   try {
     const response = await axios.get(`${BASE_URL}/restaurants/name/${restaurantName}`, {
       headers: {
         'Content-Type': 'application/json'
       },
-      withCredentials: true // Ensure cookies are sent
+      withCredentials: true
     });
     return response.data;
   } catch (error) {
     if (error.response && error.response.status === 404) {
-      return { exists: false }; // Restaurant not found
+      return { exists: false };
     } else {
       throw error;
     }
   }
 };
 
+// Create category
 const createCategory = async (categoryName) => {
   try {
     const response = await axios.post(`${BASE_URL}/categories`, { name: categoryName }, {
       headers: {
         'Content-Type': 'application/json'
       },
-      withCredentials: true // Ensure cookies are sent
+      withCredentials: true
     });
     return response.data;
   } catch (error) {
@@ -55,13 +58,14 @@ const createCategory = async (categoryName) => {
   }
 };
 
+// Create restaurant
 const createRestaurant = async (restaurantName, category, ownerId) => {
   try {
     const response = await axios.post(`${BASE_URL}/restaurants`, { name: restaurantName, category, ownerId }, {
       headers: {
         'Content-Type': 'application/json'
       },
-      withCredentials: true // Ensure cookies are sent
+      withCredentials: true
     });
     return response.data;
   } catch (error) {
@@ -150,8 +154,8 @@ const Signup = () => {
       await createRestaurant(restaurantName, finalCategory, userId);
 
       console.log('User registered successfully');
-      setUser(signupResponse.data.user); // Set the user in context
-      setToken(signupResponse.data.token); // Set the token in context
+      setUser(signupResponse.data.user);
+      setToken(signupResponse.data.token);
       navigate('/dashboard');
     } catch (error) {
       console.error('Error registering user:', error);
@@ -263,6 +267,7 @@ const Signup = () => {
         <div className="terms">
           By creating an account, you agree to the <Link to="/terms">Terms of use</Link> and <Link to="/privacy">Privacy Policy</Link>.
         </div>
+        {errorMessage && <p className="error-message">{errorMessage}</p>}
       </div>
     </div>
   );
