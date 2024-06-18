@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import TableWidget from './TableWidget';
 import '../assets/styles/MyOrders.css';
-import { formatOrders } from '../utils/formatOrders'; // Ensure formatOrders is imported
+import { formatOrders } from '../utils/formatOrders'; 
 import { WebSocketContext } from '../contexts/WebSocketContext';
 
 const MyOrders = () => {
@@ -16,9 +16,9 @@ const MyOrders = () => {
     axios
       .get('http://localhost:5555/orders', { withCredentials: true })
       .then((response) => {
-        console.log('Fetched orders:', response.data);
+        //console.log('Fetched orders:', response.data);
         const sortedOrders = response.data.sort((a, b) => new Date(b.time) - new Date(a.time));
-        setOrders(formatOrders(sortedOrders)); // Use formatOrders
+        setOrders(formatOrders(sortedOrders)); 
         setLoading(false);
       })
       .catch((error) => {
@@ -31,9 +31,12 @@ const MyOrders = () => {
   useEffect(() => {
     notifications.forEach((notification) => {
       if (notification.type === 'NEW_ORDER') {
-        console.log('New order received by my orders:', notification.order);
-        const formattedOrder = formatOrders([notification.order])[0]; // Use formatOrders
+        //console.log('New order received by my orders:', notification.order);
+        const formattedOrder = formatOrders([notification.order])[0]; 
         setOrders((prevOrders) => [formattedOrder, ...prevOrders]);
+      } else if (notification.type === 'ORDER_CANCELLED') {
+        //console.log('Order cancelled:', notification.orderId);
+        setOrders((prevOrders) => prevOrders.filter(order => order.id !== notification.orderId));
       }
     });
   }, [notifications]);

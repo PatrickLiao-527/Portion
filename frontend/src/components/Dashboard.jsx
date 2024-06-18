@@ -67,7 +67,7 @@ const Dashboard = () => {
           const newOrders = [formattedOrder, ...prevOrders];
           return newOrders;
         });
-
+  
         // Update revenue data
         const month = new Date(notification.order.time).toLocaleString('default', { month: 'short' });
         setRevenueData((prevRevenue) => {
@@ -79,7 +79,7 @@ const Dashboard = () => {
           }
           return [...prevRevenue];
         });
-
+  
         // Update orders chart data
         setOrdersChartData((prevOrdersChart) => {
           const existingMonth = prevOrdersChart.find(item => item.name === month);
@@ -90,9 +90,35 @@ const Dashboard = () => {
           }
           return [...prevOrdersChart];
         });
+      } else if (notification.type === 'ORDER_CANCELLED') {
+        console.log('Order cancelled:', notification.orderId);
+        setOrders((prevOrders) => prevOrders.filter(order => order.id !== notification.orderId));
+  
+        // Update revenue data
+        setRevenueData((prevRevenue) => {
+          return prevRevenue.map(item => {
+            const month = new Date(notification.order.time).toLocaleString('default', { month: 'short' });
+            if (item.name === month) {
+              return { ...item, revenue: item.revenue - parseFloat(notification.order.amount) };
+            }
+            return item;
+          });
+        });
+  
+        // Update orders chart data
+        setOrdersChartData((prevOrdersChart) => {
+          return prevOrdersChart.map(item => {
+            const month = new Date(notification.order.time).toLocaleString('default', { month: 'short' });
+            if (item.name === month) {
+              return { ...item, orders: item.orders - 1 };
+            }
+            return item;
+          });
+        });
       }
     });
   }, [notifications]);
+  
 
   const columns = [
     { header: 'Customer Name', accessor: 'customerName' },

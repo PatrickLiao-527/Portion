@@ -2,12 +2,18 @@ import React from 'react';
 import '../assets/styles/OrderDetails.css';
 
 const OrderDetails = ({ data }) => {
-  console.log('OrderDetails component - Received data:', data);
+  //console.log('OrderDetails component - Received data:', data);
   if (!data || data.length === 0) {
     return <div>No order details found.</div>;
   }
 
   const order = data[0];
+
+  // Log raw data and type for date and time fields
+  // console.log('Raw date data:', order.date);
+  // console.log('Type of date data:', typeof order.date);
+  // console.log('Raw time data:', order.time);
+  // console.log('Type of time data:', typeof order.time);
 
   // Function to parse the details string
   const parseDetails = (details) => {
@@ -22,11 +28,10 @@ const OrderDetails = ({ data }) => {
 
   const { notes, pickupTime } = parseDetails(order.details || '');
 
-  // Check if the amount and time fields are valid
-  const amount = parseFloat(order.amount);
-  const orderDate = new Date(order.time);
-  const date = orderDate.toString() === 'Invalid Date' ? 'N/A' : orderDate.toLocaleDateString();
-  const time = orderDate.toString() === 'Invalid Date' ? 'N/A' : orderDate.toLocaleTimeString();
+  // Combine date and time strings to create a proper Date object
+  const combinedDateTime = new Date(`${order.date} ${order.time}`);
+  const date = combinedDateTime.toLocaleDateString();
+  const time = combinedDateTime.toLocaleTimeString();
 
   return (
     <div className="order-details">
@@ -42,7 +47,7 @@ const OrderDetails = ({ data }) => {
           <strong>Time:</strong> {time}
         </div>
         <div className="info-item">
-          <strong>Amount:</strong> ${isNaN(amount) ? '0.00' : amount.toFixed(2)}
+          <strong>Amount:</strong> ${parseFloat(order.amount).toFixed(2)}
         </div>
         <div className="info-item">
           <strong>Payment Type:</strong> {order.paymentType}

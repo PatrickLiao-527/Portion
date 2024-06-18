@@ -19,6 +19,7 @@ const TableWidget = ({ title, data, columns, itemsPerPage, maxItemsPerPage, setI
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [selectedEditItem, setSelectedEditItem] = useState(null); 
   const { notifications } = useContext(WebSocketContext); // Access WebSocket notifications
+  const [warningMessage, setWarningMessage] = useState(null); // State for warning message
 
   useEffect(() => {
     if (notifications.length > 0) {
@@ -30,12 +31,20 @@ const TableWidget = ({ title, data, columns, itemsPerPage, maxItemsPerPage, setI
     }
   }, [notifications, setItems]);
 
-  const statusOrder = ['In Progress', 'Complete', 'Cancelled'];
+  const statusOrder = ['In Progress', 'Complete'];
 
   const handleStatusClick = async (item) => {
     console.log('Status click initiated for item:', item);
     if (!item._id) {
       console.error('Order ID is undefined:', item);
+      return;
+    }
+
+    // Prevent status change if the order is cancelled
+    if (item.status === 'Cancelled') {
+      console.log('Cannot change status of a cancelled order');
+      setWarningMessage('Cannot change status of a cancelled order');
+      setTimeout(() => setWarningMessage(null), 2000); // Hide warning message after 2 seconds
       return;
     }
 
@@ -118,6 +127,7 @@ const TableWidget = ({ title, data, columns, itemsPerPage, maxItemsPerPage, setI
       <div className="table-header">
         <h3 className="table-title">{title}</h3>
       </div>
+      {warningMessage && <div className="warning-message">{warningMessage}</div>}
       <table>
         <thead>
           <tr>

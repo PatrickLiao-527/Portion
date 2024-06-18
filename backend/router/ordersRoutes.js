@@ -93,10 +93,10 @@ router.delete('/:id', authMiddleware, checkRole('owner'), async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
-// Route to change order status
-router.patch('/:id/status', authMiddleware, async (req, res) => {
+//Api to change order status
+router.patch('/:id/status', async (req, res) => {
   const { id } = req.params;
-  const { status } = req.body;
+  const { status, cancelledBy } = req.body; // Add cancelledBy field to differentiate
 
   console.log('Received order ID:', id); // Log received order ID
   console.log('Received status:', status); // Log received status
@@ -111,8 +111,12 @@ router.patch('/:id/status', authMiddleware, async (req, res) => {
     await order.save();
     console.log(`changing status for order ${order}`);
 
-    // Broadcast the status change
-    broadcast({ type: 'ORDER_STATUS_UPDATED', order });
+    // Broadcast different messages based on the status change
+    if (status === 'Cancelled') {
+      broadcast({ type: 'ORDER_CANCELLED', order });
+    } else {
+      broadcast({ type: 'ORDER_STATUS_UPDATED', order });
+    }
 
     res.status(200).json(order); // Return the updated order
   } catch (error) {
@@ -120,6 +124,7 @@ router.patch('/:id/status', authMiddleware, async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
 // Get all orders for the authenticated user (client only)
 router.get('/customer/:email', async (req, res) => {
   try {
