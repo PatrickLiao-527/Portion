@@ -1,14 +1,29 @@
 // src/components/Header.js
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import '../assets/styles/Header.css';
 import profilePic from '../assets/icons/profilePic.png';
 import portionLogo from '../assets/icons/portion-Logo.png';
 import AuthContext from '../contexts/AuthContext';
+import { WebSocketContext } from '../contexts/WebSocketContext';
 
 const Header = () => {
-  const { user } = useContext(AuthContext);
+  const { user, updateUserProfile } = useContext(AuthContext);
+  const { notifications } = useContext(WebSocketContext);
   const location = useLocation();
+
+  useEffect(() => {
+    const profileUpdateHandler = (data) => {
+      console.log('Profile updated:', data);
+      updateUserProfile(data);
+    };
+
+    notifications.forEach((notification) => {
+      if (notification.type === 'profileUpdated') {
+        profileUpdateHandler(notification.data);
+      }
+    });
+  }, [notifications, updateUserProfile]);
 
   return (
     <div className="header-wrapper">

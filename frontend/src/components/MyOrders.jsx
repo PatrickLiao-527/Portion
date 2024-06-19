@@ -16,9 +16,12 @@ const MyOrders = () => {
     axios
       .get('http://localhost:5555/orders', { withCredentials: true })
       .then((response) => {
-        //console.log('Fetched orders:', response.data);
-        const sortedOrders = response.data.sort((a, b) => new Date(b.time) - new Date(a.time));
-        setOrders(formatOrders(sortedOrders)); 
+        if (response.data.message === 'No orders found') {
+          setOrders([]);
+        } else {
+          const sortedOrders = response.data.sort((a, b) => new Date(b.time) - new Date(a.time));
+          setOrders(formatOrders(sortedOrders)); 
+        }
         setLoading(false);
       })
       .catch((error) => {
@@ -31,11 +34,9 @@ const MyOrders = () => {
   useEffect(() => {
     notifications.forEach((notification) => {
       if (notification.type === 'NEW_ORDER') {
-        //console.log('New order received by my orders:', notification.order);
         const formattedOrder = formatOrders([notification.order])[0]; 
         setOrders((prevOrders) => [formattedOrder, ...prevOrders]);
       } else if (notification.type === 'ORDER_CANCELLED') {
-        //console.log('Order cancelled:', notification.orderId);
         setOrders((prevOrders) => prevOrders.filter(order => order.id !== notification.orderId));
       }
     });
@@ -58,6 +59,8 @@ const MyOrders = () => {
         <p>Loading...</p>
       ) : error ? (
         <p>{error}</p>
+      ) : orders.length === 0 ? (
+        <p>There are no orders</p>
       ) : (
         <TableWidget
           title="New Orders"

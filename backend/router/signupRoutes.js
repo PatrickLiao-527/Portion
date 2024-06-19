@@ -3,6 +3,7 @@ import User from '../models/userModel.js';
 import authMiddleware from '../middleware/authMiddleware.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { broadcast } from '../websocket.js';
 
 const router = express.Router();
 
@@ -73,20 +74,28 @@ router.get('/profile', authMiddleware, async (req, res) => {
   }
 });
 
-// Update user profile password
-router.put('/profile/password', authMiddleware, async (req, res) => {
-  const { newPassword } = req.body;
+// Update user profile
+router.put('/profile', authMiddleware, async (req, res) => {
+  const { name, restaurantName, newPassword } = req.body;
   try {
     const user = await User.findById(req.user._id);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(newPassword, salt);
-    await user.save();
+    user.name = name || user.name;
+    user.restaurantName = restaurantName || user.restaurantName;
 
-    res.json({ message: 'Password updated successfully' });
+    if (newPassword) {
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(newPassword, salt);
+    }
+
+    await user.save();
+    res.json({ message: 'Profile updated successfully', user });
+
+    // Broadcast the profile update event
+    broadcast('profileUpdated', user);
   } catch (err) {
     console.log(err);
     res.status(500).json({ error: 'Internal server error' });

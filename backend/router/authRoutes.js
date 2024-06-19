@@ -28,11 +28,16 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
+    if (user.role !== 'owner') {
+      console.log('Unauthorized access attempt by user:', email);
+      return res.status(403).json({ error: 'Access denied. Unauthorized role.' });
+    }
+
     const token = jwt.sign({ id: user._id, role: user.role }, 'your_jwt_secret_key', { expiresIn: '1h' });
 
     res.cookie('token', token, {
       httpOnly: true,
-      secure: false,
+      secure: false, // Set to true if using HTTPS
       sameSite: 'Strict'
     });
 
@@ -42,7 +47,6 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-
 
 // Google login route
 router.post('/google-login', async (req, res) => {
@@ -73,6 +77,11 @@ router.post('/google-login', async (req, res) => {
       console.log('User already exists:', user);
     }
 
+    if (user.role !== 'owner') {
+      console.log('Unauthorized access attempt by user:', email);
+      return res.status(403).json({ error: 'Access denied. Unauthorized role.' });
+    }
+
     const authToken = jwt.sign({ id: user._id, role: user.role }, 'your_jwt_secret_key', { expiresIn: '1h' });
 
     // Set token in HTTP-only cookie
@@ -88,11 +97,13 @@ router.post('/google-login', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-// checks whether the user has logged in 
+
+// Check whether the user is logged in
 router.get('/check', authMiddleware, (req, res) => {
   res.json({ user: req.user });
 });
-// clears user's cookies info and logs out 
+
+// Logout route to clear the user's cookies and log out
 router.post('/logout', (req, res) => {
   res.clearCookie('token', {
     httpOnly: true,

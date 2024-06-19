@@ -52,55 +52,31 @@
   color: #666;
 }
 
-.profile-details {
-  margin-bottom: 20px;
+.profile-details-form {
+  margin-top: 20px;
+}
+
+.profile-details-form h3 {
+  margin-bottom: 10px;
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
 }
 
 .detail-item {
-  margin-bottom: 10px;
+  margin-bottom: 15px;
 }
 
 .detail-item label {
+  display: block;
+  margin-bottom: 5px;
   font-family: 'Poppins', sans-serif;
   font-size: 22px;
   font-weight: 600;
   color: #302D40;
-  margin-bottom: 20px;
 }
 
-.detail-item p {
-  font-family: 'Poppins', sans-serif;
-  font-size: 16px;
-  font-weight: 500;
-  margin-right: 10px;
-  color: #9F9F9F;
-}
-
-.change-password {
-  margin-top: 20px;
-}
-
-.change-password h3 {
-  font-size: 20px;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 10px;
-}
-
-.password-item {
-  margin-bottom: 10px;
-}
-
-.password-item label {
-  font-family: 'Poppins', sans-serif;
-  font-size: 16px;
-  font-weight: 500;
-  margin-right: 10px;
-  color: #9F9F9F;
-  margin-bottom: 5px;
-}
-
-.password-item input {
+.detail-item input {
   width: 100%;
   padding: 10px;
   border: 1px solid #eaeaea;
@@ -108,36 +84,45 @@
   font-size: 16px;
 }
 
-.change-password-button {
-  padding: 10px 20px;
-  font-size: 16px;
-  font-weight: 600;
-  color: #fff;
-  background-color: #007bff;
+.update-profile-button,
+.sign-out-button {
+  width: 100%;
+  padding: 10px;
   border: none;
   border-radius: 5px;
+  font-size: 16px;
+  font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.3s ease;
 }
 
-.change-password-button:hover {
-  background-color: #0056b3;
+.update-profile-button {
+  background-color: #4CAF50;
+  color: white;
+  margin-top: 10px;
 }
+
+.update-profile-button:hover {
+  background-color: #45a049;
+}
+
 .sign-out-button {
-  padding: 10px 20px;
-  font-size: 16px;
-  font-weight: 600;
-  color: #fff;
   background-color: #ff4f4f;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+  color: white;
   margin-top: 10px;
 }
 
 .sign-out-button:hover {
   background-color: #e43e3e;
+}
+
+.error-message {
+  color: red;
+  font-weight: bold;
+}
+
+.success-message {
+  color: green;
+  font-weight: bold;
 }
 
 @media (max-width: 768px) {
@@ -167,7 +152,7 @@
   }
 
   .detail-item label,
-  .change-password h3 {
+  .profile-details-form h3 {
     font-size: 18px;
   }
 }
