@@ -125,6 +125,12 @@
   margin-right: 10px;
 }
 
+.google-login-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
 .signup-button {
   display: block;
   width: 100%;

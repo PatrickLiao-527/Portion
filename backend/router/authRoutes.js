@@ -73,7 +73,6 @@ router.post('/google-login', async (req, res) => {
       console.log('User already exists:', user);
     }
 
-    // Generate token
     const authToken = jwt.sign({ id: user._id, role: user.role }, 'your_jwt_secret_key', { expiresIn: '1h' });
 
     // Set token in HTTP-only cookie
@@ -89,7 +88,6 @@ router.post('/google-login', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-
 // checks whether the user has logged in 
 router.get('/check', authMiddleware, (req, res) => {
   res.json({ user: req.user });

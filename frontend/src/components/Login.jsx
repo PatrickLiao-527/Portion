@@ -5,14 +5,14 @@ import AuthContext from '../contexts/AuthContext';
 import '../assets/styles/Login.css';
 import googleLogo from '../assets/icons/Google-logo.png';
 import showHideIcon from '../assets/icons/showHide_icon.png';
-import { useGoogleLogin } from '@react-oauth/google';
-const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+import { GoogleLogin } from '@react-oauth/google';
+
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const { setUser } = useContext(AuthContext);
+  const { setUser, setToken } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleLogin = async (event) => {
@@ -38,20 +38,24 @@ const Login = () => {
 
   const isFormFilled = email !== '' && password !== '';
 
-  const handleGoogleLoginSuccess = async (tokenResponse) => {
+  const handleGoogleLoginSuccess = async (response) => {
     try {
-      const { access_token } = tokenResponse;
+      const { credential } = response; // Use the credential, which is the ID token
+  
+      // Send the ID token to your backend
       const googleResponse = await axios.post('http://localhost:5555/auth/google-login', {
-        token: access_token,
+        token: credential,
       }, {
         withCredentials: true
       });
-
+  
       console.log('User logged in successfully with Google:', googleResponse.data);
-
+  
       setUser(googleResponse.data.user); // Set the user context
+      setToken(googleResponse.data.token); // Set the token context
       localStorage.setItem('token', googleResponse.data.token); // Store the token
-      navigate('/dashboard'); // Redirect to dashboard 
+      navigate('/dashboard'); // Redirect to dashboard
+
     } catch (error) {
       console.error('Error logging in with Google:', error);
       setErrorMessage('Failed to log in with Google');
@@ -62,13 +66,7 @@ const Login = () => {
     console.error('Google login error:', error);
     setErrorMessage('Google login failed. Please try again.');
   };
-
-  const googleLogin = useGoogleLogin({
-    onSuccess: handleGoogleLoginSuccess,
-    onError: handleGoogleLoginFailure,
-    clientId: googleClientId,
-  });
-
+  
   return (
     <div className="login-page">
       <div className="login-frame">
@@ -114,12 +112,21 @@ const Login = () => {
             Forgot your password?
           </Link>
           <div className="login-divider">Or log in with</div>
-          <button 
-            className="google-login-button" 
-            onClick={googleLogin}
-          >
-            <img src={googleLogo} alt="Google" className="google-logo" /> Google
-          </button>
+          <div className="google-login-wrapper">
+          <GoogleLogin
+            onSuccess={handleGoogleLoginSuccess}
+            onFailure={handleGoogleLoginFailure}
+            render={(renderProps) => (
+              <button 
+                className="google-login-button" 
+                onClick={renderProps.onClick} 
+                disabled={renderProps.disabled}
+              >
+                <img src={googleLogo} alt="Google" className="google-logo" /> Google
+              </button>
+            )}
+          />
+        </div>
         </div>
         <div className="create-account-container">
           <h2 className="signup-title">Create your new account</h2>
