@@ -3,6 +3,9 @@ import Restaurant from '../models/restaurantModel.js';
 import Menu from '../models/menuModel.js';
 import mongoose from 'mongoose';
 import authMiddleware from '../middleware/authMiddleware.js';
+import { validImageExtensions } from '../config.js';
+import path from 'path';
+import fs from 'fs';
 
 const router = express.Router();
 
@@ -11,12 +14,10 @@ router.post('/', async (req, res) => {
   try {
     const { name, category, img, ownerId } = req.body;
 
-    // Check required fields
     if (!name || !category || !ownerId) {
       return res.status(400).json({ message: 'Please provide all required fields: name, category, ownerId' });
     }
 
-    // Check if restaurant name already exists
     const existingRestaurant = await Restaurant.findOne({ name });
     if (existingRestaurant) {
       return res.status(400).json({ message: 'Restaurant name already exists' });
@@ -36,6 +37,7 @@ router.post('/', async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
 // Get all restaurants (public access)
 router.get('/', async (req, res) => {
   try {
@@ -70,25 +72,30 @@ router.get('/:id', authMiddleware, async (req, res) => {
 router.get('/:restaurantId/menu-items', async (req, res) => {
   try {
     const { restaurantId } = req.params;
-    //console.log('Received restaurantId:', restaurantId);
 
     if (!mongoose.Types.ObjectId.isValid(restaurantId)) {
       console.log('Invalid restaurant ID');
       return res.status(400).json({ message: 'Invalid restaurant ID' });
     }
 
-    // Log the connection status
-    //console.log('Mongoose connection state:', mongoose.connection.readyState);
-
     const menuItems = await Menu.find({ ownerId: restaurantId });
-    //console.log('Query executed with ownerId:', restaurantId);
-    //console.log('Fetched menu items:', menuItems);
+    console.log('Fetched menu items:', menuItems);
 
     if (menuItems.length === 0) {
       console.log('No menu items found for restaurant:', restaurantId);
     }
 
-    return res.status(200).json(menuItems); // Sending the array directly
+    const menuItemsWithImages = menuItems.map(menuItem => {
+      const extension = validImageExtensions.find(ext => fs.existsSync(path.join('uploads', `${menuItem._id}.${ext}`)));
+      const imageUrl = extension ? `/uploads/${menuItem._id}.${extension}` : null;
+      console.log(`Menu item fetched with image URL: ${imageUrl}`);
+      return {
+        ...menuItem.toObject(),
+        imageUrl
+      };
+    });
+
+    return res.status(200).json(menuItemsWithImages);
   } catch (err) {
     console.log('Error fetching menu items:', err.message);
     res.status(500).json({ message: err.message });
@@ -110,4 +117,5 @@ router.get('/name/:name', async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
 export default router;

@@ -139,14 +139,15 @@ const getImageBase64 = (id, extension) => {
   return null;
 };
 
-// Update the route to send base64 encoded image
 router.get('/image/:_id', fetchImageMiddleware('uploads'), (req, res) => {
   if (req.imageBase64 && req.imageExtension) {
+    console.log(`Image fetched for menu item: ${req.imagePath}`);
     res.status(200).json({
       image: req.imageBase64,
       extension: req.imageExtension,
     });
   } else {
+    console.log(`Image not found for menu item: ${req.params._id}`);
     res.status(404).json({ message: 'Image not found' });
   }
 });

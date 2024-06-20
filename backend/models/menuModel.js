@@ -15,7 +15,8 @@ const menuSchema = new mongoose.Schema({
       "Tilapia", "Halibut", "Duck Breast", "Lamb Chops"
     ]
   },
-  ownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }
+  ownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  itemPicture: { type: String }
 });
 
 const Menu = mongoose.model('Menu', menuSchema);

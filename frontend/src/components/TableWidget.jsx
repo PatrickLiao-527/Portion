@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
-import { WebSocketContext } from '../contexts/WebSocketContext'; // Import WebSocket context
+import { WebSocketContext } from '../contexts/WebSocketContext'; 
 import '../assets/styles/TableWidget.css';
 import { ReactComponent as ChevronLeftIcon } from '../assets/icons/chevronLeft_icon.svg';
 import { ReactComponent as ChevronRightIcon } from '../assets/icons/chevronRight_icon.svg';
@@ -10,7 +10,7 @@ import { ReactComponent as EditIcon } from '../assets/icons/edit_icon.svg';
 import Modal from './Modal';
 import OrderDetails from './OrderDetails';
 import EditItem from './EditItem';
-import { formatOrders } from '../utils/formatOrders'; // Ensure formatOrders is imported
+import { formatOrders } from '../utils/formatOrders';
 
 const TableWidget = ({ title, data, columns, itemsPerPage, maxItemsPerPage, setItems }) => {
   const [currentItemsPerPage, setCurrentItemsPerPage] = useState(itemsPerPage);
