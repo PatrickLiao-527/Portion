@@ -28,8 +28,8 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    if (user.role !== 'owner') {
-      console.log('Unauthorized access attempt by user:', email);
+    if (user.role !== 'owner' && user.role!== "client") {
+      console.log('Unauthorized access attempt by user:', email, user.role);
       return res.status(403).json({ error: 'Access denied. Unauthorized role.' });
     }
 

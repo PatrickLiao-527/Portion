@@ -2,7 +2,7 @@
 import React, { useContext, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import '../assets/styles/Header.css';
-import profilePic from '../assets/icons/profilePic.png';
+//import profilePic from '../assets/icons/profilePic.png';
 import portionLogo from '../assets/icons/portion-Logo.png';
 import AuthContext from '../contexts/AuthContext';
 import { WebSocketContext } from '../contexts/WebSocketContext';
@@ -13,14 +13,10 @@ const Header = () => {
   const location = useLocation();
 
   useEffect(() => {
-    const profileUpdateHandler = (data) => {
-      console.log('Profile updated:', data);
-      updateUserProfile(data);
-    };
-
     notifications.forEach((notification) => {
       if (notification.type === 'profileUpdated') {
-        profileUpdateHandler(notification.data);
+        console.log('Profile updated:', notification.data);
+        updateUserProfile(notification.data);
       }
     });
   }, [notifications, updateUserProfile]);
@@ -38,8 +34,8 @@ const Header = () => {
         <Link to="/contact-us" className={location.pathname === '/contact-us' ? 'active' : ''}>Contact Us</Link>
         <div className="user-wrapper">
           <Link to="/my-profile" className="user-link">
-            <img src={profilePic} alt="Profile" className="user-avatar" />
-            <div className="user-name">{user?.name || 'User Name'}</div>
+            {/*<img src={profilePic} alt="Profile" className="user-avatar" />*/}
+            <div className="user-name">{`${user?.name}'s Profile` || 'Account Profile'}</div>
           </Link>
         </div>
       </div>

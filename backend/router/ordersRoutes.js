@@ -18,32 +18,14 @@ router.post('/', async (req, res) => {
 });
 // Get all orders for the authenticated user (owner only)
 router.get('/', authMiddleware, checkRole('owner'), async (req, res) => {
-  console.log('GET /orders - Request received');
-
-  // Log request headers for debugging purposes
-  console.log('Request headers:', req.headers);
-
-  // Log user information from authMiddleware
-  console.log('Authenticated user:', req.user);
-
   try {
     const orders = await Order.find({ ownerId: req.user._id });
-    
-    // Log the retrieved orders
-    console.log('Orders retrieved:', orders);
-
-    if (orders.length === 0) {
-      console.log('No orders found for user:', req.user._id);
-      return res.status(200).json({ message: 'No orders found' });
-    }
-
     res.status(200).json(orders);
   } catch (err) {
-    console.error('Error fetching orders:', err.message);
+    console.log(err.message);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-
 
 // Get a specific order by ID (owner only)
 router.get('/:id', authMiddleware, checkRole('owner'), async (req, res) => {
@@ -146,10 +128,22 @@ router.patch('/:id/status', async (req, res) => {
 // Get all orders for the authenticated user (client only)
 router.get('/customer/:email', async (req, res) => {
   try {
-    const orders = await Order.find({ userEmail: req.params.email });
+    const { email } = req.params;
+    console.log(`Fetching orders for email: ${email}`);
+    console.log(`Request headers: ${JSON.stringify(req.headers)}`);
+    console.log(`Request body: ${JSON.stringify(req.body)}`);
+
+    const orders = await Order.find({ userEmail: email });
+
+    if (!orders || orders.length === 0) {
+      console.log(`No orders found for email: ${email}`);
+      return res.status(404).json({ error: 'No orders found' });
+    }
+
+    console.log(`Orders found: ${orders.length}`);
     res.status(200).json(orders);
   } catch (err) {
-    console.log(err.message);
+    console.log(`Error fetching orders for email ${email}: ${err.message}`);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

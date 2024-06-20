@@ -1,20 +1,20 @@
 import React, { useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AuthContext from '../contexts/AuthContext';
 import { WebSocketContext } from '../contexts/WebSocketContext';
 import axios from 'axios';
 import '../assets/styles/MyProfile.css';
-import profilePic from '../assets/icons/profilePic.png';
+//import profilePic from '../assets/icons/profilePic.png';
 
 const MyProfile = () => {
   const [profileData, setProfileData] = useState({});
   const [newProfileName, setNewProfileName] = useState('');
   const [newRestaurantName, setNewRestaurantName] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const { signOut } = useContext(AuthContext);
   const { notifications } = useContext(WebSocketContext);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -53,16 +53,10 @@ const MyProfile = () => {
     setError('');
     setSuccess('');
 
-    if (newPassword && newPassword !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-
     try {
       const response = await axios.put('http://localhost:5555/signup/profile', {
         name: newProfileName,
         restaurantName: newRestaurantName,
-        newPassword: newPassword ? newPassword : undefined
       }, { withCredentials: true });
 
       console.log('Profile updated successfully:', response.data);
@@ -78,17 +72,21 @@ const MyProfile = () => {
     signOut();
   };
 
+  const handleRequestPasswordChange = () => {
+    navigate('/contact-us?subject=Request Password Change');
+  };
+
   return (
     <div className="my-profile">
       <h2 className="profile-page-title">My Profile</h2>
       <div className="profile-card">
-        <img src={profilePic} alt="Profile" className="profile-picture" />
+        {/*<img src={profilePic} alt="Profile" className="profile-picture" />*/} 
         <div className="profile-info">
-          <h3 className="profile-name">{profileData.name}</h3>
-          <p className="profile-email">{profileData.email}</p>
+          <h3 className="profile-name">{`Profile Name: ${profileData.name}`}</h3>
+          <p className="profile-email">{`Profile Email: ${profileData.email}`}</p>
         </div>
         <div className="contact-info-profile">
-         {/* <p className="contact-number">Contact Number: {profileData.contactNumber || 'Not Provided'}</p>*/}
+          {/* <p className="contact-number">Contact Number: {profileData.contactNumber || 'Not Provided'}</p>*/}
         </div>
       </div>
       <form onSubmit={handleProfileUpdate} className="profile-details-form">
@@ -112,31 +110,14 @@ const MyProfile = () => {
             required
           />
         </div>
-        <div className="detail-item">
-          <label>New Password</label>
-          <input
-            type="password"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            placeholder="Enter your new password"
-          />
-        </div>
-        <div className="detail-item">
-          <label>Confirm New Password</label>
-          <input
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="Re-enter your new password"
-          />
-        </div>
         {error && <p className="error-message">{error}</p>}
         {success && <p className="success-message">{success}</p>}
-        <button type="submit" className="update-profile-button">Update Profile</button>
+        <div className="button-group">
+          <button type="submit" className="button-35 update-profile-button">Update Profile</button>
+          <button type="button" className="button-35 sign-out-button" onClick={handleSignOut}>Sign Out</button>
+          <button type="button" className="button-35 request-password-change-button" onClick={handleRequestPasswordChange}>Request Password Change</button>
+        </div>
       </form>
-      <button className="sign-out-button" onClick={handleSignOut}>
-        Sign Out
-      </button>
     </div>
   );
 };
