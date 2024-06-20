@@ -7,17 +7,14 @@ import checkRole from '../middleware/checkRole.js';
 import Busboy from 'busboy';
 import { fileTypeFromBuffer } from 'file-type';
 import { validImageExtensions, validMimeTypes } from '../config.js';
-import { broadcast } from '../websocket.js';
+import fetchImageMiddleware from '../middleware/fetchImageMiddleware.js';
 
 const router = express.Router();
 
 const handleFileUpload = async (fileBuffer, menuItemId) => {
   const fileType = await fileTypeFromBuffer(Buffer.concat(fileBuffer));
-  if (!fileType || !fileType.mime in validMimeTypes) {
+  if (!fileType || !(fileType.mime in validMimeTypes)) {
     throw new Error('Invalid file type');
-  }
-  if (!validImageExtensions.includes(fileType.ext)) {
-    throw new Error('Invalid file extension');
   }
   const extension = fileType.ext ? `.${fileType.ext}` : '';
   const saveTo = path.join('uploads', menuItemId + extension);
@@ -52,14 +49,6 @@ const handleBusboy = (req, res, next) => {
   req.pipe(busboy);
 };
 
-const getImageBase64 = (menuItemId, extension) => {
-  const filePath = path.join('uploads', `${menuItemId}${extension}`);
-  if (fs.existsSync(filePath)) {
-    return fs.readFileSync(filePath, 'base64');
-  }
-  return null;
-};
-
 router.post('/', authMiddleware, checkRole('owner'), handleBusboy, async (req, res) => {
   try {
     const { formData, fileBuffer } = req;
@@ -85,14 +74,12 @@ router.post('/', authMiddleware, checkRole('owner'), handleBusboy, async (req, r
     const menuItem = await Menu.create(newMenuItem);
 
     if (fileBuffer.length > 0) {
-      await handleFileUpload(fileBuffer, menuItem._id.toString());
-      // menuItem.itemPicture = `${menuItem._id}${extension}`;
+      const extension = await handleFileUpload(fileBuffer, menuItem._id.toString());
+      menuItem.itemPicture = `${menuItem._id}${extension}`;
       await menuItem.save();
     }
-    // Broadcast the new menu item to all connected clients
-    broadcast({ type: 'ITEM_ADDED', item: menuItem });
-    res.status(201).json(menuItem);
 
+    res.status(201).json(menuItem);
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ message: error.message });
@@ -111,15 +98,11 @@ router.put('/:id', authMiddleware, checkRole('owner'), handleBusboy, async (req,
     Object.assign(menuItem, formData);
 
     if (fileBuffer.length > 0) {
-      await handleFileUpload(fileBuffer, id);
+      const extension = await handleFileUpload(fileBuffer, id);
       menuItem.itemPicture = `${id}${extension}`;
     }
 
     const updatedMenuItem = await menuItem.save();
-
-    // Broadcast the updated menu item to all connected clients
-    broadcast({ type: 'ITEM_UPDATED', item: updatedMenuItem });
-
     res.status(200).json(updatedMenuItem);
   } catch (error) {
     console.error(error.message);
@@ -127,8 +110,6 @@ router.put('/:id', authMiddleware, checkRole('owner'), handleBusboy, async (req,
   }
 });
 
-// Get all menu items with images
-// res.body.image is base64 encoded image
 router.get('/', authMiddleware, async (req, res) => {
   try {
     const menuItems = await Menu.find({ ownerId: req.user._id });
@@ -150,59 +131,23 @@ router.get('/', authMiddleware, async (req, res) => {
   }
 });
 
-router.get('/restaurant/:restaurantId', async (req, res) => {
-  try {
-    const { restaurantId } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(restaurantId)) {
-      return res.status(400).json({ message: 'Invalid restaurant ID' });
-    }
-
-    const menuItems = await Menu.find({ ownerId: restaurantId });
-    res.status(200).json(menuItems);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ message: err.message });
+const getImageBase64 = (id, extension) => {
+  const filePath = path.join('uploads', `${id}${extension}`);
+  if (fs.existsSync(filePath)) {
+    return fs.readFileSync(filePath, 'base64');
   }
-});
+  return null;
+};
 
-router.get('/:id', authMiddleware, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const menuItem = await Menu.findById(id);
-    if (!menuItem) return res.status(404).json({ message: 'Menu item not found' });
-    if (menuItem.ownerId.toString() !== req.user._id.toString()) return res.status(403).json({ message: 'Not authorized to view this menu item' });
-
-    const imagePath = path.join('uploads', `${id}${path.extname(menuItem.itemPicture)}`);
-    if (fs.existsSync(imagePath)) {
-      menuItem.imageData = fs.readFileSync(imagePath, 'base64');
-    }
-    res.status(200).json(menuItem);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ message: err.message });
-  }
-});
-
-router.delete('/:id', authMiddleware, checkRole('owner'), async (req, res) => {
-  try {
-    const { id } = req.params;
-    const menuItem = await Menu.findById(id);
-    if (!menuItem) return res.status(404).json({ message: 'Menu item not found' });
-    if (menuItem.ownerId.toString() !== req.user._id.toString()) return res.status(403).json({ message: 'Not authorized to delete this menu item' });
-
-    const imagePath = path.join('uploads', `${id}${path.extname(menuItem.itemPicture)}`);
-    if (fs.existsSync(imagePath)) {
-      fs.unlinkSync(imagePath);
-    }
-
-    // Broadcast the deletion to all connected clients
-    broadcast({ type: 'ITEM_DELETED', itemId: id });
-
-    await Menu.deleteOne({ _id: id });
-    res.status(200).json({ message: 'Menu item deleted successfully' });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ message: 'Internal server error' });
+// Update the route to send base64 encoded image
+router.get('/image/:_id', fetchImageMiddleware('uploads'), (req, res) => {
+  if (req.imageBase64 && req.imageExtension) {
+    res.status(200).json({
+      image: req.imageBase64,
+      extension: req.imageExtension,
+    });
+  } else {
+    res.status(404).json({ message: 'Image not found' });
   }
 });
 
