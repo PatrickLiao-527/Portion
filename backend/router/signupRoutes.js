@@ -1,13 +1,54 @@
 import express from 'express';
+import path from 'path';
+import fs from 'fs';
 import User from '../models/userModel.js';
 import authMiddleware from '../middleware/authMiddleware.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import Busboy from 'busboy';
+import { fileTypeFromBuffer } from 'file-type';
+import { validImageExtensions, validMimeTypes } from '../config.js';
 import { broadcast } from '../websocket.js';
 
 const router = express.Router();
 
+const handleFileUpload = async (fileBuffer, userId) => {
+  const fileType = await fileTypeFromBuffer(Buffer.concat(fileBuffer));
+  if (!fileType || !(fileType.mime in validMimeTypes)) {
+    throw new Error('Invalid file type');
+  }
+  const extension = fileType.ext ? `.${fileType.ext}` : '';
+  const saveTo = path.join('uploads', userId + extension);
+  fs.writeFileSync(saveTo, Buffer.concat(fileBuffer));
+  return extension;
+};
 
+const handleBusboy = (req, res, next) => {
+  const busboy = Busboy({ headers: req.headers });
+  const formData = {};
+  const fileBuffer = [];
+  let fileFieldName = '';
+
+  busboy.on('field', (fieldname, val) => {
+    formData[fieldname] = val;
+  });
+
+  busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
+    fileFieldName = fieldname;
+    file.on('data', (data) => {
+      fileBuffer.push(data);
+    });
+  });
+
+  busboy.on('finish', async () => {
+    req.formData = formData;
+    req.fileBuffer = fileBuffer;
+    req.fileFieldName = fileFieldName;
+    next();
+  });
+
+  req.pipe(busboy);
+};
 
 // Signup route
 router.post('/', async (req, res) => {
@@ -59,7 +100,6 @@ router.post('/', async (req, res) => {
   }
 });
 
-
 // Get user profile
 router.get('/profile', authMiddleware, async (req, res) => {
   try {
@@ -75,8 +115,9 @@ router.get('/profile', authMiddleware, async (req, res) => {
 });
 
 // Update user profile
-router.put('/profile', authMiddleware, async (req, res) => {
-  const { name, restaurantName, newPassword } = req.body;
+router.put('/profile', authMiddleware, handleBusboy, async (req, res) => {
+  const { formData, fileBuffer } = req;
+  const { name, restaurantName, newPassword } = formData;
   try {
     const user = await User.findById(req.user._id);
     if (!user) {
@@ -89,6 +130,11 @@ router.put('/profile', authMiddleware, async (req, res) => {
     if (newPassword) {
       const salt = await bcrypt.genSalt(10);
       user.password = await bcrypt.hash(newPassword, salt);
+    }
+
+    if (fileBuffer.length > 0) {
+      const extension = await handleFileUpload(fileBuffer, user._id.toString());
+      user.restaurantImage = `${user._id}${extension}`;
     }
 
     await user.save();

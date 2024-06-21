@@ -4,12 +4,13 @@ import AuthContext from '../contexts/AuthContext';
 import { WebSocketContext } from '../contexts/WebSocketContext';
 import axios from 'axios';
 import '../assets/styles/MyProfile.css';
-//import profilePic from '../assets/icons/profilePic.png';
+// import profilePic from '../assets/icons/profilePic.png';
 
 const MyProfile = () => {
   const [profileData, setProfileData] = useState({});
   const [newProfileName, setNewProfileName] = useState('');
   const [newRestaurantName, setNewRestaurantName] = useState('');
+  const [restaurantImage, setRestaurantImage] = useState(null); // State for the restaurant image
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const { signOut } = useContext(AuthContext);
@@ -22,8 +23,8 @@ const MyProfile = () => {
         const response = await axios.get('http://localhost:5555/signup/profile', { withCredentials: true });
         console.log('Profile data:', response.data);
         setProfileData(response.data);
-        setNewProfileName(response.data.name);
-        setNewRestaurantName(response.data.restaurantName);
+        setNewProfileName(response.data.name || '');
+        setNewRestaurantName(response.data.restaurantName || '');
       } catch (error) {
         console.error('Error fetching profile data:', error);
       }
@@ -36,8 +37,8 @@ const MyProfile = () => {
     const profileUpdateHandler = (data) => {
       console.log('Profile updated:', data);
       setProfileData(data);
-      setNewProfileName(data.name);
-      setNewRestaurantName(data.restaurantName);
+      setNewProfileName(data.name || '');
+      setNewRestaurantName(data.restaurantName || '');
       setSuccess('Profile updated via WebSocket');
     };
 
@@ -54,18 +55,31 @@ const MyProfile = () => {
     setSuccess('');
 
     try {
-      const response = await axios.put('http://localhost:5555/signup/profile', {
-        name: newProfileName,
-        restaurantName: newRestaurantName,
-      }, { withCredentials: true });
+      const formData = new FormData();
+      if (newProfileName) formData.append('name', newProfileName);
+      if (newRestaurantName) formData.append('restaurantName', newRestaurantName);
+      if (restaurantImage) {
+        formData.append('restaurantImage', restaurantImage);
+      }
+
+      const response = await axios.put('http://localhost:5555/signup/profile', formData, {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
 
       console.log('Profile updated successfully:', response.data);
-      setProfileData(response.data.user);
+      setProfileData(response.data);
       setSuccess('Profile updated successfully');
     } catch (error) {
       console.error('Error updating profile:', error);
       setError('Failed to update profile');
     }
+  };
+
+  const handleImageChange = (e) => {
+    setRestaurantImage(e.target.files[0]);
   };
 
   const handleSignOut = () => {
@@ -80,14 +94,16 @@ const MyProfile = () => {
     <div className="my-profile">
       <h2 className="profile-page-title">My Profile</h2>
       <div className="profile-card">
-        {/*<img src={profilePic} alt="Profile" className="profile-picture" />*/} 
         <div className="profile-info">
           <h3 className="profile-name">{`Profile Name: ${profileData.name}`}</h3>
           <p className="profile-email">{`Profile Email: ${profileData.email}`}</p>
         </div>
-        <div className="contact-info-profile">
-          {/* <p className="contact-number">Contact Number: {profileData.contactNumber || 'Not Provided'}</p>*/}
-        </div>
+        {profileData.restaurantImage && (
+          <div className="restaurant-image-container">
+            <img src={`http://localhost:5555/uploads/${profileData.restaurantImage}`} alt="Restaurant" className="restaurant-image" />
+            <p className="image-label">Restaurant Image</p>
+          </div>
+        )}
       </div>
       <form onSubmit={handleProfileUpdate} className="profile-details-form">
         <div className="detail-item">
@@ -97,7 +113,6 @@ const MyProfile = () => {
             value={newProfileName}
             onChange={(e) => setNewProfileName(e.target.value)}
             placeholder="Enter your new profile name"
-            required
           />
         </div>
         <div className="detail-item">
@@ -107,8 +122,11 @@ const MyProfile = () => {
             value={newRestaurantName}
             onChange={(e) => setNewRestaurantName(e.target.value)}
             placeholder="Enter your new restaurant name"
-            required
           />
+        </div>
+        <div className="detail-item">
+          <label>Restaurant Image</label>
+          <input type="file" accept="image/*" onChange={handleImageChange} />
         </div>
         {error && <p className="error-message">{error}</p>}
         {success && <p className="success-message">{success}</p>}
