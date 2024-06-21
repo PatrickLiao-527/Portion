@@ -17,14 +17,8 @@
 .profile-card {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   margin-bottom: 20px;
-}
-
-.profile-picture {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  margin-right: 20px;
 }
 
 .profile-info {
@@ -43,13 +37,23 @@
   color: #666;
 }
 
-.contact-info-profile {
-  margin-top: 20px;
+.restaurant-image-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.contact-number {
-  font-size: 16px;
+.restaurant-image {
+  width: 256px;
+  height: 256px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.image-label {
+  font-size: 14px;
   color: #666;
+  margin-top: 5px;
 }
 
 .profile-details-form {
