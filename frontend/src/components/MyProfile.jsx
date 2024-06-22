@@ -23,16 +23,10 @@ const MyProfile = () => {
       try {
         const response = await axios.get('http://localhost:5555/signup/profile', { withCredentials: true });
         console.log('Profile data:', response.data);
-<<<<<<< HEAD
         setProfileData(response.data.user);
         setRestaurantData(response.data.restaurant || {});
         setNewProfileName(response.data.user.name || '');
         setNewRestaurantName(response.data.restaurant?.name || '');
-=======
-        setProfileData(response.data);
-        setNewProfileName(response.data.name || '');
-        setNewRestaurantName(response.data.restaurantName || '');
->>>>>>> d26e9cd25480e784eeb80958089334d247c513c1
       } catch (error) {
         console.error('Error fetching profile data:', error);
       }
@@ -44,16 +38,10 @@ const MyProfile = () => {
   useEffect(() => {
     const profileUpdateHandler = (data) => {
       console.log('Profile updated:', data);
-<<<<<<< HEAD
       setProfileData(data.user);
       setRestaurantData(data.restaurant || {});
       setNewProfileName(data.user.name || '');
       setNewRestaurantName(data.restaurant?.name || '');
-=======
-      setProfileData(data);
-      setNewProfileName(data.name || '');
-      setNewRestaurantName(data.restaurantName || '');
->>>>>>> d26e9cd25480e784eeb80958089334d247c513c1
       setSuccess('Profile updated via WebSocket');
     };
 
@@ -85,12 +73,8 @@ const MyProfile = () => {
       });
 
       console.log('Profile updated successfully:', response.data);
-<<<<<<< HEAD
       setProfileData(response.data.user);
       setRestaurantData(response.data.restaurant || {});
-=======
-      setProfileData(response.data);
->>>>>>> d26e9cd25480e784eeb80958089334d247c513c1
       setSuccess('Profile updated successfully');
     } catch (error) {
       console.error('Error updating profile:', error);

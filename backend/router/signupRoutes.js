@@ -13,25 +13,15 @@ import { broadcast } from '../websocket.js';
 
 const router = express.Router();
 
-<<<<<<< HEAD
 const handleFileUpload = async (fileBuffer, id) => {
-=======
-const handleFileUpload = async (fileBuffer, userId) => {
->>>>>>> d26e9cd25480e784eeb80958089334d247c513c1
   const fileType = await fileTypeFromBuffer(Buffer.concat(fileBuffer));
   if (!fileType || !(fileType.mime in validMimeTypes)) {
     throw new Error('Invalid file type');
   }
   const extension = fileType.ext ? `.${fileType.ext}` : '';
-<<<<<<< HEAD
   const saveTo = path.join('uploads', id + extension);
   fs.writeFileSync(saveTo, Buffer.concat(fileBuffer));
   return `${id}${extension}`;
-=======
-  const saveTo = path.join('uploads', userId + extension);
-  fs.writeFileSync(saveTo, Buffer.concat(fileBuffer));
-  return extension;
->>>>>>> d26e9cd25480e784eeb80958089334d247c513c1
 };
 
 const handleBusboy = (req, res, next) => {
@@ -60,7 +50,6 @@ const handleBusboy = (req, res, next) => {
 
   req.pipe(busboy);
 };
-<<<<<<< HEAD
 
 const getImageBase64 = (id, extension) => {
   const filePath = path.join('uploads', `${id}${extension}`);
@@ -84,8 +73,6 @@ const deleteOldImage = (id) => {
 router.put('/profile', authMiddleware, handleBusboy, async (req, res) => {
   const { formData, fileBuffer } = req;
   const { name, restaurantName, restaurantCategory, newPassword } = formData;
-=======
->>>>>>> d26e9cd25480e784eeb80958089334d247c513c1
 
   try {
     const user = await User.findById(req.user._id);
