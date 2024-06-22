@@ -63,6 +63,7 @@ const App = () => {
       <WebSocketProvider>
         <Router basename="/owner">
           <div className="App">
+          <h1>Owner Frontend - Test Message</h1> {/* Add this line */}
             <AppContent />
           </div>
         </Router>
