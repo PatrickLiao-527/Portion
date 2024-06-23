@@ -28,11 +28,11 @@ const AppContent = () => {
       <Route path="/contact-us" element={<ContactUs />} />
       <Route element={<ProtectedRoute />}>
         <Route
-          path="/*"
+          path="/"
           element={
             <>
               <Header />
-              <NotificationBar /> 
+              <NotificationBar />
               <main>
                 <Sidebar />
                 <div className="content">
@@ -61,8 +61,9 @@ const App = () => {
   return (
     <AuthProvider>
       <WebSocketProvider>
-        <Router>
+        <Router basename="/owner">
           <div className="App">
+          <h1>Owner Frontend - Test Message</h1> {/* Add this line */}
             <AppContent />
           </div>
         </Router>

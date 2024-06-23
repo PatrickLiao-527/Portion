@@ -40,7 +40,13 @@ router.post('/', async (req, res) => {
 router.get('/', async (req, res) => {
   try {
     const restaurants = await Restaurant.find();
-    res.status(200).json(restaurants);
+    const restaurantsWithImages = restaurants.map(restaurant => {
+      return {
+        ...restaurant.toObject(),
+        img: restaurant.img ? `/${restaurant.img}` : null
+      };
+    });
+    res.status(200).json(restaurantsWithImages);
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ message: 'Internal server error' });

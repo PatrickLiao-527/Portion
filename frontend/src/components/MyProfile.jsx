@@ -8,6 +8,7 @@ import '../assets/styles/MyProfile.css';
 
 const MyProfile = () => {
   const [profileData, setProfileData] = useState({});
+  const [restaurantData, setRestaurantData] = useState({});
   const [newProfileName, setNewProfileName] = useState('');
   const [newRestaurantName, setNewRestaurantName] = useState('');
   const [restaurantImage, setRestaurantImage] = useState(null); // State for the restaurant image
@@ -22,9 +23,10 @@ const MyProfile = () => {
       try {
         const response = await axios.get('hhttp://107.175.133.12:5555/signup/profile', { withCredentials: true });
         console.log('Profile data:', response.data);
-        setProfileData(response.data);
-        setNewProfileName(response.data.name || '');
-        setNewRestaurantName(response.data.restaurantName || '');
+        setProfileData(response.data.user);
+        setRestaurantData(response.data.restaurant || {});
+        setNewProfileName(response.data.user.name || '');
+        setNewRestaurantName(response.data.restaurant?.name || '');
       } catch (error) {
         console.error('Error fetching profile data:', error);
       }
@@ -36,9 +38,10 @@ const MyProfile = () => {
   useEffect(() => {
     const profileUpdateHandler = (data) => {
       console.log('Profile updated:', data);
-      setProfileData(data);
-      setNewProfileName(data.name || '');
-      setNewRestaurantName(data.restaurantName || '');
+      setProfileData(data.user);
+      setRestaurantData(data.restaurant || {});
+      setNewProfileName(data.user.name || '');
+      setNewRestaurantName(data.restaurant?.name || '');
       setSuccess('Profile updated via WebSocket');
     };
 
@@ -70,7 +73,8 @@ const MyProfile = () => {
       });
 
       console.log('Profile updated successfully:', response.data);
-      setProfileData(response.data);
+      setProfileData(response.data.user);
+      setRestaurantData(response.data.restaurant || {});
       setSuccess('Profile updated successfully');
     } catch (error) {
       console.error('Error updating profile:', error);
@@ -98,9 +102,9 @@ const MyProfile = () => {
           <h3 className="profile-name">{`Profile Name: ${profileData.name}`}</h3>
           <p className="profile-email">{`Profile Email: ${profileData.email}`}</p>
         </div>
-        {profileData.restaurantImage && (
+        {restaurantData.image && (
           <div className="restaurant-image-container">
-            <img src={`http://localhost:5555/uploads/${profileData.restaurantImage}`} alt="Restaurant" className="restaurant-image" />
+            <img src={`data:image/jpeg;base64,${restaurantData.image}`} alt="Restaurant" className="restaurant-image" />
             <p className="image-label">Restaurant Image</p>
           </div>
         )}
