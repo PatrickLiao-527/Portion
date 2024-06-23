@@ -10,7 +10,7 @@ const EmailVerification = () => {
     // Add logic to verify the code here
     console.log('Verification code:', code);
     // Navigate to the desired page after verification
-    navigate('/dashboard');
+    navigate('/owner/dashboard');
   };
 
   return (

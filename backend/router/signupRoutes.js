@@ -69,6 +69,55 @@ const deleteOldImage = (id) => {
     }
   }
 };
+// Signup route
+router.post('/', async (req, res) => {
+  try {
+    console.log('Received signup data:', req.body);
+    const { name, email, password, role, restaurantName, restaurantCategory } = req.body;
+
+    if (!email || !password || !name || !role) {
+      console.log('Missing fields:', { email, password, name, role });
+      return res.status(422).json({ error: 'Submit all fields (email, name, password, role)' });
+    }
+
+    if (role === 'owner' && (!restaurantName || !restaurantCategory)) {
+      return res.status(422).json({ error: 'Owners must specify restaurant name and category' });
+    }
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      console.log('Email already in use:', email);
+      return res.status(422).json({ error: 'Email already in use' });
+    }
+
+    const newUser = new User({
+      name,
+      email,
+      password,
+      role,
+      restaurantName: role === 'owner' ? restaurantName : undefined,
+      restaurantCategory: role === 'owner' ? restaurantCategory : undefined
+    });
+
+    const createdUser = await newUser.save();
+    console.log('User created:', createdUser);
+
+    // Generate token
+    const token = jwt.sign({ id: createdUser._id, role: createdUser.role }, 'your_jwt_secret_key', { expiresIn: '1h' });
+
+    // Set token in HTTP-only cookie
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: false, // Set to true if using HTTPS
+      sameSite: 'Strict'
+    });
+
+    res.status(201).json({ user: createdUser, token, message: 'User saved successfully' });
+  } catch (err) {
+    console.log('Error during signup:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 // Update user profile
 router.put('/profile', authMiddleware, handleBusboy, async (req, res) => {
   const { formData, fileBuffer } = req;

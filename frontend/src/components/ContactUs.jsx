@@ -16,7 +16,7 @@ const ContactUs = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const location = useLocation();
   const navigate = useNavigate();
-  const [sourcePage, setSourcePage] = useState('/dashboard'); // Default to dashboard
+  const [sourcePage, setSourcePage] = useState('/owner/dashboard'); // Default to dashboard
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -24,7 +24,7 @@ const ContactUs = () => {
     if (subject) {
       setFormData((prevData) => ({ ...prevData, subject }));
       if (subject === 'Forgot Password') {
-        setSourcePage('/signup');
+        setSourcePage('/owner/signup');
       }
     }
   }, [location]);

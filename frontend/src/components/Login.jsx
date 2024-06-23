@@ -29,7 +29,7 @@ const Login = () => {
 
       setUser(response.data.user); // Set the user context
       localStorage.setItem('token', response.data.token); // Store the token
-      navigate('/dashboard'); // Redirect to dashboard 
+      navigate('/owner/dashboard'); // Redirect to dashboard 
     } catch (error) {
       console.error('Error logging in:', error);
       setErrorMessage(error.response?.data?.error || 'Failed to log in');
@@ -54,7 +54,7 @@ const Login = () => {
       setUser(googleResponse.data.user); // Set the user context
       setToken(googleResponse.data.token); // Set the token context
       localStorage.setItem('token', googleResponse.data.token); // Store the token
-      navigate('/dashboard'); // Redirect to dashboard
+      navigate('/owner/dashboard'); // Redirect to dashboard
 
     } catch (error) {
       console.error('Error logging in with Google:', error);
@@ -108,7 +108,7 @@ const Login = () => {
               Log in
             </button>
           </form>
-          <Link to="/contact-us?subject=Forgot Password" className="forgot-password-link">
+          <Link to="/owner/contact-us?subject=Forgot Password" className="forgot-password-link">
             Forgot your password?
           </Link>
           <div className="login-divider">Or log in with</div>
@@ -130,7 +130,7 @@ const Login = () => {
         </div>
         <div className="create-account-container">
           <h2 className="signup-title">Create your new account</h2>
-          <Link to="/signup" className="signup-button">Create an account</Link>
+          <Link to="/owner/signup" className="signup-button">Create an account</Link>
         </div>
       </div>
     </div>

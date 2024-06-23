@@ -91,7 +91,7 @@ const MyProfile = () => {
   };
 
   const handleRequestPasswordChange = () => {
-    navigate('/contact-us?subject=Request Password Change');
+    navigate('/owner/contact-us?subject=Request Password Change');
   };
 
   return (

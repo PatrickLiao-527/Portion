@@ -156,7 +156,7 @@ const Signup = () => {
       console.log('User registered successfully');
       setUser(signupResponse.data.user);
       setToken(signupResponse.data.token);
-      navigate('/dashboard');
+      navigate('/owner/dashboard');
     } catch (error) {
       console.error('Error registering user:', error);
 

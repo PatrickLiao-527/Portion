@@ -12,7 +12,7 @@ const ProtectedRoute = () => {
     return <div>Loading...</div>; // or a loading spinner
   }
 
-  return user ? <Outlet /> : <Navigate to="/login" />;
+  return user ? <Outlet /> : <Navigate to="/owner/login" />;
 };
 
 export default ProtectedRoute;
