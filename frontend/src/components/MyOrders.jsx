@@ -14,7 +14,7 @@ const MyOrders = () => {
   useEffect(() => {
     setLoading(true);
     axios
-      .get('http://localhost:5555/orders', { withCredentials: true })
+      .get('http://107.175.133.12:5555/orders', { withCredentials: true })
       .then((response) => {
         if (response.data.message === 'No orders found') {
           setOrders([]);

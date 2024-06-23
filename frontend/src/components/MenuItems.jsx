@@ -16,7 +16,7 @@ const MenuItems = () => {
   useEffect(() => {
     setLoading(true);
     axios
-      .get('http://localhost:5555/menus', { withCredentials: true })
+      .get('http://107.175.133.12:5555/menus', { withCredentials: true })
       .then((response) => {
         const transformedData = response.data.data.map(item => transformItem(item));
         setMenus(transformedData);

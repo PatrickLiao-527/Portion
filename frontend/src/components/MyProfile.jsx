@@ -20,7 +20,7 @@ const MyProfile = () => {
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
-        const response = await axios.get('http://localhost:5555/signup/profile', { withCredentials: true });
+        const response = await axios.get('hhttp://107.175.133.12:5555/signup/profile', { withCredentials: true });
         console.log('Profile data:', response.data);
         setProfileData(response.data);
         setNewProfileName(response.data.name || '');

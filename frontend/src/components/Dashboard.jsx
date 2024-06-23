@@ -18,7 +18,7 @@ const Dashboard = () => {
   useEffect(() => {
     setLoading(true);
     axios
-      .get('http://localhost:5555/orders', { withCredentials: true })
+      .get('http://107.175.133.12:5555/orders', { withCredentials: true })
       .then((response) => {
         const sortedOrders = response.data.sort((a, b) => new Date(b.time) - new Date(a.time));
         const formattedOrders = formatOrders(sortedOrders);

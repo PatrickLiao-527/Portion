@@ -8,7 +8,7 @@ export const WebSocketProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:8080');
+    const ws = new WebSocket('ws://107.175.133.12:8080');
     
     ws.onopen = () => {
       console.log('WebSocket connection established');

@@ -12,7 +12,7 @@ export const AuthProvider = ({ children }) => {
     // Check if the user is already logged in
     const checkLoggedIn = async () => {
       try {
-        const response = await axios.get('http://localhost:5555/auth/check', { withCredentials: true });
+        const response = await axios.get('http://107.175.133.12:5555/auth/check', { withCredentials: true });
         //console.log('Auth check response:', response.data);
         setUser(response.data.user);
         setToken(response.data.token);
@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }) => {
 
   const signOut = async () => {
     try {
-      await axios.post('http://localhost:5555/auth/logout', {}, { withCredentials: true });
+      await axios.post('http://107.175.133.12:5555/auth/logout', {}, { withCredentials: true });
       setUser(null);
       setToken(null);
     } catch (error) {

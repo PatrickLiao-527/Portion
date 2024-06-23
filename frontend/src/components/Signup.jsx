@@ -5,7 +5,7 @@ import AuthContext from '../contexts/AuthContext';
 import '../assets/styles/Signup.css';
 import showHideIcon from '../assets/icons/showHide_icon.png';
 
-const BASE_URL = 'http://localhost:5555';
+const BASE_URL = 'http://107.175.133.12:5555';
 
 // Fetch categories
 const fetchCategories = async () => {

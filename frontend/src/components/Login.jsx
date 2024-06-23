@@ -18,7 +18,7 @@ const Login = () => {
   const handleLogin = async (event) => {
     event.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5555/auth/login', {
+      const response = await axios.post('http://107.175.133.12:5555/auth/login', {
         email,
         password
       }, {
@@ -43,7 +43,7 @@ const Login = () => {
       const { credential } = response; // Use the credential, which is the ID token
   
       // Send the ID token to your backend
-      const googleResponse = await axios.post('http://localhost:5555/auth/google-login', {
+      const googleResponse = await axios.post('http://107.175.133.12:5555/auth/google-login', {
         token: credential,
       }, {
         withCredentials: true

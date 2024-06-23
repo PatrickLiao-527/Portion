@@ -22,13 +22,18 @@ dotenv.config();
 const app = express();
 
 // Middleware setup
-app.use(express.json());
-app.use(cookieParser());
 app.use(cors({
-  origin: ['http://localhost:3001', 'http://localhost:3000'],
+  origin: [
+      'http://localhost:3001', 
+      'http://localhost:3000',
+      'http://107.175.133.12:3001',
+      'http://107.175.133.12:3000',
+      'http://portion.food',
+      'https://portion.food'
+  ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true 
+  credentials: true
 }));
 
 // Get __dirname equivalent in ES Module scope

@@ -53,7 +53,7 @@ const TableWidget = ({ title, data, columns, itemsPerPage, maxItemsPerPage, setI
     console.log(`Updating status for order ${item._id} from ${item.status} to ${nextStatus}`);
 
     try {
-      const response = await axios.patch(`http://localhost:5555/orders/${item._id}/status`, { status: nextStatus }, { withCredentials: true });
+      const response = await axios.patch(`http://107.175.133.12:5555/orders/${item._id}/status`, { status: nextStatus }, { withCredentials: true });
       let updatedOrder = response.data;
 
       // Ensure consistent date formatting
