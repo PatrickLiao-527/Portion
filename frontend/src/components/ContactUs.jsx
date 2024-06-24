@@ -37,7 +37,7 @@ const ContactUs = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://107.175.133.12:5555/contact', {
+      await axios.post('http://portion.food/api/contact', {
         name: `${formData.firstName} ${formData.lastName}`,
         email: formData.email,
         message: formData.message,

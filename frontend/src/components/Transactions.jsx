@@ -11,7 +11,7 @@ const Transactions = () => {
   useEffect(() => {
     setLoading(true);
     axios
-      .get('http://107.175.133.12:5555/transactions', { withCredentials: true })
+      .get('http://portion.food/api/transactions', { withCredentials: true })
       .then((response) => {
         if (Array.isArray(response.data)) {
           const transformedData = response.data.map(item => ({

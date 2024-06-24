@@ -55,7 +55,7 @@ const EditItem = ({ item, setItems, onClose }) => {
   
     try {
       const response = await axios.put(
-        `http://107.175.133.12:5555/menus/${currentItem._id}`,
+        `http://portion.food/api/menus/${currentItem._id}`,
         formData,
         {
           headers: {
@@ -84,7 +84,7 @@ const EditItem = ({ item, setItems, onClose }) => {
   
   const handleDeleteItem = async () => {
     try {
-      await axios.delete(`http://107.175.133.12:5555/menus/${currentItem._id}`, { withCredentials: true });
+      await axios.delete(`http://portion.food/api/menus/${currentItem._id}`, { withCredentials: true });
       setItems((prevItems) => prevItems.filter((item) => item._id !== currentItem._id));
       onClose(); // Automatically close the modal
     } catch (error) {

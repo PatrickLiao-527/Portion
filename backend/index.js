@@ -1,8 +1,3 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import cors from 'cors';
-import cookieParser from 'cookie-parser';
-import dotenv from 'dotenv';
 import { PORT, mongoDBURL } from './config.js';
 import ordersRoute from './router/ordersRoutes.js';
 import menusRoute from './router/menusRoutes.js';
@@ -31,8 +26,8 @@ app.use(cors({
       'http://localhost:3000',
       'http://107.175.133.12:3001',
       'http://107.175.133.12:3000',
-      'http://portion.food',
-      'https://portion.food'
+      'portion.food',
+      'www.portion.food'
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -47,20 +42,20 @@ const __dirname = path.dirname(__filename);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Root route for testing
-app.get('/', (req, res) => {
+app.get('/api', (req, res) => {
   console.log(req);
   return res.status(234).send('Returned status 234');
 });
 
 // Route setup
-app.use('/signup', signupRoute);
-app.use('/auth', authRoute);  
-app.use('/orders', ordersRoute);
-app.use('/menus', menusRoute);
-app.use('/transactions', transactionsRoute);
-app.use('/restaurants', restaurantRoute);
-app.use('/categories', categoryRoutes);
-app.use('/contact', contactRoutes);
+app.use('/api/signup', signupRoute);
+app.use('/api/auth', authRoute);
+app.use('/api/orders', ordersRoute);
+app.use('/api/menus', menusRoute);
+app.use('/api/transactions', transactionsRoute);
+app.use('/api/restaurants', restaurantRoute);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/contact', contactRoutes);
 
 // Connect to MongoDB and start the server
 mongoose

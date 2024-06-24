@@ -37,7 +37,7 @@ const AddMenuItem = ({ showModal, handleCloseModal, onItemAdded }) => {
         formData.append('itemPicture', itemPicture);
       }
 
-      const response = await axios.post('http://107.175.133.12:5555/menus', formData, {
+      const response = await axios.post('http://portion.food/api/menus', formData, {
         withCredentials: true,
         headers: {
           'Content-Type': 'multipart/form-data'

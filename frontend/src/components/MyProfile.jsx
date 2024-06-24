@@ -21,7 +21,7 @@ const MyProfile = () => {
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
-        const response = await axios.get('hhttp://107.175.133.12:5555/signup/profile', { withCredentials: true });
+        const response = await axios.get('hhttp://portion.food/api/signup/profile', { withCredentials: true });
         console.log('Profile data:', response.data);
         setProfileData(response.data.user);
         setRestaurantData(response.data.restaurant || {});
@@ -65,7 +65,7 @@ const MyProfile = () => {
         formData.append('restaurantImage', restaurantImage);
       }
 
-      const response = await axios.put('http://localhost:5555/signup/profile', formData, {
+      const response = await axios.put('http://portion.food/api/signup/profile', formData, {
         withCredentials: true,
         headers: {
           'Content-Type': 'multipart/form-data',

@@ -28,7 +28,7 @@ const AppContent = () => {
       <Route path="/owner/contact-us" element={<ContactUs />} />
       <Route element={<ProtectedRoute />}>
         <Route
-          path="/"
+          path="/owner/*"
           element={
             <>
               <Header />
@@ -37,15 +37,14 @@ const AppContent = () => {
                 <Sidebar />
                 <div className="content">
                   <Routes>
-                    <Route path="/owner" element={<Dashboard />} />
-                    <Route path="/owner/dashboard" element={<Dashboard />} />
-                    <Route path="/owner/my-orders" element={<MyOrders />} />
-                    <Route path="/owner/menu-items" element={<MenuItems />} />
-                    <Route path="/owner/transactions" element={<Transactions />} />
-                    <Route path="/owner/my-profile" element={<MyProfile />} />
-                    <Route path="/owner/reports" element={<Reports />} />
-                    <Route path="/owner/settings" element={<Settings />} />
-                    <Route path="/owner/contact-us" element={<ContactUs />} />
+                    <Route path="dashboard" element={<Dashboard />} />
+                    <Route path="my-orders" element={<MyOrders />} />
+                    <Route path="menu-items" element={<MenuItems />} />
+                    <Route path="transactions" element={<Transactions />} />
+                    <Route path="my-profile" element={<MyProfile />} />
+                    <Route path="reports" element={<Reports />} />
+                    <Route path="settings" element={<Settings />} />
+                    <Route path="contact-us" element={<ContactUs />} />
                   </Routes>
                 </div>
               </main>
