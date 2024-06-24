@@ -28,7 +28,7 @@ const AppContent = () => {
       <Route path="/owner/contact-us" element={<ContactUs />} />
       <Route element={<ProtectedRoute />}>
         <Route
-          path="/owner"
+          path="/"
           element={
             <>
               <Header />

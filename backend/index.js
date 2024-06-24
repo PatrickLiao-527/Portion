@@ -20,6 +20,9 @@ dotenv.config();
 
 // Initialize Express app
 const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // Middleware setup
 app.use(cors({

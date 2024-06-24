@@ -30,10 +30,10 @@ const Header = () => {
         </div>
       </div>
       <div className="nav-links">
-        <Link to="/dashboard" className={location.pathname === '/dashboard' ? 'active' : ''}>Dashboard</Link>
-        <Link to="/contact-us" className={location.pathname === '/contact-us' ? 'active' : ''}>Contact Us</Link>
+        <Link to="/owner/dashboard" className={location.pathname === '/owner/dashboard' ? 'active' : ''}>Dashboard</Link>
+        <Link to="/owner/contact-us" className={location.pathname === '/owner/contact-us' ? 'active' : ''}>Contact Us</Link>
         <div className="user-wrapper">
-          <Link to="/my-profile" className="user-link">
+          <Link to="/owner/my-profile" className="user-link">
             {/*<img src={profilePic} alt="Profile" className="user-avatar" />*/}
             <div className="user-name">{`${user?.name}'s Profile` || 'Account Profile'}</div>
           </Link>

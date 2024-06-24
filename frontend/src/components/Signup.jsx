@@ -179,7 +179,7 @@ const Signup = () => {
       <div className="signup-container">
         <h2 className="signup-title">Create an account</h2>
         <p className="signup-subtitle">
-          Already have an account? <Link to="/login" className="login-link">Log in</Link>
+          Already have an account? <Link to="/owner/login" className="login-link">Log in</Link>
         </p>
         <form onSubmit={handleSignup}>
           <div className="form-group-signup">
@@ -265,7 +265,7 @@ const Signup = () => {
           <button type="submit" className="signup-button">Create an account</button>
         </form>
         <div className="terms">
-          By creating an account, you agree to the <Link to="/terms">Terms of use</Link> and <Link to="/privacy">Privacy Policy</Link>.
+          By creating an account, you agree to the <Link to="/owner/terms">Terms of use</Link> and <Link to="/owner/privacy">Privacy Policy</Link>.
         </div>
         {errorMessage && <p className="error-message">{errorMessage}</p>}
       </div>

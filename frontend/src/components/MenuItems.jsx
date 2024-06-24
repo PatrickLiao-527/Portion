@@ -60,7 +60,7 @@ const MenuItems = () => {
     carbsPrice: `$${item.carbsPrice}`,
     proteinsPrice: `$${item.proteinsPrice}`,
     baseFat: `${item.baseFat} gram(s)`,
-    editItem: <Link to={`/menu-items/edit/${item._id}`} className="edit-link"><img src={editIcon} alt="Edit" /></Link>,
+    editItem: <Link to={`/owner/menu-items/edit/${item._id}`} className="edit-link"><img src={editIcon} alt="Edit" /></Link>,
     itemPicture: item.image ? `data:image/${item.imageExtension};base64,${item.image}` : null
   });
 

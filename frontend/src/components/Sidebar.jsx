@@ -35,26 +35,26 @@ const Sidebar = () => {
                 <img src={sidebarToggleIcon} alt="Toggle Sidebar" />
             </div>
             <div className={`sidebar-wrapper ${isOpen ? 'open' : 'closed'}`}>
-                <NavLink to="/dashboard" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
+                <NavLink to="/owner/dashboard" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
                     <div className="icon-wrapper">
                         <DashboardIcon />
                     </div>
                     Dashboard
                 </NavLink>
-                <NavLink to="/my-orders" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
+                <NavLink to="/owner/my-orders" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
                     <div className="icon-wrapper">
                         <OrdersIcon />
                     </div>
                     My Orders
                 </NavLink>
-                <NavLink to="/menu-items" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
+                <NavLink to="/owner/menu-items" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
                     <div className="icon-wrapper">
                         <MenuItemsIcon />
                     </div>
                     Menu Items
                 </NavLink>
                 {/*
-                <NavLink to="/transactions" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
+                <NavLink to="/owner/transactions" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
                     <div className="icon-wrapper">
                         <TransactionsIcon />
                     </div>
@@ -62,13 +62,13 @@ const Sidebar = () => {
                 </NavLink>
                 */}
                 {/*
-                <NavLink to="/reports" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
+                <NavLink to="/owner/reports" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
                     <div className="icon-wrapper">
                         <ReportsIcon />
                     </div>
                     Reports
                 </NavLink>*/}
-                {/*<NavLink to="/settings" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
+                {/*<NavLink to="/owner/settings" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
                     <div className="icon-wrapper">
                         <SettingsIcon />
                     </div>
