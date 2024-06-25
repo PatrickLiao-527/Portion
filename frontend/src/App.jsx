@@ -33,10 +33,11 @@ const AppContent = () => {
             <>
               <Header />
               <NotificationBar />
-              <main>
+              <div className="main-wrapper">
                 <Sidebar />
                 <div className="content">
                   <Routes>
+                    <Route path="" element={<Dashboard />} />
                     <Route path="dashboard" element={<Dashboard />} />
                     <Route path="my-orders" element={<MyOrders />} />
                     <Route path="menu-items" element={<MenuItems />} />
@@ -47,7 +48,7 @@ const AppContent = () => {
                     <Route path="contact-us" element={<ContactUs />} />
                   </Routes>
                 </div>
-              </main>
+              </div>
             </>
           }
         />

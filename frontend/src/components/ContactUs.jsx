@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { sendContactMessage } from '../services/api';
 import Header from './Header';
 import '../assets/styles/ContactUs.css';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -37,7 +37,7 @@ const ContactUs = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://portion.food/api/contact', {
+      await sendContactMessage({
         name: `${formData.firstName} ${formData.lastName}`,
         email: formData.email,
         message: formData.message,

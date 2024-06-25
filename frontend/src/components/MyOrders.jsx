@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import axios from 'axios';
+import { fetchOrders } from '../services/api';
 import TableWidget from './TableWidget';
 import '../assets/styles/MyOrders.css';
 import { formatOrders } from '../utils/formatOrders'; 
@@ -13,13 +13,12 @@ const MyOrders = () => {
 
   useEffect(() => {
     setLoading(true);
-    axios
-      .get('http://107.175.133.12:5555/orders', { withCredentials: true })
+    fetchOrders()
       .then((response) => {
-        if (response.data.message === 'No orders found') {
+        if (response.message === 'No orders found') {
           setOrders([]);
         } else {
-          const sortedOrders = response.data.sort((a, b) => new Date(b.time) - new Date(a.time));
+          const sortedOrders = response.sort((a, b) => new Date(b.time) - new Date(a.time));
           setOrders(formatOrders(sortedOrders)); 
         }
         setLoading(false);

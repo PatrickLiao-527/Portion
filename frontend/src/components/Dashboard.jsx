@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import axios from 'axios';
+import { fetchOrders } from '../services/api';
 import Widget from './Widget';
 import Chart from './Chart';
 import TableWidget from './TableWidget';
@@ -17,10 +17,9 @@ const Dashboard = () => {
 
   useEffect(() => {
     setLoading(true);
-    axios
-      .get('http://107.175.133.12:5555/orders', { withCredentials: true })
+    fetchOrders()
       .then((response) => {
-        const sortedOrders = response.data.sort((a, b) => new Date(b.time) - new Date(a.time));
+        const sortedOrders = response.sort((a, b) => new Date(b.time) - new Date(a.time));
         const formattedOrders = formatOrders(sortedOrders);
         setOrders(formattedOrders);
 
@@ -67,7 +66,7 @@ const Dashboard = () => {
           const newOrders = [formattedOrder, ...prevOrders];
           return newOrders;
         });
-  
+
         // Update revenue data
         const month = new Date(notification.order.time).toLocaleString('default', { month: 'short' });
         setRevenueData((prevRevenue) => {
@@ -79,7 +78,7 @@ const Dashboard = () => {
           }
           return [...prevRevenue];
         });
-  
+
         // Update orders chart data
         setOrdersChartData((prevOrdersChart) => {
           const existingMonth = prevOrdersChart.find(item => item.name === month);
@@ -93,7 +92,7 @@ const Dashboard = () => {
       } else if (notification.type === 'ORDER_CANCELLED') {
         console.log('Order cancelled:', notification.orderId);
         setOrders((prevOrders) => prevOrders.filter(order => order.id !== notification.orderId));
-  
+
         // Update revenue data
         setRevenueData((prevRevenue) => {
           return prevRevenue.map(item => {
@@ -104,7 +103,7 @@ const Dashboard = () => {
             return item;
           });
         });
-  
+
         // Update orders chart data
         setOrdersChartData((prevOrdersChart) => {
           return prevOrdersChart.map(item => {
@@ -118,7 +117,6 @@ const Dashboard = () => {
       }
     });
   }, [notifications]);
-  
 
   const columns = [
     { header: 'Customer Name', accessor: 'customerName' },

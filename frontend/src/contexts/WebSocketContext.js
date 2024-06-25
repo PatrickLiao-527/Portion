@@ -1,14 +1,20 @@
-// WebSocketContext.jsx
+// src/contexts/WebSocketContext.js
 import React, { createContext, useEffect, useState } from 'react';
+
 export const WebSocketContext = createContext(null);
 
 export const WebSocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const [notifications, setNotifications] = useState([]);
 
-
   useEffect(() => {
-        const ws = new WebSocket('wss://portion.food:8080');
+    const wsUrl = process.env.REACT_APP_WS_URL;
+    if (!wsUrl) {
+      console.error("WebSocket URL is not defined in environment variables.");
+      return;
+    }
+
+    const ws = new WebSocket(wsUrl);
     ws.onopen = () => {
       console.log('WebSocket connection established');
     };
@@ -36,9 +42,3 @@ export const WebSocketProvider = ({ children }) => {
     </WebSocketContext.Provider>
   );
 };
-
-
-
-
-
-

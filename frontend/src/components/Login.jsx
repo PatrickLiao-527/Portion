@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { loginUser, googleLogin } from '../services/api';
 import AuthContext from '../contexts/AuthContext';
 import '../assets/styles/Login.css';
 import googleLogo from '../assets/icons/Google-logo.png';
@@ -18,17 +18,11 @@ const Login = () => {
   const handleLogin = async (event) => {
     event.preventDefault();
     try {
-      const response = await axios.post('http://portion.food/api/auth/login', {
-        email,
-        password
-      }, {
-        withCredentials: true
-      });
+      const response = await loginUser({ email, password });
+      console.log('User logged in successfully:', response);
 
-      console.log('User logged in successfully:', response.data);
-
-      setUser(response.data.user); // Set the user context
-      localStorage.setItem('token', response.data.token); // Store the token
+      setUser(response.user); // Set the user context
+      localStorage.setItem('token', response.token); // Store the token
       navigate('/owner/dashboard'); // Redirect to dashboard 
     } catch (error) {
       console.error('Error logging in:', error);
@@ -41,19 +35,15 @@ const Login = () => {
   const handleGoogleLoginSuccess = async (response) => {
     try {
       const { credential } = response; // Use the credential, which is the ID token
-  
+
       // Send the ID token to your backend
-      const googleResponse = await axios.post('http://portion.food/api/auth/google-login', {
-        token: credential,
-      }, {
-        withCredentials: true
-      });
-  
-      console.log('User logged in successfully with Google:', googleResponse.data);
-  
-      setUser(googleResponse.data.user); // Set the user context
-      setToken(googleResponse.data.token); // Set the token context
-      localStorage.setItem('token', googleResponse.data.token); // Store the token
+      const googleResponse = await googleLogin({ token: credential });
+
+      console.log('User logged in successfully with Google:', googleResponse);
+
+      setUser(googleResponse.user); // Set the user context
+      setToken(googleResponse.token); // Set the token context
+      localStorage.setItem('token', googleResponse.token); // Store the token
       navigate('/owner/dashboard'); // Redirect to dashboard
 
     } catch (error) {
@@ -66,7 +56,7 @@ const Login = () => {
     console.error('Google login error:', error);
     setErrorMessage('Google login failed. Please try again.');
   };
-  
+
   return (
     <div className="login-page">
       <div className="login-frame">
@@ -113,20 +103,20 @@ const Login = () => {
           </Link>
           <div className="login-divider">Or log in with</div>
           <div className="google-login-wrapper">
-          <GoogleLogin
-            onSuccess={handleGoogleLoginSuccess}
-            onFailure={handleGoogleLoginFailure}
-            render={(renderProps) => (
-              <button 
-                className="google-login-button" 
-                onClick={renderProps.onClick} 
-                disabled={renderProps.disabled}
-              >
-                <img src={googleLogo} alt="Google" className="google-logo" /> Google
-              </button>
-            )}
-          />
-        </div>
+            <GoogleLogin
+              onSuccess={handleGoogleLoginSuccess}
+              onFailure={handleGoogleLoginFailure}
+              render={(renderProps) => (
+                <button 
+                  className="google-login-button" 
+                  onClick={renderProps.onClick} 
+                  disabled={renderProps.disabled}
+                >
+                  <img src={googleLogo} alt="Google" className="google-logo" /> Google
+                </button>
+              )}
+            />
+          </div>
         </div>
         <div className="create-account-container">
           <h2 className="signup-title">Create your new account</h2>

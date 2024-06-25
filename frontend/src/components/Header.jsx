@@ -1,8 +1,8 @@
-// src/components/Header.js
+// src/components/Header.jsx
 import React, { useContext, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import '../assets/styles/Header.css';
-//import profilePic from '../assets/icons/profilePic.png';
+// import profilePic from '../assets/icons/profilePic.png';
 import portionLogo from '../assets/icons/portion-Logo.png';
 import AuthContext from '../contexts/AuthContext';
 import { WebSocketContext } from '../contexts/WebSocketContext';
@@ -35,7 +35,7 @@ const Header = () => {
         <div className="user-wrapper">
           <Link to="/owner/my-profile" className="user-link">
             {/*<img src={profilePic} alt="Profile" className="user-avatar" />*/}
-            <div className="user-name">{`${user?.name}'s Profile` || 'Account Profile'}</div>
+            <div className="user-name">{user ? `${user.name}'s Profile` : 'Account Profile'}</div>
           </Link>
         </div>
       </div>

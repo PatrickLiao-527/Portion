@@ -9,6 +9,12 @@ import categoryRoutes from './router/categoryRoutes.js';
 import contactRoutes from './router/contactUsRoutes.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import express from 'express';
+import mongoose from 'mongoose';
+import cookieParser from 'cookie-parser';
+import cors from 'cors';
+import dotenv from 'dotenv';
+
 
 // Use dotenv config
 dotenv.config();

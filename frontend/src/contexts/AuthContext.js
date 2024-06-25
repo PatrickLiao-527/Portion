@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import { checkAuth, logoutUser } from '../services/api';
 
 const AuthContext = createContext();
 
@@ -12,10 +12,10 @@ export const AuthProvider = ({ children }) => {
     // Check if the user is already logged in
     const checkLoggedIn = async () => {
       try {
-        const response = await axios.get('http://portion.food/api/auth/check', { withCredentials: true });
-        //console.log('Auth check response:', response.data);
-        setUser(response.data.user);
-        setToken(response.data.token);
+        const response = await checkAuth();
+        // console.log('Auth check response:', response.data);
+        setUser(response.user);
+        setToken(response.token);
       } catch (error) {
         if (error.response && error.response.status === 401) {
           console.log('User not authenticated');
@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }) => {
 
   const signOut = async () => {
     try {
-      await axios.post('http://portion.food/api/auth/logout', {}, { withCredentials: true });
+      await logoutUser();
       setUser(null);
       setToken(null);
     } catch (error) {

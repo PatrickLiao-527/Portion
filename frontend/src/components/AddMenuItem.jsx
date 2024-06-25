@@ -1,5 +1,6 @@
+// src/components/AddMenuItem.jsx
 import React, { useState } from 'react';
-import axios from 'axios';
+import { addMenuItem } from '../services/api';
 import '../assets/styles/ItemForm.css'; // Updated to use shared CSS
 
 const proteinTypes = [
@@ -37,13 +38,8 @@ const AddMenuItem = ({ showModal, handleCloseModal, onItemAdded }) => {
         formData.append('itemPicture', itemPicture);
       }
 
-      const response = await axios.post('http://portion.food/api/menus', formData, {
-        withCredentials: true,
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-      onItemAdded(response.data); // Call the callback function to update the parent component
+      const response = await addMenuItem(formData);
+      onItemAdded(response); // Call the callback function to update the parent component
       handleCloseModal(); // Close the modal after successful save
     } catch (error) {
       console.error('Failed to add new item:', error);

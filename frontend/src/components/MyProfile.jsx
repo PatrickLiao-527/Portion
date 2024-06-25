@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { fetchProfile, updateProfile } from '../services/api';
 import AuthContext from '../contexts/AuthContext';
 import { WebSocketContext } from '../contexts/WebSocketContext';
-import axios from 'axios';
 import '../assets/styles/MyProfile.css';
 // import profilePic from '../assets/icons/profilePic.png';
 
@@ -21,12 +21,12 @@ const MyProfile = () => {
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
-        const response = await axios.get('hhttp://portion.food/api/signup/profile', { withCredentials: true });
-        console.log('Profile data:', response.data);
-        setProfileData(response.data.user);
-        setRestaurantData(response.data.restaurant || {});
-        setNewProfileName(response.data.user.name || '');
-        setNewRestaurantName(response.data.restaurant?.name || '');
+        const response = await fetchProfile();
+        console.log('Profile data:', response);
+        setProfileData(response.user);
+        setRestaurantData(response.restaurant || {});
+        setNewProfileName(response.user.name || '');
+        setNewRestaurantName(response.restaurant?.name || '');
       } catch (error) {
         console.error('Error fetching profile data:', error);
       }
@@ -65,16 +65,10 @@ const MyProfile = () => {
         formData.append('restaurantImage', restaurantImage);
       }
 
-      const response = await axios.put('http://portion.food/api/signup/profile', formData, {
-        withCredentials: true,
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
-      console.log('Profile updated successfully:', response.data);
-      setProfileData(response.data.user);
-      setRestaurantData(response.data.restaurant || {});
+      const response = await updateProfile(formData);
+      console.log('Profile updated successfully:', response);
+      setProfileData(response.user);
+      setRestaurantData(response.restaurant || {});
       setSuccess('Profile updated successfully');
     } catch (error) {
       console.error('Error updating profile:', error);

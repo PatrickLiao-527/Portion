@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import { fetchMenuItems } from '../services/api';
 import TableWidget from './TableWidget';
 import AddMenuItem from './AddMenuItem';
 import editIcon from '../assets/icons/edit_icon.svg';
@@ -15,10 +15,9 @@ const MenuItems = () => {
 
   useEffect(() => {
     setLoading(true);
-    axios
-      .get('http://107.175.133.12:5555/menus', { withCredentials: true })
+    fetchMenuItems()
       .then((response) => {
-        const transformedData = response.data.data.map(item => transformItem(item));
+        const transformedData = response.data.map(item => transformItem(item));
         setMenus(transformedData);
         setLoading(false);
       })

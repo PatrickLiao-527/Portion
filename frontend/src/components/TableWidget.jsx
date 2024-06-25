@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import axios from 'axios';
+import { updateOrderStatus } from '../services/api'; // Import the function from api.js
 import { WebSocketContext } from '../contexts/WebSocketContext'; 
 import '../assets/styles/TableWidget.css';
 import { ReactComponent as ChevronLeftIcon } from '../assets/icons/chevronLeft_icon.svg';
@@ -53,8 +53,8 @@ const TableWidget = ({ title, data, columns, itemsPerPage, maxItemsPerPage, setI
     console.log(`Updating status for order ${item._id} from ${item.status} to ${nextStatus}`);
 
     try {
-      const response = await axios.patch(`http://portion.food/api/orders/${item._id}/status`, { status: nextStatus }, { withCredentials: true });
-      let updatedOrder = response.data;
+      const response = await updateOrderStatus(item._id, nextStatus);
+      let updatedOrder = response;
 
       // Ensure consistent date formatting
       updatedOrder = {

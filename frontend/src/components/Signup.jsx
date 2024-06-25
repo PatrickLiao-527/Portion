@@ -1,78 +1,9 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { fetchCategories, fetchRestaurantByName, createCategory, createRestaurant, signupUser } from '../services/api';
 import AuthContext from '../contexts/AuthContext';
 import '../assets/styles/Signup.css';
 import showHideIcon from '../assets/icons/showHide_icon.png';
-
-const BASE_URL = 'http://portion.food/api';
-
-// Fetch categories
-const fetchCategories = async () => {
-  try {
-    const response = await axios.get(`${BASE_URL}/categories`, {
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      withCredentials: true
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching categories:', error);
-    throw error;
-  }
-};
-
-// Fetch restaurant by name
-const fetchRestaurantByName = async (restaurantName) => {
-  try {
-    const response = await axios.get(`${BASE_URL}/restaurants/name/${restaurantName}`, {
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      withCredentials: true
-    });
-    return response.data;
-  } catch (error) {
-    if (error.response && error.response.status === 404) {
-      return { exists: false };
-    } else {
-      throw error;
-    }
-  }
-};
-
-// Create category
-const createCategory = async (categoryName) => {
-  try {
-    const response = await axios.post(`${BASE_URL}/categories`, { name: categoryName }, {
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      withCredentials: true
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error creating category:', error);
-    throw error;
-  }
-};
-
-// Create restaurant
-const createRestaurant = async (restaurantName, category, ownerId) => {
-  try {
-    const response = await axios.post(`${BASE_URL}/restaurants`, { name: restaurantName, category, ownerId }, {
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      withCredentials: true
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error creating restaurant:', error);
-    throw error;
-  }
-};
 
 const Signup = () => {
   const [profileName, setProfileName] = useState('');
@@ -138,24 +69,24 @@ const Signup = () => {
       }
 
       console.log('Signing up new user...');
-      const signupResponse = await axios.post(`${BASE_URL}/signup`, {
+      const signupResponse = await signupUser({
         name: profileName,
         email,
         password,
         role: 'owner',
         restaurantName,
         restaurantCategory: finalCategory
-      }, { withCredentials: true });
+      });
 
       console.log('Signup response:', signupResponse);
 
-      const userId = signupResponse.data.user._id;
+      const userId = signupResponse.user._id;
       console.log(`Creating restaurant for user: ${userId}`);
       await createRestaurant(restaurantName, finalCategory, userId);
 
       console.log('User registered successfully');
-      setUser(signupResponse.data.user);
-      setToken(signupResponse.data.token);
+      setUser(signupResponse.user);
+      setToken(signupResponse.token);
       navigate('/owner/dashboard');
     } catch (error) {
       console.error('Error registering user:', error);

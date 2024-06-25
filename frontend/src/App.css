@@ -1,27 +1,60 @@
+/* App.css */
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: 'Poppins', sans-serif;
+  box-sizing: border-box;
+}
+
 .App {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  overflow: hidden;
 }
 
-main {
+.header-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  background-color: white;
+  border-bottom: 1px solid #ddd;
+}
+
+.notification-bar {
+  position: fixed;
+  top: 60px; /* Adjust this based on header height */
+  left: 0;
+  width: 100%;
+  z-index: 999;
+  background-color: white; /* Ensure it covers the content beneath */
+}
+
+.main-wrapper {
   display: flex;
   flex: 1;
-  margin-top: 80px; /* Adjust based on header height */
+  margin-top: 120px; /* Adjust this based on header + notification bar height */
+  overflow: hidden;
+}
+
+.sidebar {
+  width: 250px; /* Adjust based on your sidebar width */
+  overflow-y: auto;
 }
 
 .content {
   flex: 1;
   padding: 20px;
   margin-left: 250px; /* Width of the Sidebar */
+  overflow-y: auto;
+  height: calc(100vh - 120px); /* Adjust this based on header + notification bar height */
+}
 
-  @media (max-width: 768px) {
+@media (max-width: 768px) {
+  .content {
     margin-left: 60px; /* Width of the Sidebar when collapsed */
   }
-}
-body {
-  font-family: 'Poppins', sans-serif;
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
 }
