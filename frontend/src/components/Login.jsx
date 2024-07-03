@@ -1,11 +1,11 @@
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { loginUser, googleLogin } from '../services/api';
+import { loginUser, googleLogin, fetchUserRole } from '../services/api';
 import AuthContext from '../contexts/AuthContext';
 import '../assets/styles/Login.css';
-import googleLogo from '../assets/icons/Google-logo.png';
+//import googleLogo from '../assets/icons/Google-logo.png';
 import showHideIcon from '../assets/icons/showHide_icon.png';
-import { GoogleLogin } from '@react-oauth/google';
+//import { GoogleLogin } from '@react-oauth/google';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -18,12 +18,23 @@ const Login = () => {
   const handleLogin = async (event) => {
     event.preventDefault();
     try {
-      const response = await loginUser({ email, password });
+      // Fetch the user's role first
+      const userRoleResponse = await fetchUserRole(email);
+      const role = userRoleResponse.role;
+
+      // Check if the role is client
+      if (role === 'client') {
+        setErrorMessage('This is the owner website, please visit the client website');
+        return;
+      }
+
+      // Proceed with login
+      const response = await loginUser({ email, password, role });
       console.log('User logged in successfully:', response);
 
       setUser(response.user); // Set the user context
       localStorage.setItem('token', response.token); // Store the token
-      navigate('/owner/dashboard'); // Redirect to dashboard 
+      navigate('/owner/dashboard'); // Redirect to owner dashboard
     } catch (error) {
       console.error('Error logging in:', error);
       setErrorMessage(error.response?.data?.error || 'Failed to log in');
@@ -34,18 +45,36 @@ const Login = () => {
 
   const handleGoogleLoginSuccess = async (response) => {
     try {
-      const { credential } = response; // Use the credential, which is the ID token
+      console.log('Google login success response:', response);
 
-      // Send the ID token to your backend
-      const googleResponse = await googleLogin({ token: credential });
+      const { credential } = response;
+      console.log('Google ID token:', credential);
 
-      console.log('User logged in successfully with Google:', googleResponse);
+      // Fetch the user's role
+      console.log('Fetching user role for email:', email);
+      const userRoleResponse = await fetchUserRole(email);
+      console.log('User role response:', userRoleResponse);
 
-      setUser(googleResponse.user); // Set the user context
-      setToken(googleResponse.token); // Set the token context
-      localStorage.setItem('token', googleResponse.token); // Store the token
-      navigate('/owner/dashboard'); // Redirect to dashboard
+      const role = userRoleResponse.role;
+      console.log('User role:', role);
 
+      // Check if the role is client
+      if (role === 'client') {
+        setErrorMessage('This is the owner website, please visit the client website');
+        return;
+      }
+
+      // Send the ID token and role to your backend
+      console.log('Sending ID token and role to backend');
+      const googleResponse = await googleLogin({ token: credential, role });
+      console.log('Google login backend response:', googleResponse);
+
+      setUser(googleResponse.user);
+      setToken(googleResponse.token);
+      localStorage.setItem('token', googleResponse.token);
+
+      console.log('User set in context and token stored in localStorage');
+      navigate('/owner/dashboard');
     } catch (error) {
       console.error('Error logging in with Google:', error);
       setErrorMessage('Failed to log in with Google');
@@ -101,6 +130,7 @@ const Login = () => {
           <Link to="/owner/contact-us?subject=Forgot Password" className="forgot-password-link">
             Forgot your password?
           </Link>
+          {/*
           <div className="login-divider">Or log in with</div>
           <div className="google-login-wrapper">
             <GoogleLogin
@@ -117,6 +147,7 @@ const Login = () => {
               )}
             />
           </div>
+                  */}
         </div>
         <div className="create-account-container">
           <h2 className="signup-title">Create your new account</h2>

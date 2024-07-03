@@ -4,7 +4,6 @@ import { fetchProfile, updateProfile } from '../services/api';
 import AuthContext from '../contexts/AuthContext';
 import { WebSocketContext } from '../contexts/WebSocketContext';
 import '../assets/styles/MyProfile.css';
-// import profilePic from '../assets/icons/profilePic.png';
 
 const MyProfile = () => {
   const [profileData, setProfileData] = useState({});
@@ -22,7 +21,7 @@ const MyProfile = () => {
     const fetchProfileData = async () => {
       try {
         const response = await fetchProfile();
-        console.log('Profile data:', response);
+        console.log('Fetched profile data:', response);
         setProfileData(response.user);
         setRestaurantData(response.restaurant || {});
         setNewProfileName(response.user.name || '');
@@ -37,11 +36,12 @@ const MyProfile = () => {
 
   useEffect(() => {
     const profileUpdateHandler = (data) => {
-      console.log('Profile updated:', data);
+      console.log('Profile updated via WebSocket:', data);
       setProfileData(data.user);
       setRestaurantData(data.restaurant || {});
       setNewProfileName(data.user.name || '');
       setNewRestaurantName(data.restaurant?.name || '');
+      setRestaurantImage(data.restaurantImage); // Reset the image input field
       setSuccess('Profile updated via WebSocket');
     };
 
@@ -96,9 +96,9 @@ const MyProfile = () => {
           <h3 className="profile-name">{`Profile Name: ${profileData.name}`}</h3>
           <p className="profile-email">{`Profile Email: ${profileData.email}`}</p>
         </div>
-        {restaurantData.image && (
+        {restaurantData.img && (
           <div className="restaurant-image-container">
-            <img src={`data:image/jpeg;base64,${restaurantData.image}`} alt="Restaurant" className="restaurant-image" />
+            <img src={`data:image/${restaurantData.imgExtension};base64,${restaurantData.img}`} alt="Restaurant" className="restaurant-image" />
             <p className="image-label">Restaurant Image</p>
           </div>
         )}

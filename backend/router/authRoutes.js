@@ -7,12 +7,11 @@ import authMiddleware from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 const client = new OAuth2Client(process.env.REACT_APP_GOOGLE_CLIENT_ID);
-
 router.post('/login', async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, role } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).json({ error: 'Please provide both email and password' });
+  if (!email || !password || !role) {
+    return res.status(400).json({ error: 'Please provide email, password, and role' });
   }
 
   try {
@@ -28,7 +27,8 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    if (user.role !== 'owner' && user.role!== "client") {
+    // Check role
+    if (user.role !== role) {
       console.log('Unauthorized access attempt by user:', email, user.role);
       return res.status(403).json({ error: 'Access denied. Unauthorized role.' });
     }
@@ -48,46 +48,53 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Google login route
+
 router.post('/google-login', async (req, res) => {
   const { token } = req.body;
 
+  if (typeof token !== 'string') {
+    console.error('Invalid token format:', token);
+    return res.status(400).json({ error: 'Invalid token format' });
+  }
+
+  console.log('Received Google token:', token); // Debugging line
+
   try {
-    // Verify the token using Google's OAuth2Client
     const ticket = await client.verifyIdToken({
       idToken: token,
       audience: process.env.REACT_APP_GOOGLE_CLIENT_ID,
     });
 
     const payload = ticket.getPayload();
-    const { email, name, sub: googleId, picture: profilePic } = payload;
+    console.log('Google token payload:', payload); // Debugging line
+
+    const { email, name, sub: googleId } = payload;
 
     let user = await User.findOne({ email });
     if (!user) {
-      // If user does not exist, create a new user
       user = new User({
         name: name,
         email: email,
-        role: 'owner'
+        role: 'client', // Default role for client
       });
 
       user = await user.save();
       console.log('User created:', user);
     } else {
       console.log('User already exists:', user);
-    }
 
-    if (user.role !== 'owner') {
-      console.log('Unauthorized access attempt by user:', email);
-      return res.status(403).json({ error: 'Access denied. Unauthorized role.' });
+      // Check if user already has a role, if not assign the default role
+      if (!user.role) {
+        user.role = 'client';
+        await user.save();
+      }
     }
 
     const authToken = jwt.sign({ id: user._id, role: user.role }, 'your_jwt_secret_key', { expiresIn: '1h' });
 
-    // Set token in HTTP-only cookie
     res.cookie('token', authToken, {
       httpOnly: true,
-      secure: false, // Set to true if using HTTPS
+      secure: true, 
       sameSite: 'Strict'
     });
 
@@ -98,19 +105,41 @@ router.post('/google-login', async (req, res) => {
   }
 });
 
+// get a user's role by email
+router.get('/role/:email', async (req, res) => {
+  try {
+    const email = decodeURIComponent(req.params.email);
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.status(200).json({ role: user.role });
+  } catch (err) {
+    console.error('Error fetching user role:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+// Route to delete a user by email
+router.delete('/delete-user', async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOneAndDelete({ email });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.status(200).json({ message: 'User deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting user:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Check whether the user is logged in
 router.get('/check', authMiddleware, (req, res) => {
   res.json({ user: req.user });
-});
-
-// Logout route to clear the user's cookies and log out
-router.post('/logout', (req, res) => {
-  res.clearCookie('token', {
-    httpOnly: true,
-    secure: false,
-    sameSite: 'Strict'
-  });
-  res.status(200).json({ message: 'Logged out successfully' });
 });
 
 export default router;

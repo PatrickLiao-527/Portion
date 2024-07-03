@@ -21,8 +21,34 @@ const handleFileUpload = async (fileBuffer, id) => {
   const extension = fileType.ext ? `.${fileType.ext}` : '';
   const saveTo = path.join('uploads', id + extension);
   fs.writeFileSync(saveTo, Buffer.concat(fileBuffer));
+  console.log(`Uploaded new image: ${saveTo}`);
   return `${id}${extension}`;
 };
+
+const deleteOldImage = (id) => {
+  const extensions = validImageExtensions;
+  for (const ext of extensions) {
+    const filePath = path.join('uploads', `${id}.${ext}`);
+    console.log(`trying to find old image path${filePath}`)
+    if (fs.existsSync(filePath)) {
+      console.log(`Deleting old image: ${filePath}`);
+      fs.unlinkSync(filePath);
+      return filePath;
+    }
+  }
+  console.log('No old image found to delete');
+  return null;
+};
+
+const getImageBase64 = (id, extension) => {
+  const filePath = path.join('uploads', `${id}${extension}`);
+  if (fs.existsSync(filePath)) {
+    console.log(`Fetching image: ${filePath}`);
+    return fs.readFileSync(filePath, 'base64');
+  }
+  return null;
+};
+
 
 const handleBusboy = (req, res, next) => {
   const busboy = Busboy({ headers: req.headers });
@@ -51,32 +77,13 @@ const handleBusboy = (req, res, next) => {
   req.pipe(busboy);
 };
 
-const getImageBase64 = (id, extension) => {
-  const filePath = path.join('uploads', `${id}${extension}`);
-  if (fs.existsSync(filePath)) {
-    return fs.readFileSync(filePath, 'base64');
-  }
-  return null;
-};
-const deleteOldImage = (id) => {
-  const extensions = validImageExtensions;
-  for (const ext of extensions) {
-    const filePath = path.join('uploads', `${id}${ext}`);
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-      console.log(`Deleted old image: ${filePath}`);
-      break;
-    }
-  }
-};
+
 // Signup route
 router.post('/', async (req, res) => {
   try {
-    console.log('Received signup data:', req.body);
     const { name, email, password, role, restaurantName, restaurantCategory } = req.body;
 
     if (!email || !password || !name || !role) {
-      console.log('Missing fields:', { email, password, name, role });
       return res.status(422).json({ error: 'Submit all fields (email, name, password, role)' });
     }
 
@@ -86,7 +93,6 @@ router.post('/', async (req, res) => {
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      console.log('Email already in use:', email);
       return res.status(422).json({ error: 'Email already in use' });
     }
 
@@ -100,7 +106,6 @@ router.post('/', async (req, res) => {
     });
 
     const createdUser = await newUser.save();
-    console.log('User created:', createdUser);
 
     // Generate token
     const token = jwt.sign({ id: createdUser._id, role: createdUser.role }, 'your_jwt_secret_key', { expiresIn: '1h' });
@@ -114,10 +119,12 @@ router.post('/', async (req, res) => {
 
     res.status(201).json({ user: createdUser, token, message: 'User saved successfully' });
   } catch (err) {
-    console.log('Error during signup:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+
+
 // Update user profile
 router.put('/profile', authMiddleware, handleBusboy, async (req, res) => {
   const { formData, fileBuffer } = req;
@@ -131,25 +138,32 @@ router.put('/profile', authMiddleware, handleBusboy, async (req, res) => {
 
     user.name = name || user.name;
 
-    let restaurant = null;
-    if (user.role === 'owner') {
-      restaurant = await Restaurant.findOne({ ownerId: user._id });
-      if (!restaurant) {
-        restaurant = new Restaurant({ ownerId: user._id, name: restaurantName, category: restaurantCategory });
-      }
+    let restaurant = await Restaurant.findOne({ ownerId: user._id });
+    if (!restaurant) {
+      restaurant = new Restaurant({ ownerId: user._id, name: restaurantName, category: restaurantCategory });
+    } else {
       restaurant.name = restaurantName || restaurant.name;
       restaurant.category = restaurantCategory || restaurant.category;
+    }
 
-      if (fileBuffer.length > 0) {
-        // Delete old image if it exists
-        deleteOldImage(restaurant._id.toString());
-
-        // Upload new image
-        const fileName = await handleFileUpload(fileBuffer, restaurant._id.toString());
-        restaurant.img = fileName;
+    let newImageExtension = null;
+    if (fileBuffer.length > 0) {
+      // Delete old image if it exists
+      const oldImagePath = deleteOldImage(restaurant._id.toString());
+      if (oldImagePath) {
+        console.log(`Old image deleted: ${oldImagePath}`);
+      } else {
+        console.log('No old image found to delete');
       }
 
-      await restaurant.save();
+      // Upload new image
+      const fileName = await handleFileUpload(fileBuffer, restaurant._id.toString());
+      newImageExtension = fileName.split('.').pop(); // Set the new image extension
+
+      restaurant.img = fileName; // Update the restaurant document with the new image path
+      restaurant.imgExtension = newImageExtension; 
+
+      console.log(`New image uploaded and updated in database: ${fileName}`);
     }
 
     if (newPassword) {
@@ -157,19 +171,34 @@ router.put('/profile', authMiddleware, handleBusboy, async (req, res) => {
       user.password = await bcrypt.hash(newPassword, salt);
     }
 
-    await user.save();
-    const restaurantWithImage = restaurant ? {
-      ...restaurant.toObject(),
-      image: getImageBase64(restaurant._id, '.jpg') || getImageBase64(restaurant._id, '.png') || null
-    } : null;
-    res.json({ message: 'Profile updated successfully', user, restaurant: restaurantWithImage });
+    user.restaurantName = restaurant.name; // Ensure user restaurantName is updated
 
+    await restaurant.save();
+    await user.save();
+
+    // Fetch the latest image info using the same logic as get /restaurants
+    const extension = newImageExtension || validImageExtensions.find(ext => fs.existsSync(path.join('uploads', `${restaurant._id}.${ext}`)));
+    const imageBase64 = extension ? getImageBase64(restaurant._id, `.${extension}`) : null;
+
+    const restaurantWithImage = {
+      ...restaurant.toObject(),
+      img: imageBase64,
+      imgExtension: extension
+    };
+
+    console.log('Updated profile with image:', {
+      restaurantId: restaurant._id,
+      imgExtension: restaurantWithImage.imgExtension
+    });
+
+    res.json({ message: 'Profile updated successfully', user, restaurant: restaurantWithImage });
     broadcast('profileUpdated', { user, restaurant: restaurantWithImage });
   } catch (err) {
-    console.error('Error updating profile:', err);
+    console.error('Error updating profile:', err.message);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
 
 // Get user profile
 router.get('/profile', authMiddleware, async (req, res) => {
@@ -179,83 +208,87 @@ router.get('/profile', authMiddleware, async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
     const restaurant = await Restaurant.findOne({ ownerId: user._id });
+    const imageInfo = restaurant ? getImageBase64(restaurant._id) : null;
+
+    if (imageInfo) {
+      console.log(`Fetched image for restaurant ${restaurant._id}: ${imageInfo.extension}`);
+    } else {
+      console.log(`No image found for restaurant ${restaurant._id}`);
+    }
+
     const restaurantWithImage = restaurant ? {
       ...restaurant.toObject(),
-      image: restaurant.img || null
+      img: imageInfo ? imageInfo.data : null,
+      imgExtension: imageInfo ? imageInfo.extension : null
     } : null;
+
+    console.log('Fetched profile with image:', restaurantWithImage);
     res.json({ user, restaurant: restaurantWithImage });
   } catch (err) {
-    console.log(err);
+    console.error('Error fetching profile:', err.message);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
 
-// Find all users
-router.get('/', async (req, res) => {
+// Get a specific restaurant by ID
+router.get('/:id', authMiddleware, async (req, res) => {
   try {
-    const users = await User.find({});
-    res.json(users);
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ error: 'Internal server error' });
+    const restaurant = await Restaurant.findById(req.params.id);
+
+    if (!restaurant) {
+      return res.status(404).json({ message: 'Restaurant not found' });
+    }
+
+    if (restaurant.ownerId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Not authorized to view this restaurant' });
+    }
+
+    const imageInfo = getImageBase64(restaurant._id);
+    res.status(200).json({ ...restaurant.toObject(), img: imageInfo ? imageInfo.data : null, imgExtension: imageInfo ? imageInfo.extension : null });
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error' });
   }
 });
 
-// Query one user by id
-router.get('/:id', async (req, res) => {
+// Get menu items for a specific restaurant
+router.get('/:restaurantId/menu-items', async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+    const { restaurantId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(restaurantId)) {
+      return res.status(400).json({ message: 'Invalid restaurant ID' });
     }
-    res.json(user);
+
+    const menuItems = await Menu.find({ ownerId: restaurantId });
+
+    const menuItemsWithImages = menuItems.map(menuItem => {
+      const imageInfo = getImageBase64(menuItem._id);
+      return {
+        ...menuItem.toObject(),
+        image: imageInfo ? imageInfo.data : null,
+        imageExtension: imageInfo ? imageInfo.extension : null
+      };
+    });
+
+    return res.status(200).json({ length: menuItemsWithImages.length, data: menuItemsWithImages });
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ message: err.message });
   }
 });
 
-// Update one user
-router.put('/:id', async (req, res) => {
+// Get a restaurant by name (public access)
+router.get('/name/:name', async (req, res) => {
   try {
-    const { name, email, password, restaurantName, restaurantCategory } = req.body;
-    const user = await User.findById(req.params.id);
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+    const restaurant = await Restaurant.findOne({ name: req.params.name });
+
+    if (!restaurant) {
+      return res.status(200).json({ exists: false, message: 'Restaurant not found' });
     }
 
-    user.name = name || user.name;
-    user.email = email || user.email;
-    user.restaurantName = restaurantName || user.restaurantName;
-    user.restaurantCategory = restaurantCategory || user.restaurantCategory;
-    if (password) {
-      const salt = await bcrypt.genSalt(10);
-      user.password = await bcrypt.hash(password, salt);
-      user.salt = salt;
-    }
-
-    await user.save();
-    res.json({ message: 'User updated successfully' });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// Delete user
-router.delete('/:id', async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id);
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    await user.remove();
-    res.json({ message: 'User deleted successfully' });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(200).json({ exists: true, restaurant });
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error' });
   }
 });
 

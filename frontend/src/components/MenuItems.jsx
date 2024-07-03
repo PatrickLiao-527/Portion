@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
-import { fetchMenuItems } from '../services/api';
+import { fetchOwnerMenuItems } from '../services/api';
 import TableWidget from './TableWidget';
 import AddMenuItem from './AddMenuItem';
 import editIcon from '../assets/icons/edit_icon.svg';
@@ -15,7 +15,7 @@ const MenuItems = () => {
 
   useEffect(() => {
     setLoading(true);
-    fetchMenuItems()
+    fetchOwnerMenuItems()
       .then((response) => {
         const transformedData = response.data.map(item => transformItem(item));
         setMenus(transformedData);

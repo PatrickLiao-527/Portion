@@ -1,4 +1,5 @@
-const BASE_URL = process.env.REACT_APP_BASE_URL || 'http://localhost:5555/api';
+import axios from 'axios';
+const BASE_URL = process.env.REACT_APP_BASE_URL || 'http://localhost:5555';
 
 /**
  * Helper function to handle fetch requests.
@@ -33,76 +34,180 @@ const fetchData = async (endpoint, options = {}) => {
  * Fetch all restaurants.
  * @returns {Promise<Object[]>} - A list of restaurants.
  */
-export const fetchRestaurants = () => fetchData('/restaurants');
+export const fetchRestaurants = async () => {
+  try {
+    return await fetchData('/restaurants');
+  } catch (error) {
+    console.error('Error fetching restaurants:', error);
+    throw error;
+  }
+};
 
 /**
  * Fetch a restaurant by its ID.
  * @param {string} restaurantId - The ID of the restaurant.
  * @returns {Promise<Object>} - The restaurant data.
  */
-export const fetchRestaurantById = (restaurantId) => fetchData(`/restaurants/${restaurantId}`);
+export const fetchRestaurantById = async (restaurantId) => {
+  try {
+    return await fetchData(`/restaurants/${restaurantId}`);
+  } catch (error) {
+    console.error(`Error fetching restaurant by ID: ${restaurantId}`, error);
+    throw error;
+  }
+};
 
 /**
  * Fetch menu items for a restaurant by its ID.
  * @param {string} restaurantId - The ID of the restaurant.
  * @returns {Promise<Object[]>} - A list of menu items.
  */
-export const fetchMenuItems = (restaurantId) => fetchData(`/restaurants/${restaurantId}/menu-items`);
+export const fetchMenuItems = async (restaurantId) => {
+  try {
+    return await fetchData(`/restaurants/${restaurantId}/menu-items`);
+  } catch (error) {
+    console.error(`Error fetching menu items for restaurant ID: ${restaurantId}`, error);
+    throw error;
+  }
+};
 
 /**
  * Create a new order.
  * @param {Object} orderData - The order data.
  * @returns {Promise<Object>} - The created order.
  */
-export const createOrder = (orderData) => fetchData('/orders', { method: 'POST', body: JSON.stringify(orderData) });
+export const createOrder = async (orderData) => {
+  try {
+    return await fetchData('/orders', { method: 'POST', body: JSON.stringify(orderData) });
+  } catch (error) {
+    console.error('Error creating order:', error);
+    throw error;
+  }
+};
 
 /**
  * Fetch all categories.
  * @returns {Promise<Object[]>} - A list of categories.
  */
-export const fetchCategories = () => fetchData('/categories');
+export const fetchCategories = async () => {
+  try {
+    return await fetchData('/categories');
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    throw error;
+  }
+};
 
 /**
  * Sign up a new user.
  * @param {Object} userData - The user data.
  * @returns {Promise<Object>} - The created user.
  */
-export const signupUser = (userData) => fetchData('/signup', { method: 'POST', body: JSON.stringify(userData) });
+export const signupUser = async (userData) => {
+  try {
+    return await fetchData('/signup', { method: 'POST', body: JSON.stringify(userData) });
+  } catch (error) {
+    console.error('Error signing up user:', error);
+    throw error;
+  }
+};
 
 /**
  * Log in a user.
  * @param {Object} userData - The user data.
  * @returns {Promise<Object>} - The logged-in user.
  */
-export const loginUser = (userData) => fetchData('/auth/login', { method: 'POST', body: JSON.stringify(userData) });
+export const loginUser = async (userData) => {
+  try {
+    return await fetchData('/auth/login', { method: 'POST', body: JSON.stringify(userData) });
+  } catch (error) {
+    console.error('Error logging in user:', error);
+    throw error;
+  }
+};
 
 /**
  * Send a contact message.
  * @param {Object} contactData - The contact message data.
  * @returns {Promise<Object>} - The response data.
  */
-export const sendContactMessage = (contactData) => fetchData('/contact', { method: 'POST', body: JSON.stringify(contactData) });
+export const sendContactMessage = async (contactData) => {
+  try {
+    const response = await fetch(`${BASE_URL}/contact`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(contactData)
+    });
+
+    const contentType = response.headers.get('content-type');
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    if (contentType && contentType.indexOf('application/json') !== -1) {
+      const data = await response.json();
+      return data;
+    } else {
+      const text = await response.text();
+      console.log('Received non-JSON response:', text);
+      return { message: text };
+    }
+  } catch (error) {
+    console.error('Error sending contact message:', error);
+    throw error;
+  }
+};
 
 /**
  * Fetch orders for a user by their email.
  * @param {string} email - The email of the user.
  * @returns {Promise<Object[]>} - A list of orders.
  */
-export const fetchUserOrders = (email) => fetchData(`/orders/customer/${encodeURIComponent(email)}`);
+export const fetchUserOrders = async (email) => {
+  try {
+    return await fetchData(`/orders/customer/${encodeURIComponent(email)}`);
+  } catch (error) {
+    console.error(`Error fetching orders for email: ${email}`, error);
+    throw error;
+  }
+};
 
 /**
  * Cancel an order by its ID.
  * @param {string} orderId - The ID of the order.
  * @returns {Promise<Object>} - The updated order.
  */
-export const cancelOrder = (orderId) => fetchData(`/orders/${orderId}/status`, { method: 'PATCH', body: JSON.stringify({ status: 'Cancelled' }) });
+export const cancelOrder = async (orderId) => {
+  try {
+    return await fetchData(`/orders/${orderId}/status`, { method: 'PATCH', body: JSON.stringify({ status: 'Cancelled' }) });
+  } catch (error) {
+    console.error(`Error canceling order ID: ${orderId}`, error);
+    throw error;
+  }
+};
 
 /**
  * Add a new menu item.
- * @param {Object} menuItem - The menu item data.
+ * @param {FormData} menuItem - The menu item data.
  * @returns {Promise<Object>} - The created menu item.
  */
-export const addMenuItem = (menuItem) => fetchData('/menu-items', { method: 'POST', body: JSON.stringify(menuItem) });
+export const addMenuItem = async (menuItem) => {
+  try {
+    const response = await axios.post(`${BASE_URL}/menus`, menuItem, {
+      withCredentials: true,
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Error adding menu item:', error);
+    throw error;
+  }
+};
 
 /**
  * Update a menu item by its ID.
@@ -110,20 +215,47 @@ export const addMenuItem = (menuItem) => fetchData('/menu-items', { method: 'POS
  * @param {Object} menuItem - The updated menu item data.
  * @returns {Promise<Object>} - The updated menu item.
  */
-export const updateMenuItem = (itemId, menuItem) => fetchData(`/menu-items/${itemId}`, { method: 'PUT', body: JSON.stringify(menuItem) });
+export const updateMenuItem = async (itemId, formData) => {
+  try {
+    const response = await axios.put(`${BASE_URL}/menus/${itemId}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    console.error(`Error updating menu item ID: ${itemId}`, error);
+    throw error;
+  }
+};
 
 /**
  * Delete a menu item by its ID.
  * @param {string} itemId - The ID of the menu item.
  * @returns {Promise<Object>} - The response data.
  */
-export const deleteMenuItem = (itemId) => fetchData(`/menu-items/${itemId}`, { method: 'DELETE' });
+export const deleteMenuItem = async (itemId) => {
+  try {
+    return await fetchData(`/menus/${itemId}`, { method: 'DELETE' });
+  } catch (error) {
+    console.error(`Error deleting menu item ID: ${itemId}`, error);
+    throw error;
+  }
+};
 
 /**
  * Fetch all orders.
  * @returns {Promise<Object[]>} - A list of orders.
  */
-export const fetchOrders = () => fetchData('/orders');
+export const fetchOrders = async () => {
+  try {
+    return await fetchData('/orders', { headers: { 'Content-Type': 'application/json' } });
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    throw error;
+  }
+};
 
 /**
  * Update the status of an order by its ID.
@@ -131,34 +263,80 @@ export const fetchOrders = () => fetchData('/orders');
  * @param {string} status - The new status of the order.
  * @returns {Promise<Object>} - The updated order.
  */
-export const updateOrderStatus = (orderId, status) => fetchData(`/orders/${orderId}/status`, { method: 'PATCH', body: JSON.stringify({ status }) });
+export const updateOrderStatus = async (orderId, status) => {
+  try {
+    return await fetchData(`/orders/${orderId}/status`, { method: 'PATCH', body: JSON.stringify({ status }) });
+  } catch (error) {
+    console.error(`Error updating order status for order ID: ${orderId}`, error);
+    throw error;
+  }
+};
 
 /**
  * Fetch the profile of the logged-in user.
  * @returns {Promise<Object>} - The profile data.
  */
-export const fetchProfile = () => fetchData('/signup/profile');
+export const fetchProfile = async () => {
+  try {
+    return await fetchData('/signup/profile', { headers: { 'Content-Type': 'application/json' } });
+  } catch (error) {
+    console.error('Error fetching profile:', error);
+    throw error;
+  }
+};
 
 /**
  * Update the profile of the logged-in user.
- * @param {Object} profileData - The updated profile data.
+ * @param {FormData} profileData - The updated profile data.
  * @returns {Promise<Object>} - The updated profile.
  */
-export const updateProfile = (profileData) => fetchData('/signup/profile', { method: 'PUT', body: JSON.stringify(profileData) });
+export const updateProfile = async (profileData) => {
+  try {
+    const response = await axios.put(`${BASE_URL}/signup/profile`, profileData, {
+      withCredentials: true,
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    throw error;
+  }
+};
 
 /**
  * Fetch a restaurant by its name.
  * @param {string} restaurantName - The name of the restaurant.
  * @returns {Promise<Object>} - The restaurant data.
  */
-export const fetchRestaurantByName = (restaurantName) => fetchData(`/restaurants/name/${restaurantName}`);
+export const fetchRestaurantByName = async (restaurantName) => {
+  try {
+    const response = await fetchData(`/restaurants/name/${encodeURIComponent(restaurantName)}`);
+    if (!response.exists) {
+      return { exists: false, message: response.message };
+    }
+    return { exists: true, restaurant: response.restaurant };
+  } catch (error) {
+    console.error(`Error fetching restaurant by name: ${restaurantName}`, error);
+    throw error;
+  }
+};
 
 /**
  * Create a new category.
  * @param {string} categoryName - The name of the category.
  * @returns {Promise<Object>} - The created category.
  */
-export const createCategory = (categoryName) => fetchData('/categories', { method: 'POST', body: JSON.stringify({ name: categoryName }) });
+export const createCategory = async (categoryName) => {
+  try {
+    return await fetchData('/categories', { method: 'POST', body: JSON.stringify({ name: categoryName }) });
+  } catch (error) {
+    console.error('Error creating category:', error);
+    throw error;
+  }
+};
 
 /**
  * Create a new restaurant.
@@ -167,23 +345,74 @@ export const createCategory = (categoryName) => fetchData('/categories', { metho
  * @param {string} ownerId - The ID of the owner.
  * @returns {Promise<Object>} - The created restaurant.
  */
-export const createRestaurant = (restaurantName, category, ownerId) => fetchData('/restaurants', { method: 'POST', body: JSON.stringify({ name: restaurantName, category, ownerId }) });
+export const createRestaurant = async (restaurantName, category, ownerId) => {
+  try {
+    return await fetchData('/restaurants', { method: 'POST', body: JSON.stringify({ name: restaurantName, category, ownerId }) });
+  } catch (error) {
+    console.error('Error creating restaurant:', error);
+    throw error;
+  }
+};
 
 /**
  * Log in a user with Google.
  * @param {string} token - The Google token.
  * @returns {Promise<Object>} - The logged-in user.
  */
-export const googleLogin = (token) => fetchData('/auth/google-login', { method: 'POST', body: JSON.stringify({ token }) });
+export const googleLogin = async (token) => {
+  try {
+    return await fetchData('/auth/google-login', { method: 'POST', body: JSON.stringify({ token }) });
+  } catch (error) {
+    console.error('Error logging in with Google:', error);
+    throw error;
+  }
+};
 
 /**
  * Check if the user is authenticated.
  * @returns {Promise<Object>} - The authentication data.
  */
-export const checkAuth = () => fetchData('/auth/check');
+export const checkAuth = async () => {
+  try {
+    return await fetchData('/auth/check');
+  } catch (error) {
+    console.error('Error checking authentication:', error);
+    throw error;
+  }
+};
 
 /**
  * Log out the current user.
  * @returns {Promise<Object>} - The response data.
  */
-export const logoutUser = () => fetchData('/auth/logout', { method: 'POST' });
+export const logoutUser = async () => {
+  try {
+    return await fetchData('/auth/logout', { method: 'POST' });
+  } catch (error) {
+    console.error('Error logging out user:', error);
+    throw error;
+  }
+};
+/**
+ * Fetch menu items for the owner.
+ * @returns {Promise<Object[]>} - A list of menu items.
+ */
+export const fetchOwnerMenuItems = async () => {
+  try {
+    const response = await axios.get(`${BASE_URL}/menus`, { withCredentials: true });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching owner menu items:', error);
+    throw error;
+  }
+};
+
+export const fetchUserRole = async (email) => {
+  try {
+    const response = await fetchData(`/auth/role/${encodeURIComponent(email)}`);
+    return response;
+  } catch (error) {
+    console.error('Error fetching user role:', error);
+    throw error;
+  }
+};

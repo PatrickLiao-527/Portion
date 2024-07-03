@@ -14,7 +14,7 @@ export const WebSocketProvider = ({ children }) => {
       return;
     }
 
-    const ws = new WebSocket(wsUrl);
+    const ws = new WebSocket(wsUrl); 
     ws.onopen = () => {
       console.log('WebSocket connection established');
     };

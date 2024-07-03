@@ -32,48 +32,58 @@ const EditItem = ({ item, setItems, onClose }) => {
       ...prevItem,
       [name]: value,
     }));
+    console.log(`Updated ${name} to ${value}`);
   };
 
-  const handleSaveItem = async (e) => {
-    e.preventDefault();
+const handleSaveItem = async (e) => {
+  e.preventDefault();
 
-    if (currentItem.carbsPrice <= 0 || currentItem.proteinsPrice <= 0 || currentItem.baseFat <= 0) {
-      setErrorMessage('$/carbs, $/proteins, and base fat cannot be zero or less.');
-      return;
-    }
+  console.log('Saving item:', currentItem);
 
-    const formData = new FormData();
-    for (const key in currentItem) {
-      if (currentItem.hasOwnProperty(key)) {
-        formData.append(key, currentItem[key]);
-      }
-    }
+  if (currentItem.carbsPrice <= 0 || currentItem.proteinsPrice <= 0 || currentItem.baseFat <= 0) {
+    setErrorMessage('$/carbs, $/proteins, and base fat cannot be zero or less.');
+    console.log('Validation failed:', { carbsPrice: currentItem.carbsPrice, proteinsPrice: currentItem.proteinsPrice, baseFat: currentItem.baseFat });
+    return;
+  }
 
-    if (selectedFile) {
-      formData.append('itemPicture', selectedFile);
-    }
+  const formData = new FormData();
+  formData.append('itemName', currentItem.itemName);
+  formData.append('carbsPrice', currentItem.carbsPrice);
+  formData.append('proteinsPrice', currentItem.proteinsPrice);
+  formData.append('baseFat', currentItem.baseFat);
+  formData.append('proteinType', currentItem.proteinType);
 
-    try {
-      const updatedItem = await updateMenuItem(currentItem._id, formData);
-      setItems((prevItems) =>
-        prevItems.map((item) =>
-          item._id === currentItem._id
-            ? {
-                ...updatedItem,
-                carbsPrice: `$${updatedItem.carbsPrice}`,
-                proteinsPrice: `$${updatedItem.proteinsPrice}`,
-                baseFat: `${updatedItem.baseFat} gram(s)`,
-                itemPicture: updatedItem.image ? `data:image/${updatedItem.imageExtension};base64,${updatedItem.image}` : null,
-              }
-            : item
-        )
-      );
+  if (selectedFile) {
+    formData.append('itemPicture', selectedFile);
+  }
 
-      onClose(); // Automatically close the modal
-    } catch (error) {
-      console.error('Error updating item:', error);
-    }
-  };
+  for (let pair of formData.entries()) {
+    console.log(`${pair[0]}: ${pair[1]}`);
+  }
+
+  try {
+    const updatedItem = await updateMenuItem(currentItem._id, formData);
+    console.log('Item updated successfully:', updatedItem);
+    setItems((prevItems) =>
+      prevItems.map((item) =>
+        item._id === currentItem._id
+          ? {
+              ...updatedItem,
+              carbsPrice: `$${updatedItem.carbsPrice}`,
+              proteinsPrice: `$${updatedItem.proteinsPrice}`,
+              baseFat: `${updatedItem.baseFat} gram(s)`,
+              itemPicture: updatedItem.image ? `data:image/${updatedItem.imageExtension};base64,${updatedItem.image}` : null,
+            }
+          : item
+      )
+    );
+
+    onClose(); // Automatically close the modal
+  } catch (error) {
+    console.error('Error updating item:', error);
+    setErrorMessage('Error updating item. Please try again.');
+  }
+};
 
   const handleDeleteItem = async () => {
     try {

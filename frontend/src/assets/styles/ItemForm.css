@@ -1,89 +1,148 @@
-.item-form-page {
-    padding: 20px;
-    position: relative;
-  }
-  
-  .item-form-title {
-    font-family: 'Poppins', sans-serif;
-    font-size: 24px;
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 20px;
-  }
-  
-  .form-group {
-    margin-bottom: 15px;
-  }
-  
-  .form-group label {
-    display: block;
-    font-family: 'Poppins', sans-serif;
-    font-size: 16px;
-    margin-bottom: 5px;
-  }
-  
-  .form-group input,
-  .form-group select {
-    width: 100%;
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    font-family: 'Poppins', sans-serif;
-  }
-  
-  .form-buttons {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
-  }
-  .error-message-forms{
-    font-family: 'Poppins', sans-serif;
-    font-size: 16px;
-    font-weight: 600;
-    color: #ff4f4f;
-  }
-  
-  .save-button,
-  .delete-button,
-  .go-back-button {
-    width: 10%;
-    padding: 10px;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    font-family: 'Poppins', sans-serif;
-    font-weight: 600;
-    margin-right: 10px;
-  }
-  
-  .save-button {
-    background-color: #69C79F;
-    color: #111111;
-  }
-  
-  .delete-button {
-    background-color: #ff4f4f;
-    color: #111111;
-  }
-  
-  .go-back-button {
-    background-color: #007bff;
-    color: #111111;
-  }
-  
-  /* Hide scrollbar in the inner modal */
-  .modal-content {
-    max-height: 90vh; /* Adjust as needed */
-    overflow: hidden;
-    padding-right: 15px; /* To avoid content shifting */
-  }
-  
-  .modal-content::-webkit-scrollbar {
-    display: none;
-  }
-  
-  .modal-content {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
-  }
-  
+.itemFormPage {
+  padding: 20px;
+  position: relative;
+}
+
+.itemFormTitle {
+  font-family: 'Poppins', sans-serif;
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.formGroup {
+  margin-bottom: 15px;
+}
+
+.formGroup label {
+  display: inline-block;
+  width: 120px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  margin-right: 10px;
+  white-space: nowrap;
+}
+
+.formGroup input,
+.formGroup select {
+  flex: 1;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-family: 'Poppins', sans-serif;
+  width: 40%;
+}
+
+.formRow {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  gap: 120px;
+}
+
+.formRow .formGroup {
+  flex: 1;
+  margin-right: 10px;
+}
+
+.formRow .formGroup:last-child {
+  margin-right: 0;
+}
+
+.ingredientList {
+  display: flex;
+  flex-direction: column;
+  margin-left: 20px;
+  flex: 2; /* Occupy more space */
+}
+
+.ingredientItem {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.ingredientItem input {
+  margin-right: 10px;
+}
+
+.ingredientItem button {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  background-color: #ff4f4f;
+  color: #fff;
+  cursor: pointer;
+}
+
+.allergicInfo {
+  display: flex;
+  flex-direction: column;
+  margin-top: 10px;
+}
+
+.allergicItem {
+  margin-bottom: 5px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  background-color: #f0f0f0;
+  cursor: pointer;
+}
+
+.formButtons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.errorMessageForms {
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ff4f4f;
+}
+
+.saveButton,
+.deleteButton,
+.goBackButton {
+  width: 10%;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  margin-right: 10px;
+}
+
+.saveButton {
+  background-color: #69C79F;
+  color: #111111;
+}
+
+.deleteButton {
+  background-color: #ff4f4f;
+  color: #111111;
+}
+
+.goBackButton {
+  background-color: #007bff;
+  color: #111111;
+}
+
+/* Hide scrollbar in the inner modal */
+.modalContent {
+  max-height: 90vh;
+  overflow: hidden;
+  padding-right: 15px;
+}
+
+.modalContent::-webkit-scrollbar {
+  display: none;
+}
+
+.modalContent {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

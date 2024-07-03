@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { fetchOrders } from '../services/api';
+import { fetchOrders, fetchOwnerMenuItems } from '../services/api';
 import Widget from './Widget';
 import Chart from './Chart';
 import TableWidget from './TableWidget';
@@ -13,6 +13,7 @@ const Dashboard = () => {
   const [error, setError] = useState(null);
   const [revenueData, setRevenueData] = useState([]);
   const [ordersChartData, setOrdersChartData] = useState([]);
+  const [menuItems, setMenuItems] = useState([]);
   const { notifications } = useContext(WebSocketContext);
 
   useEffect(() => {
@@ -55,6 +56,14 @@ const Dashboard = () => {
         console.error('Failed to load orders:', error);
         setError('Failed to load orders');
         setLoading(false);
+      });
+
+    fetchOwnerMenuItems()
+      .then((menuItems) => {
+        setMenuItems(menuItems);
+      })
+      .catch((error) => {
+        console.error('Failed to load menu items:', error);
       });
   }, []);
 
@@ -134,7 +143,7 @@ const Dashboard = () => {
       <div className="widgets">
         <Widget title="Total Revenue" value={`$${revenueData.reduce((acc, item) => acc + item.revenue, 0).toFixed(2)}`} />
         <Widget title="Total Orders" value={orders.length} />
-        <Widget title="Total Menu Items" value="12" />
+        <Widget title="Total Menu Items" value={menuItems.length} />
       </div>
       <Chart title="Total Revenue" data={revenueData} dataKey="revenue" yAxisLabel="Revenue" />
       <Chart title="Total Orders" data={ordersChartData} dataKey="orders" yAxisLabel="Orders" />

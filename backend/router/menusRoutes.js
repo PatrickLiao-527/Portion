@@ -8,6 +8,7 @@ import Busboy from 'busboy';
 import { fileTypeFromBuffer } from 'file-type';
 import { validImageExtensions, validMimeTypes } from '../config.js';
 import fetchImageMiddleware from '../middleware/fetchImageMiddleware.js';
+import { broadcast } from '../websocket.js';
 
 const router = express.Router();
 
@@ -66,6 +67,14 @@ router.post('/', authMiddleware, checkRole('owner'), handleBusboy, async (req, r
       }
     }
 
+    // Convert stringified fields to appropriate types
+    if (formData.allergicInfo) {
+      formData.allergicInfo = JSON.parse(formData.allergicInfo);
+    }
+    if (formData.ingredientList) {
+      formData.ingredientList = JSON.parse(formData.ingredientList);
+    }
+
     const newMenuItem = {
       ...formData,
       ownerId: req.user._id
@@ -86,6 +95,8 @@ router.post('/', authMiddleware, checkRole('owner'), handleBusboy, async (req, r
   }
 });
 
+
+
 router.put('/:id', authMiddleware, checkRole('owner'), handleBusboy, async (req, res) => {
   try {
     const { id } = req.params;
@@ -94,6 +105,14 @@ router.put('/:id', authMiddleware, checkRole('owner'), handleBusboy, async (req,
     const menuItem = await Menu.findById(id);
     if (!menuItem) return res.status(404).json({ message: 'Menu item not found' });
     if (menuItem.ownerId.toString() !== req.user._id.toString()) return res.status(403).json({ message: 'Not authorized to update this menu item' });
+
+    // Convert stringified fields to appropriate types
+    if (formData.allergicInfo) {
+      formData.allergicInfo = JSON.parse(formData.allergicInfo);
+    }
+    if (formData.ingredientList) {
+      formData.ingredientList = JSON.parse(formData.ingredientList);
+    }
 
     Object.assign(menuItem, formData);
 
@@ -109,6 +128,7 @@ router.put('/:id', authMiddleware, checkRole('owner'), handleBusboy, async (req,
     res.status(500).json({ message: error.message });
   }
 });
+
 
 router.get('/', authMiddleware, async (req, res) => {
   try {
@@ -151,5 +171,26 @@ router.get('/image/:_id', fetchImageMiddleware('uploads'), (req, res) => {
     res.status(404).json({ message: 'Image not found' });
   }
 });
+router.delete('/:id', authMiddleware, checkRole('owner'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const menuItem = await Menu.findById(id);
+    if (!menuItem) return res.status(404).json({ message: 'Menu item not found' });
+    if (menuItem.ownerId.toString() !== req.user._id.toString()) return res.status(403).json({ message: 'Not authorized to delete this menu item' });
 
+    const imagePath = path.join('uploads', `${id}${path.extname(menuItem.itemPicture)}`);
+    if (fs.existsSync(imagePath)) {
+      fs.unlinkSync(imagePath);
+    }
+
+    // Broadcast the deletion to all connected clients
+    broadcast({ type: 'ITEM_DELETED', itemId: id });
+
+    await Menu.deleteOne({ _id: id });
+    res.status(200).json({ message: 'Menu item deleted successfully' });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
 export default router;

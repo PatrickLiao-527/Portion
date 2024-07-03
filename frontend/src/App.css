@@ -29,7 +29,7 @@ body, html {
   top: 60px; /* Adjust this based on header height */
   left: 0;
   width: 100%;
-  z-index: 999;
+  z-index:2;
   background-color: white; /* Ensure it covers the content beneath */
 }
 
@@ -43,6 +43,7 @@ body, html {
 .sidebar {
   width: 250px; /* Adjust based on your sidebar width */
   overflow-y: auto;
+  z-index:3;
 }
 
 .content {

@@ -1,10 +1,22 @@
 import express from 'express';
+import path from 'path';
+import fs from 'fs';
 import Restaurant from '../models/restaurantModel.js';
 import Menu from '../models/menuModel.js';
 import mongoose from 'mongoose';
 import authMiddleware from '../middleware/authMiddleware.js';
+import { validImageExtensions, validMimeTypes } from '../config.js';
+import fetchImageMiddleware from '../middleware/fetchImageMiddleware.js';
 
 const router = express.Router();
+
+const getImageBase64 = (id, extension) => {
+  const filePath = path.join('uploads', `${id}${extension}`);
+  if (fs.existsSync(filePath)) {
+    return fs.readFileSync(filePath, 'base64');
+  }
+  return null;
+};
 
 // Create a new restaurant (public access)
 router.post('/', async (req, res) => {
@@ -36,16 +48,22 @@ router.post('/', async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
 // Get all restaurants (public access)
 router.get('/', async (req, res) => {
   try {
     const restaurants = await Restaurant.find();
+
     const restaurantsWithImages = restaurants.map(restaurant => {
+      const extension = validImageExtensions.find(ext => fs.existsSync(path.join('uploads', `${restaurant._id}.${ext}`)));
+      const imageBase64 = extension ? getImageBase64(restaurant._id, `.${extension}`) : null;
       return {
         ...restaurant.toObject(),
-        img: restaurant.img ? `/${restaurant.img}` : null
+        img: imageBase64,
+        imgExtension: extension
       };
     });
+
     res.status(200).json(restaurantsWithImages);
   } catch (error) {
     console.error(error.message);
@@ -66,40 +84,57 @@ router.get('/:id', authMiddleware, async (req, res) => {
       return res.status(403).json({ message: 'Not authorized to view this restaurant' });
     }
 
-    res.status(200).json(restaurant);
+    const extension = validImageExtensions.find(ext => fs.existsSync(path.join('uploads', `${restaurant._id}.${ext}`)));
+    const imageBase64 = extension ? getImageBase64(restaurant._id, `.${extension}`) : null;
+
+    res.status(200).json({ ...restaurant.toObject(), img: imageBase64, imgExtension: extension });
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ message: 'Internal server error' });
   }
 });
 
+// Get menu items for a specific restaurant
 router.get('/:restaurantId/menu-items', async (req, res) => {
   try {
     const { restaurantId } = req.params;
-    //console.log('Received restaurantId:', restaurantId);
 
     if (!mongoose.Types.ObjectId.isValid(restaurantId)) {
       console.log('Invalid restaurant ID');
       return res.status(400).json({ message: 'Invalid restaurant ID' });
     }
 
-    // Log the connection status
-    //console.log('Mongoose connection state:', mongoose.connection.readyState);
-
     const menuItems = await Menu.find({ ownerId: restaurantId });
-    //console.log('Query executed with ownerId:', restaurantId);
-    //console.log('Fetched menu items:', menuItems);
 
-    if (menuItems.length === 0) {
-      console.log('No menu items found for restaurant:', restaurantId);
-    }
+    const menuItemsWithImages = menuItems.map(menuItem => {
+      const extension = validImageExtensions.find(ext => fs.existsSync(path.join('uploads', `${menuItem._id}.${ext}`)));
+      const imageBase64 = extension ? getImageBase64(menuItem._id, `.${extension}`) : null;
+      return {
+        ...menuItem.toObject(),
+        image: imageBase64,
+        imageExtension: extension
+      };
+    });
 
-    return res.status(200).json(menuItems); // Sending the array directly
+    return res.status(200).json({ length: menuItemsWithImages.length, data: menuItemsWithImages });
   } catch (err) {
     console.log('Error fetching menu items:', err.message);
     res.status(500).json({ message: err.message });
   }
 });
+router.get('/image/:_id', fetchImageMiddleware('uploads'), (req, res) => {
+  if (req.imageBase64 && req.imageExtension) {
+    console.log(`Image fetched for menu item: ${req.imagePath}`);
+    res.status(200).json({
+      image: req.imageBase64,
+      extension: req.imageExtension,
+    });
+  } else {
+    console.log(`Image not found for menu item: ${req.params._id}`);
+    res.status(404).json({ message: 'Image not found' });
+  }
+});
+
 
 // Get a restaurant by name (public access)
 router.get('/name/:name', async (req, res) => {

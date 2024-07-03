@@ -67,9 +67,9 @@ app.use('/api/contact', contactRoutes);
 mongoose
   .connect(mongoDBURL)
   .then(() => {
-    console.log('App connected to database');
+   // console.log('App connected to database');
     app.listen(PORT, () => {
-      console.log(`App is listening to port: ${PORT}`);
+      //console.log(`App is listening to port: ${PORT}`);
     });
   })
   .catch((error) => {
